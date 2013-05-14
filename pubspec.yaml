@@ -1,0 +1,5 @@
+name: dartnes
+description: A sample web application
+dependencies:
+  js: any
+  browser: any
