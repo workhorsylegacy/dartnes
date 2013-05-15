@@ -21,19 +21,16 @@ import 'dart:html';
 import 'nes.dart';
 
 class JSNES_DummyUI {
-  var nes;
-  var enable;
-  var updateStatus;
-  var writeAudio;
-  var writeFrame;
+  JSNES_NES nes;
   
-  JSNES_DummyUI(nes) {
+  JSNES_DummyUI(JSNES_NES nes) {
     this.nes = nes;
-    this.enable = () {};
-    this.updateStatus = () {};
-    this.writeAudio = () {};
-    this.writeFrame = () {};
   }
+ 
+  void enable() {}
+  void updateStatus(String s) {}
+  void writeAudio(samples) {}
+  void writeFrame(List<int> buffer, List<int> prevBuffer) {}
 }
 
 class JSNES_UI {
@@ -49,7 +46,6 @@ class JSNES_UI {
   var dynamicaudio;
   
   JSNES_UI(JSNES_NES nes) {
-                var self = this;
                 this.nes = nes;
 
                 this.status = query('#status');
@@ -82,7 +78,7 @@ class JSNES_UI {
                  * ROM loading
                  */
                 this.romSelect = query('#romSelect');
-                this.romSelect.onChange.listen(() {
+                this.romSelect.onChange.listen((event) {
                     this.loadROM();
                 });
                 
@@ -96,7 +92,7 @@ class JSNES_UI {
                     'zoom': query('#zoom')
                 };
 
-                this.buttons['pause'].click(() {
+                this.buttons['pause'].onClick.listen((event) {
                     if (this.nes.isRunning) {
                         this.nes.stop();
                         this.updateStatus("Paused");
@@ -108,12 +104,12 @@ class JSNES_UI {
                     }
                 });
         
-                this.buttons['restart'].click(() {
+                this.buttons['restart'].onClick.listen((event) {
                     this.nes.reloadRom();
                     this.nes.start();
                 });
         
-                this.buttons['sound'].click(() {
+                this.buttons['sound'].onClick.listen((event) {
                     if (this.nes.opts['emulateSound']) {
                         this.nes.opts['emulateSound'] = false;
                         this.buttons['sound'].text = "enable sound";
@@ -125,7 +121,7 @@ class JSNES_UI {
                 });
         
                 this.zoomed = false;
-                this.buttons['zoom'].click(() {
+                this.buttons['zoom'].onClick.listen((event) {
                     if (this.zoomed) {
                       this.screen.width = 256;
                       this.screen.height = 240;
@@ -163,15 +159,15 @@ class JSNES_UI {
 
                 void loadROM() {
                     this.updateStatus("Downloading...");
-                    HttpRequest.getString(url: this.romSelect.value)
-                      .then((String data) {
-                        print(data);
-                        this.nes.loadRom(data);
+                    HttpRequest.request(this.romSelect.value)
+                      .then((xhr) {
+                        print('Response' + xhr.response.length.toString());
+                        this.nes.loadRom(xhr.response);
                         this.nes.start();
                         this.enable();
-                      })
-                      .catchError((Error error) {
-                        print(error);
+                      },
+                      onError: (e) {
+                        print('Error' + e.toString());
                       });
 /*
                     $.ajax({
@@ -213,7 +209,7 @@ class JSNES_UI {
                     this.canvasContext.fillRect(0, 0, 256, 240);
 
                     // Set alpha
-                    for (var i = 3; i < this.canvasImageData.data.length-3; i += 4) {
+                    for (int i = 3; i < this.canvasImageData.data.length-3; i += 4) {
                         this.canvasImageData.data[i] = 0xFF;
                     }
                 }
@@ -246,9 +242,9 @@ class JSNES_UI {
 //                    return this.dynamicaudio.writeInt(samples);
 //                }
             
-                void writeFrame(buffer, prevBuffer) {
-                    var imageData = this.canvasImageData.data;
-                    var pixel, i, j;
+                void writeFrame(List<int> buffer, List<int> prevBuffer) {
+                    List<int> imageData = this.canvasImageData.data;
+                    int pixel, i, j;
 
                     for (i=0; i<256*240; i++) {
                         pixel = buffer[i];

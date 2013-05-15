@@ -12,5 +12,5 @@ import 'ui.dart';
 import 'utils.dart';
 
 main() {
-  var nes = new JSNES_NES({});
+  JSNES_NES nes = new JSNES_NES({});
 }

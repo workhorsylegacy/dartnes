@@ -70,17 +70,17 @@ class JSNES_CPU {
         // Main memory 
         this.mem = new List<int>(0x10000);
         
-        for (var i=0; i < 0x2000; i++) {
+        for (int i=0; i < 0x2000; i++) {
             this.mem[i] = 0xFF;
         }
-        for (var p=0; p < 4; p++) {
-            var i = p*0x800;
+        for (int p=0; p < 4; p++) {
+            int i = p*0x800;
             this.mem[i+0x008] = 0xF7;
             this.mem[i+0x009] = 0xEF;
             this.mem[i+0x00A] = 0xDF;
             this.mem[i+0x00F] = 0xBF;
         }
-        for (var i=0x2001; i < this.mem.length; i++) {
+        for (int i=0x2001; i < this.mem.length; i++) {
             this.mem[i] = 0;
         }
         
@@ -125,9 +125,9 @@ class JSNES_CPU {
     }
     
     // Emulates a single CPU instruction, returns the number of cycles
-    void emulate() {
-        var temp;
-        var add;
+    int emulate() {
+        int temp;
+        int add;
         
         // Check interrupts:
         if(this.irqRequested){
@@ -171,18 +171,18 @@ class JSNES_CPU {
             this.irqRequested = false;
         }
 
-        var opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
-        var cycleCount = (opinf>>24);
-        var cycleAdd = 0;
+        int opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
+        int cycleCount = (opinf>>24);
+        int cycleAdd = 0;
 
         // Find address mode:
-        var addrMode = (opinf >> 8) & 0xFF;
+        int addrMode = (opinf >> 8) & 0xFF;
 
         // Increment PC by number of op bytes:
-        var opaddr = this.REG_PC;
+        int opaddr = this.REG_PC;
         this.REG_PC += ((opinf >> 16) & 0xFF);
         
-        var addr = 0;
+        int addr = 0;
         switch(addrMode){
             case 0:{
                 // Zero Page mode. Use the address given after the opcode, 
@@ -910,7 +910,7 @@ class JSNES_CPU {
                 this.REG_PC = this.pull();
                 this.REG_PC += (this.pull()<<8);
                 if(this.REG_PC==0xFFFF){
-                    return;
+                    return 0;
                 }
                 this.REG_PC--;
                 this.F_NOTUSED = 1;
@@ -928,7 +928,7 @@ class JSNES_CPU {
                 this.REG_PC += (this.pull()<<8);
                 
                 if(this.REG_PC==0xFFFF){
-                    return; // return from NSF play routine:
+                    return 0; // return from NSF play routine:
                 }
                 break;
 
@@ -1096,7 +1096,7 @@ class JSNES_CPU {
 
     }
     
-    int load(addr) {
+    int load(int addr) {
         if (addr < 0x2000) {
             return this.mem[addr & 0x7FF];
         }
@@ -1105,7 +1105,7 @@ class JSNES_CPU {
         }
     }
     
-    int load16bit(addr){
+    int load16bit(int addr){
         if (addr < 0x1FFF) {
             return this.mem[addr&0x7FF] 
                 | (this.mem[(addr+1)&0x7FF]<<8);
@@ -1115,7 +1115,7 @@ class JSNES_CPU {
         }
     }
     
-    void write(addr, val){
+    void write(int addr, int val){
         if(addr < 0x2000) {
             this.mem[addr&0x7FF] = val;
         }
@@ -1124,7 +1124,7 @@ class JSNES_CPU {
         }
     }
 
-    void requestIrq(type){
+    void requestIrq(int type){
         if(this.irqRequested){
             if(type == this.IRQ_NORMAL){
                 return;
@@ -1135,7 +1135,7 @@ class JSNES_CPU {
         this.irqType = type;
     }
 
-    void push(value){
+    void push(int value){
         this.nes.mmap.write(this.REG_SP, value);
         this.REG_SP--;
         this.REG_SP = 0x0100 | (this.REG_SP&0xFF);
@@ -1151,15 +1151,15 @@ class JSNES_CPU {
         return this.nes.mmap.load(this.REG_SP);
     }
 
-    void pageCrossed(addr1, addr2){
+    bool pageCrossed(int addr1, int addr2){
         return ((addr1&0xFF00) != (addr2&0xFF00));
     }
 
-    void haltCycles(cycles){
+    void haltCycles(int cycles){
         this.cyclesToHalt += cycles;
     }
 
-    void doNonMaskableInterrupt(status){
+    void doNonMaskableInterrupt(int status){
         if((this.nes.mmap.load(0x2000) & 128) != 0) { // Check whether VBlank Interrupts are enabled
 
             this.REG_PC_NEW++;
@@ -1178,7 +1178,7 @@ class JSNES_CPU {
         this.REG_PC_NEW--;
     }
 
-    void doIrq(status){
+    void doIrq(int status){
         this.REG_PC_NEW++;
         this.push((this.REG_PC_NEW>>8)&0xFF);
         this.push(this.REG_PC_NEW&0xFF);
@@ -1201,7 +1201,7 @@ class JSNES_CPU {
                 |(this.F_SIGN<<7);
     }
 
-    void setStatus(st){
+    void setStatus(int st){
         this.F_CARRY     = (st   )&1;
         this.F_ZERO      = (st>>1)&1;
         this.F_INTERRUPT = (st>>2)&1;
@@ -1317,9 +1317,9 @@ class JSNES_CPU_OpData {
   List<String> instname;
   List<String> addrDesc;
   List<int> opdata;
-  List cycTable;
+  List<int> cycTable;
   
-  void setOp(inst, op, addr, size, cycles){
+  void setOp(int inst, int op, int addr, int size, int cycles){
     this.opdata[op] = 
         ((inst  &0xFF)    )| 
         ((addr  &0xFF)<< 8)| 
@@ -1328,10 +1328,10 @@ class JSNES_CPU_OpData {
   }
 
     OpData() {
-      this.opdata = new List(256);
+      this.opdata = new List<int>(256);
       
       // Set all to invalid instruction (to detect crashes):
-      for(var i=0;i<256;i++) this.opdata[i]=0xFF;
+      for(int i=0;i<256;i++) this.opdata[i]=0xFF;
       
       // Now fill in all valid opcodes:
       
@@ -1619,7 +1619,7 @@ class JSNES_CPU_OpData {
       ];
       
       
-      this.instname = new List(56);
+      this.instname = new List<String>(56);
       
       // Instruction Names:
       this.instname[ 0] = "ADC";

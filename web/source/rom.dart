@@ -32,19 +32,19 @@ class JSNES_ROM {
   const int CHRROM_MIRRORING = 7;
   
   JSNES_NES nes = null;
-  List<String> mapperName;
-  List header = null;
-  List rom = null;
-  List vrom = null;
+  List<String> mapperName = null;
+  List<int> header = null;
+  List<List<int>> rom = null;
+  List<List<int>> vrom = null;
   List<List<JSNES_PPU_Tile>> vromTile = null;
   
-  var romCount = null;
-  var vromCount = null;
-  var mirroring = null;
-  var batteryRam = null;
-  var trainer = null;
-  var fourScreen = null;
-  var mapperType = null;
+  int romCount = 0;
+  int vromCount = 0;
+  int mirroring = 0;
+  bool batteryRam = false;
+  bool trainer = false;
+  bool fourScreen = false;
+  int mapperType = 0;
   bool valid = false;
   
   JSNES_ROM(JSNES_NES nes) {
@@ -52,7 +52,7 @@ class JSNES_ROM {
     
     this.mapperName = new List<String>(92);
     
-    for (var i=0;i<92;i++) {
+    for (int i=0;i<92;i++) {
         this.mapperName[i] = "Unknown Mapper";
     }
     this.mapperName[ 0] = "Direct Access";
@@ -94,16 +94,16 @@ class JSNES_ROM {
     this.mapperName[91] = "Pirate HK-SF3 chip";
   }
     
-    void load(data) {
-        var i, j, v;
+    void load(String data) {
+        int i, j, v;
         
         if (data.indexOf("NES\x1a") == -1) {
             this.nes.ui.updateStatus("Not a valid NES ROM.");
             return;
         }
-        this.header = new List(16);
+        this.header = new List<int>(16);
         for (i = 0; i < 16; i++) {
-            this.header[i] = data.charCodeAt(i) & 0xFF;
+            this.header[i] = data.codeUnitAt(i) & 0xFF;
         }
         this.romCount = this.header[4];
         this.vromCount = this.header[5]*2; // Get the number of 4kB banks, not 8kB
@@ -116,7 +116,7 @@ class JSNES_ROM {
         if (this.batteryRam)
             this.loadBatteryRam();*/
         // Check whether byte 8-15 are zero's:
-        var foundError = false;
+        bool foundError = false;
         for (i=8; i<16; i++) {
             if (this.header[i] != 0) {
                 foundError = true;
@@ -127,33 +127,33 @@ class JSNES_ROM {
             this.mapperType &= 0xF; // Ignore byte 7
         }
         // Load PRG-ROM banks:
-        this.rom = new List(this.romCount);
-        var offset = 16;
+        this.rom = new List<List<int>>(this.romCount);
+        int offset = 16;
         for (i=0; i < this.romCount; i++) {
-            this.rom[i] = new List(16384);
+            this.rom[i] = new List<int>(16384);
             for (j=0; j < 16384; j++) {
                 if (offset+j >= data.length) {
                     break;
                 }
-                this.rom[i][j] = data.charCodeAt(offset + j) & 0xFF;
+                this.rom[i][j] = data.codeUnitAt(offset + j) & 0xFF;
             }
             offset += 16384;
         }
         // Load CHR-ROM banks:
-        this.vrom = new List(this.vromCount);
+        this.vrom = new List<List<int>>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
-            this.vrom[i] = new List(4096);
+            this.vrom[i] = new List<int>(4096);
             for (j=0; j < 4096; j++) {
                 if (offset+j >= data.length){
                     break;
                 }
-                this.vrom[i][j] = data.charCodeAt(offset + j) & 0xFF;
+                this.vrom[i][j] = data.codeUnitAt(offset + j) & 0xFF;
             }
             offset += 4096;
         }
         
         // Create VROM tiles:
-        this.vromTile = new List(this.vromCount);
+        this.vromTile = new List<List<JSNES_PPU_Tile>>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
             this.vromTile[i] = new List(256);
             for (j=0; j < 256; j++) {
@@ -162,8 +162,8 @@ class JSNES_ROM {
         }
         
         // Convert CHR-ROM banks to tiles:
-        var tileIndex;
-        var leftOver;
+        int tileIndex;
+        int leftOver;
         for (v=0; v < this.vromCount; v++) {
             for (i=0; i < 4096; i++) {
                 tileIndex = i >> 4;

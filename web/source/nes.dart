@@ -42,12 +42,12 @@ class JSNES_NES {
     JSNES_Mapper_0 mmap;
     JSNES_Keyboard keyboard;
     
-    bool isRunning;
+    bool isRunning = false;
     int fpsFrameCount;
     bool limitFrames;
     int lastFrameTime;
     int lastFpsTime;
-    List<int> romData = null;
+    String romData = null;
     JSNES_ROM rom;
     Future frameInterval;
     Future fpsInterval;
@@ -98,19 +98,17 @@ class JSNES_NES {
     }
     
     void start() {
-        var self = this;
-        
         if (this.rom != null && this.rom.valid) {
             if (!this.isRunning) {
                 this.isRunning = true;
                 
                 this.frameInterval = new Future.delayed(const Duration(milliseconds: this.frameTime / 2), () {
-                    self.frame();
+                  this.frame();
                 });
                 this.resetFps();
                 this.printFps();
                 this.fpsInterval = new Future.delayed(const Duration(milliseconds: this.opts['fpsInterval']), () {
-                    self.printFps();
+                  this.printFps();
                 });
             }
         }
@@ -121,11 +119,11 @@ class JSNES_NES {
     
     void frame() {
         this.ppu.startFrame();
-        var cycles = 0;
-        var emulateSound = this.opts['emulateSound'];
-        var cpu = this.cpu;
-        var ppu = this.ppu;
-        var papu = this.papu;
+        int cycles = 0;
+        bool emulateSound = this.opts['emulateSound'];
+        JSNES_CPU cpu = this.cpu;
+        JSNES_PPU ppu = this.ppu;
+        JSNES_PAPU papu = this.papu;
         FRAMELOOP: for (;;) {
             if (cpu.cyclesToHalt == 0) {
                 // Execute a CPU instruction
@@ -214,7 +212,7 @@ class JSNES_NES {
     
     // Loads a ROM file into the CPU and PPU.
     // The ROM file is validated first.
-    void loadRom(data) {
+    void loadRom(String data) {
         if (this.isRunning) {
             this.stop();
         }
@@ -248,13 +246,13 @@ class JSNES_NES {
         this.fpsFrameCount = 0;
     }
     
-    void setFramerate(rate) {
+    void setFramerate(int rate) {
         this.opts['preferredFrameRate']= rate;
         this.frameTime = 1000 / rate;
 //        this.papu.setSampleRate(this.opts['sampleRate'], false);
     }
     
-    void setLimitFrames(limit) {
+    void setLimitFrames(bool limit) {
         this.limitFrames = limit;
         this.lastFrameTime = 0;
     }

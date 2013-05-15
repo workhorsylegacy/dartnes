@@ -41,7 +41,7 @@ class JSNES_PAPU {
   List<int> noiseWavelengthLookup = null;
   List<int> square_table = null;
   List<int> tnd_table = null;
-  List sampleBuffer = null;
+  List<int> sampleBuffer = null;
 
   bool frameIrqEnabled;
   bool frameIrqActive;
@@ -95,7 +95,7 @@ class JSNES_PAPU {
   int maxSample;
   int minSample;
   
-  List panning = null;
+  List<int> panning = null;
   
   JSNES_PAPU(JSNES_NES nes) {
     this.nes = nes;
@@ -120,7 +120,7 @@ class JSNES_PAPU {
     this.noiseWavelengthLookup = null;
     this.square_table = null;
     this.tnd_table = null;
-    this.sampleBuffer = new List(this.bufferSize*2);
+    this.sampleBuffer = new List<int>(this.bufferSize*2);
 
     this.frameIrqEnabled = false;
     this.frameIrqActive = null;
@@ -185,7 +185,7 @@ class JSNES_PAPU {
     this.initDACtables();
     
     // Init sound registers:
-    for (var i = 0; i < 0x14; i++) {
+    for (int i = 0; i < 0x14; i++) {
         if (i == 0x10){
             this.writeReg(0x4010, 0x10);
         }
@@ -249,9 +249,9 @@ class JSNES_PAPU {
         this.minSample = 500000;
     }
 
-    int readReg(address){
+    int readReg(int address){
         // Read 0x4015:
-        var tmp = 0;
+        int tmp = 0;
         tmp |= (this.square1.getLengthStatus()   );
         tmp |= (this.square2.getLengthStatus() <<1);
         tmp |= (this.triangle.getLengthStatus()<<2);
@@ -266,7 +266,7 @@ class JSNES_PAPU {
         return tmp & 0xFFFF;
     }
 
-    void writeReg(address, value){
+    void writeReg(int address, int value){
         if (address >= 0x4000 && address < 0x4004) {
             // Square Wave 1 Control
             this.square1.writeReg(address, value);
@@ -352,7 +352,7 @@ class JSNES_PAPU {
     // channel enable register (0x4015),
     // and when the user enables/disables channels
     // in the GUI.
-    void updateChannelEnable(value){
+    void updateChannelEnable(int value){
         this.channelEnableValue = value&0xFFFF;
         this.square1.setEnabled((value&1) != 0);
         this.square2.setEnabled((value&2) != 0);
@@ -365,7 +365,7 @@ class JSNES_PAPU {
     // twice the cpu speed, so the cycles will be
     // divided by 2 for those counters that are
     // clocked at cpu speed.
-    void clockFrameCounter(nCycles){
+    void clockFrameCounter(int nCycles){
         if (this.initCounter > 0) {
             if (this.initingHardware) {
                 this.initCounter -= nCycles;
@@ -378,7 +378,7 @@ class JSNES_PAPU {
 
         // Don't process ticks beyond next sampling:
         nCycles += this.extraCycles;
-        var maxCycles = this.sampleTimerMax-this.sampleTimer;
+        int maxCycles = this.sampleTimerMax-this.sampleTimer;
         if ((nCycles<<10) > maxCycles) {
 
             this.extraCycles = ((nCycles<<10) - maxCycles)>>10;
@@ -390,11 +390,11 @@ class JSNES_PAPU {
         
         }
     
-        var dmc = this.dmc;
-        var triangle = this.triangle;
-        var square1 = this.square1;
-        var square2 = this.square2;
-        var noise = this.noise;
+        JSNES_PAPU_ChannelDM dmc = this.dmc;
+        JSNES_PAPU_ChannelTriangle triangle = this.triangle;
+        JSNES_PAPU_ChannelSquare square1 = this.square1;
+        JSNES_PAPU_ChannelSquare square2 = this.square2;
+        JSNES_PAPU_ChannelNoise noise = this.noise;
     
         // Clock DMC:
         if (dmc.isEnabled) {
@@ -458,7 +458,7 @@ class JSNES_PAPU {
         }
 
         // Clock noise channel Prog timer:
-        var acc_c = nCycles;
+        int acc_c = nCycles;
         if (noise.progTimerCount-acc_c > 0) {
         
             // Do all cycles at once:
@@ -531,7 +531,7 @@ class JSNES_PAPU {
         }
     }
 
-    void accSample(cycles) {
+    void accSample(int cycles) {
         // Special treatment for triangle channel - need to interpolate.
         if (this.triangle.sampleCondition) {
             this.triValue = ((this.triangle.progTimerCount << 4) /
@@ -621,7 +621,7 @@ class JSNES_PAPU {
     // Samples the channels, mixes the output together,
     // writes to buffer and (if enabled) file.
     void sample(){
-        var sq_index, tnd_index;
+        int sq_index, tnd_index;
         
         if (this.accCount > 0) {
 
@@ -668,7 +668,7 @@ class JSNES_PAPU {
         if (tnd_index >= this.tnd_table.length) {
             tnd_index = this.tnd_table.length - 1;
         }
-        var sampleValueL = this.square_table[sq_index] + 
+        int sampleValueL = this.square_table[sq_index] + 
                 this.tnd_table[tnd_index] - this.dcValue;
 
         // Right channel:
@@ -685,17 +685,17 @@ class JSNES_PAPU {
         if (tnd_index >= this.tnd_table.length) {
             tnd_index = this.tnd_table.length - 1;
         }
-        var sampleValueR = this.square_table[sq_index] + 
+        int sampleValueR = this.square_table[sq_index] + 
                 this.tnd_table[tnd_index] - this.dcValue;
 
         // Remove DC from left channel:
-        var smpDiffL = sampleValueL - this.prevSampleL;
+        int smpDiffL = sampleValueL - this.prevSampleL;
         this.prevSampleL += smpDiffL;
         this.smpAccumL += smpDiffL - (this.smpAccumL >> 10);
         sampleValueL = this.smpAccumL;
         
         // Remove DC from right channel:
-        var smpDiffR     = sampleValueR - this.prevSampleR;
+        int smpDiffR     = sampleValueR - this.prevSampleR;
         this.prevSampleR += smpDiffR;
         this.smpAccumR  += smpDiffR - (this.smpAccumR >> 10);
         sampleValueR = this.smpAccumR;
@@ -713,7 +713,7 @@ class JSNES_PAPU {
         // Write full buffer
         if (this.bufferIndex == this.sampleBuffer.length) {
 //            this.nes.ui.writeAudio(this.sampleBuffer);
-            this.sampleBuffer = new List(this.bufferSize*2);
+            this.sampleBuffer = new List<int>(this.bufferSize*2);
             this.bufferIndex = 0;
         }
 
@@ -725,32 +725,32 @@ class JSNES_PAPU {
 
     }
 
-    int getLengthMax(value){
+    int getLengthMax(int value){
         return this.lengthLookup[value >> 3];
     }
 
-    int getDmcFrequency(value){
+    int getDmcFrequency(int value){
         if (value >= 0 && value < 0x10) {
             return this.dmcFreqLookup[value];
         }
         return 0;
     }
 
-    int getNoiseWaveLength(value){
+    int getNoiseWaveLength(int value){
         if (value >= 0 && value < 0x10) {
             return this.noiseWavelengthLookup[value];
         }
         return 0;
     }
 
-    void setPanning(pos){
-        for (var i = 0; i < 5; i++) {
+    void setPanning(List<int> pos){
+        for (int i = 0; i < 5; i++) {
             this.panning[i] = pos[i];
         }
         this.updateStereoPos();
     }
 
-    void setMasterVolume(value){
+    void setMasterVolume(int value){
         if (value < 0) {
             value = 0;
         }
@@ -845,12 +845,13 @@ class JSNES_PAPU {
     }
 
     void initDACtables(){
-        var value, ival, i;
-        var max_sqr = 0;
-        var max_tnd = 0;
+        double value;
+        int ival, i;
+        int max_sqr = 0;
+        int max_tnd = 0;
         
         this.square_table = new List<int> (32*16);
-        this.tnd_table = new List(204*16);
+        this.tnd_table = new List<int>(204*16);
 
         for (i = 0; i < 32 * 16; i++) {
             value = 95.52 / (8128.0 / (i/16.0) + 100.0);
@@ -878,7 +879,7 @@ class JSNES_PAPU {
         }
     
         this.dacRange = max_sqr+max_tnd;
-        this.dcValue = (int)(this.dacRange/2);
+        this.dcValue = (this.dacRange/2).toInt();
 
     }
 }
@@ -1003,7 +1004,7 @@ class JSNES_PAPU_ChannelDM {
         this.hasSample = true;
     }
 
-    void writeReg(address, value) {
+    void writeReg(int address, int value) {
         if (address == 0x4010) {
         
             // Play mode, DMA Frequency
@@ -1064,7 +1065,7 @@ class JSNES_PAPU_ChannelDM {
         }
     }
 
-    void setEnabled(value) {
+    void setEnabled(bool value) {
         if ((!this.isEnabled) && value) {
             this.playLengthCounter = this.playLength;
         }
@@ -1103,27 +1104,27 @@ class JSNES_PAPU_ChannelDM {
 class JSNES_PAPU_ChannelNoise {
   JSNES_PAPU papu = null;
   
-  var isEnabled = null;
-  var envDecayDisable = null;
-  var envDecayLoopEnable = null;
-  var lengthCounterEnable = null;
-  var envReset = null;
-  var shiftNow = null;
+  bool isEnabled = false;
+  bool envDecayDisable = false;
+  bool envDecayLoopEnable = false;
+  bool lengthCounterEnable = false;
+  bool envReset = false;
+  bool shiftNow = false;
   
-  var lengthCounter = null;
-  var progTimerCount = null;
-  var progTimerMax = null;
-  var envDecayRate = null;
-  var envDecayCounter = null;
-  var envVolume = null;
-  var masterVolume = null;
-  int shiftReg;
-  var randomBit = null;
-  var randomMode = null;
-  var sampleValue = null;
+  int lengthCounter = 0;
+  int progTimerCount = 0;
+  int progTimerMax = 0;
+  int envDecayRate = 0;
+  int envDecayCounter = 0;
+  int envVolume = 0;
+  int masterVolume = 0;
+  int shiftReg = 0;
+  int randomBit = 0;
+  int randomMode = 0;
+  int sampleValue = 0;
   int accValue;
   int accCount;
-  var tmp = null;
+  int tmp = 0;
   
   JSNES_PAPU_ChannelNoise(JSNES_PAPU papu) {
     this.papu = papu;
@@ -1190,7 +1191,7 @@ class JSNES_PAPU_ChannelNoise {
         }
     }
 
-    void writeReg(address, value){
+    void writeReg(int address, int value){
         if(address == 0x400C) {
             // Volume/Envelope decay:
             this.envDecayDisable = ((value&0x10) != 0);
@@ -1213,7 +1214,7 @@ class JSNES_PAPU_ChannelNoise {
         //updateSampleValue();
     }
 
-    void setEnabled(value){
+    void setEnabled(bool value){
         this.isEnabled = value;
         if (!value) {
             this.lengthCounter = 0;
@@ -1228,14 +1229,14 @@ class JSNES_PAPU_ChannelNoise {
 
 
 class JSNES_PAPU_ChannelSquare {
-  const List<int> dutyLookup = [
+  List<int> dutyLookup = [
                      0, 1, 0, 0, 0, 0, 0, 0,
                      0, 1, 1, 0, 0, 0, 0, 0,
                      0, 1, 1, 1, 1, 0, 0, 0,
                      1, 0, 0, 1, 1, 1, 1, 1
   ];
   
-  const List<int> impLookup = [
+  List<int> impLookup = [
                     1,-1, 0, 0, 0, 0, 0, 0,
                     1, 0,-1, 0, 0, 0, 0, 0,
                     1, 0, 0, 0,-1, 0, 0, 0,
@@ -1244,35 +1245,35 @@ class JSNES_PAPU_ChannelSquare {
   
   JSNES_PAPU papu = null;
   
-  var isEnabled = null;
-  var lengthCounterEnable = null;
-  var sweepActive = null;
-  var envDecayDisable = null;
-  var envDecayLoopEnable = null;
-  var envReset = null;
-  var sweepCarry = null;
-  var updateSweepPeriod = null;
+  bool isEnabled = false;
+  bool lengthCounterEnable = false;
+  bool sweepActive = false;
+  bool envDecayDisable = false;
+  bool envDecayLoopEnable = false;
+  bool envReset = false;
+  bool sweepCarry = false;
+  bool updateSweepPeriod = false;
   
-  var progTimerCount = null;
-  var progTimerMax = null;
-  var lengthCounter = null;
-  var squareCounter = null;
-  var sweepCounter = null;
-  var sweepCounterMax = null;
-  var sweepMode = null;
-  var sweepShiftAmount = null;
-  var envDecayRate = null;
-  var envDecayCounter = null;
-  var envVolume = null;
-  var masterVolume = null;
-  var dutyMode = null;
-  var sweepResult = null;
-  var sampleValue = null;
-  var vol = null;
-  var sqr1 = null;
+  int progTimerCount = 0;
+  int progTimerMax = 0;
+  int lengthCounter = 0;
+  int squareCounter = 0;
+  int sweepCounter = 0;
+  int sweepCounterMax = 0;
+  int sweepMode = 0;
+  int sweepShiftAmount = 0;
+  int envDecayRate = 0;
+  int envDecayCounter = 0;
+  int envVolume = 0;
+  int masterVolume = 0;
+  int dutyMode = 0;
+  //var sweepResult = null;
+  int sampleValue = 0;
+  int vol = 0;
+  bool sqr1 = false;
   
-  JSNES_PAPU_ChannelSquare(JSNES_PAPU papu, square1) {
-    this.papu = papu;    
+  JSNES_PAPU_ChannelSquare(JSNES_PAPU papu, bool square1) {
+    this.papu = papu;
     this.sqr1 = square1;
     
     this.reset();
@@ -1371,8 +1372,8 @@ class JSNES_PAPU_ChannelSquare {
         }
     }
 
-    void writeReg(address, value){
-        var addrAdd = (this.sqr1?0:4);
+    void writeReg(int address, int value){
+        int addrAdd = (this.sqr1?0:4);
         if (address == 0x4000 + addrAdd) {
             // Volume/Envelope decay:
             this.envDecayDisable = ((value&0x10) != 0);
@@ -1410,7 +1411,7 @@ class JSNES_PAPU_ChannelSquare {
         }
     }
 
-    void setEnabled(value) {
+    void setEnabled(bool value) {
         this.isEnabled = value;
         if (!value) {
             this.lengthCounter = 0;
@@ -1427,20 +1428,20 @@ class JSNES_PAPU_ChannelSquare {
 class JSNES_PAPU_ChannelTriangle {
   JSNES_PAPU papu = null;
   
-  var isEnabled = null;
-  var sampleCondition = null;
-  var lengthCounterEnable = null;
-  var lcHalt = null;
-  var lcControl = null;
+  bool isEnabled = false;
+  bool sampleCondition = false;
+  bool lengthCounterEnable = false;
+  bool lcHalt = false;
+  bool lcControl = false;
   
-  var progTimerCount = null;
-  var progTimerMax = null;
-  var triangleCounter = null;
-  var lengthCounter = null;
-  var linearCounter = null;
-  var lcLoadValue = null;
-  var sampleValue = null;
-  var tmp = null;
+  int progTimerCount = 0;
+  int progTimerMax = 0;
+  int triangleCounter = 0;
+  int lengthCounter = 0;
+  int linearCounter = 0;
+  int lcLoadValue = 0;
+  int sampleValue = 0;
+  int tmp = 0;
   
   JSNES_PAPU_ChannelTriangle(JSNES_PAPU papu) {
     this.papu = papu;    
@@ -1493,11 +1494,11 @@ class JSNES_PAPU_ChannelTriangle {
         return ((this.lengthCounter == 0 || !this.isEnabled)?0:1);
     }
 
-    void readReg(address){
+    void readReg(int address){
         return 0;
     }
 
-    void writeReg(address, value){
+    void writeReg(int address, int value){
         if (address == 0x4008) {
             // New values for linear counter:
             this.lcControl  = (value&0x80)!=0;
@@ -1523,7 +1524,7 @@ class JSNES_PAPU_ChannelTriangle {
         this.updateSampleCondition();
     }
 
-    void clockProgrammableTimer(nCycles){
+    void clockProgrammableTimer(int nCycles){
         if (this.progTimerMax>0) {
             this.progTimerCount += nCycles;
             while (this.progTimerMax > 0 && 
@@ -1542,7 +1543,7 @@ class JSNES_PAPU_ChannelTriangle {
         this.triangleCounter &= 0x1F;
     }
 
-    void setEnabled(value) {
+    void setEnabled(bool value) {
         this.isEnabled = value;
         if(!value) {
             this.lengthCounter = 0;

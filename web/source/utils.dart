@@ -18,14 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class JSNES_Utils {
     static void copyArrayElements(src, srcPos, dest, destPos, length) {
-        for (var i = 0; i < length; ++i) {
+        for (int i = 0; i < length; ++i) {
             dest[destPos + i] = src[srcPos + i];
         }
     }
     
     static void copyArray(src) {
         var dest = new List(src.length);
-        for (var i = 0; i < src.length; i++) {
+        for (int i = 0; i < src.length; i++) {
             dest[i] = src[i];
         }
         return dest;

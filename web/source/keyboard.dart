@@ -47,7 +47,7 @@ class JSNES_Keyboard {
         }
     }
     
-    void setKey(String key, int value) {
+    bool setKey(String key, int value) {
         switch (key) {
             case 88: this.state1[this.keys['KEY_A']] = value; break;      // X
             case 89: this.state1[this.keys['KEY_B']] = value; break;      // Y (Central European keyboard)

@@ -22,33 +22,37 @@ import 'dart:html';
 import 'nes.dart';
 import 'utils.dart';
 
+// FIXME: Make this a proper interface
 class BaseJSNES_Mapper {
   JSNES_NES nes = null;
-  var joy1StrobeState = 0;
-  var joy2StrobeState = 0;
-  var joypadLastWrite = 0;
+  int joy1StrobeState = 0;
+  int joy2StrobeState = 0;
+  int joypadLastWrite = 0;
   
   bool mousePressed;
   int mouseX = 0;
   int mouseY = 0;
   
-  JSNES_Mappers_0(JSNES_NES nes) {
+  BaseJSNES_Mapper(JSNES_NES nes) {
     this.nes = nes;
   }
 }
 
-class JSNES_Mapper_0 extends BaseJSNES_Mapper {  
+class JSNES_Mapper_0 extends BaseJSNES_Mapper {
+    JSNES_Mapper_0(JSNES_NES nes) : super(nes){
+    }
+  
     void reset() {
         this.joy1StrobeState = 0;
         this.joy2StrobeState = 0;
         this.joypadLastWrite = 0;
         
         this.mousePressed = false;
-        this.mouseX = null;
-        this.mouseY = null;
+        this.mouseX = 0;
+        this.mouseY = 0;
     }
     
-    void write(address, value) {
+    void write(int address, int value) {
         if (address < 0x2000) {
             // Mirroring of RAM:
             this.nes.cpu.mem[address & 0x7FF] = value;
@@ -71,7 +75,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         }
     }
     
-    void writelow(address, value) {
+    void writelow(int address, int value) {
         if (address < 0x2000) {
             // Mirroring of RAM:
             this.nes.cpu.mem[address & 0x7FF] = value;
@@ -106,7 +110,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         }
     }
 
-    int regLoad(address) {
+    int regLoad(int address) {
         switch (address >> 12) { // use fourth nibble (0xF000)
             case 0:
                 break;
@@ -184,11 +188,11 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
                         if (this.mousePressed) {
                         
                             // Check for white pixel nearby:
-                            var sx = max(0, this.mouseX - 4);
-                            var ex = min(256, this.mouseX + 4);
-                            var sy = max(0, this.mouseY - 4);
-                            var ey = min(240, this.mouseY + 4);
-                            var w = 0;
+                            int sx = max(0, this.mouseX - 4);
+                            int ex = min(256, this.mouseX + 4);
+                            int sy = max(0, this.mouseY - 4);
+                            int ey = min(240, this.mouseY + 4);
+                            int w = 0;
                         
                             for (int y=sy; y<ey; y++) {
                                 for (int x=sx; x<ex; x++) {
@@ -214,7 +218,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         return 0;
     }
 
-    void regWrite(address, value) {
+    void regWrite(int address, int value) {
         switch (address) {
             case 0x2000:
                 // PPU Control register 1
@@ -422,16 +426,18 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void loadBatteryRam() {
-        if (this.nes.rom.batteryRam) {
-            var ram = this.nes.rom.batteryRam;
+/*
+      if (this.nes.rom.batteryRam) {
+            bool ram = this.nes.rom.batteryRam;
             if (ram != null && ram.length == 0x2000) {
                 // Load Battery RAM into memory:
                 JSNES_Utils.copyArrayElements(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);
             }
         }
+*/
     }
 
-    void loadRomBank(bank, address) {
+    void loadRomBank(int bank, int address) {
         // Loads a ROM bank into the specified address.
         bank %= this.nes.rom.romCount;
         //var data = this.nes.rom.rom[bank];
@@ -439,7 +445,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         JSNES_Utils.copyArrayElements(this.nes.rom.rom[bank], 0, this.nes.cpu.mem, address, 16384);
     }
 
-    void loadVromBank(bank, address) {
+    void loadVromBank(int bank, int address) {
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -452,12 +458,12 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         JSNES_Utils.copyArrayElements(vromTile, 0, this.nes.ppu.ptTile,address >> 4, 256);
     }
 
-    void load32kRomBank(bank, address) {
+    void load32kRomBank(int bank, int address) {
         this.loadRomBank((bank*2) % this.nes.rom.romCount, address);
         this.loadRomBank((bank*2+1) % this.nes.rom.romCount, address+16384);
     }
 
-    void load8kVromBank(bank4kStart, address) {
+    void load8kVromBank(int bank4kStart, int address) {
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -468,7 +474,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
                 address + 4096);
     }
 
-    void load1kVromBank(bank1k, address) {
+    void load1kVromBank(int bank1k, int address) {
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -487,7 +493,7 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         }
     }
 
-    void load2kVromBank(bank2k, address) {
+    void load2kVromBank(int bank2k, int address) {
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -506,9 +512,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
         }
     }
 
-    void load8kRomBank(bank8k, address) {
-        var bank16k = (bank8k / 2).floor() % this.nes.rom.romCount;
-        var offset = (bank8k % 2) * 8192;
+    void load8kRomBank(int bank8k, int address) {
+        int bank16k = (bank8k / 2).floor() % this.nes.rom.romCount;
+        int offset = (bank8k % 2) * 8192;
     
         //this.nes.cpu.mem.write(address,this.nes.rom.rom[bank16k],offset,8192);
         JSNES_Utils.copyArrayElements(this.nes.rom.rom[bank16k], offset, 
