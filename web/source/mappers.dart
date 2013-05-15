@@ -22,155 +22,196 @@ import 'dart:html';
 import 'nes.dart';
 import 'utils.dart';
 
-class JSNES_Mapper {
-    JSNES_NES nes;
-    joy1StrobeState = 0;
-    joy2StrobeState = 0;
-    joypadLastWrite = 0;
-    
-    bool mousePressed;
-    mouseX = null;
-    mouseY = null;
-    
-    JSNES_Mapper(JSNES_NES nes) {
-        this.nes = nes;
-    }
-    
+class BaseJSNES_Mapper {
+  JSNES_NES nes = null;
+  var joy1StrobeState = 0;
+  var joy2StrobeState = 0;
+  var joypadLastWrite = 0;
+  
+  bool mousePressed;
+  int mouseX = 0;
+  int mouseY = 0;
+  
+  JSNES_Mappers_0(JSNES_NES nes) {
+    this.nes = nes;
+  }
+}
+
+class JSNES_Mapper_0 extends BaseJSNES_Mapper {  
     void reset() {
-      this.joy1StrobeState = 0;
-      this.joy2StrobeState = 0;
-      this.joypadLastWrite = 0;
-      
-      this.mousePressed = false;
-      this.mouseX = null;
-      this.mouseY = null;
+        this.joy1StrobeState = 0;
+        this.joy2StrobeState = 0;
+        this.joypadLastWrite = 0;
+        
+        this.mousePressed = false;
+        this.mouseX = null;
+        this.mouseY = null;
     }
     
-    int load(address) {
-      // Wrap around:
-      address &= 0xFFFF;
-      
-      // Check address range:
-      if (address > 0x4017) {
-        // ROM:
-        return this.nes.cpu.mem[address];
-      }
-      else if (address >= 0x2000) {
-        // I/O Ports.
-        return this.regLoad(address);
-      }
-      else {
-        // RAM (mirrored)
-        return this.nes.cpu.mem[address & 0x7FF];
-      }
+    void write(address, value) {
+        if (address < 0x2000) {
+            // Mirroring of RAM:
+            this.nes.cpu.mem[address & 0x7FF] = value;
+        
+        }
+        else if (address > 0x4017) {
+            this.nes.cpu.mem[address] = value;
+            if (address >= 0x6000 && address < 0x8000) {
+                // Write to SaveRAM. Store in file:
+                // TODO: not yet
+                //if(this.nes.rom!=null)
+                //    this.nes.rom.writeBatteryRam(address,value);
+            }
+        }
+        else if (address > 0x2007 && address < 0x4000) {
+            this.regWrite(0x2000 + (address & 0x7), value);
+        }
+        else {
+            this.regWrite(address, value);
+        }
     }
     
+    void writelow(address, value) {
+        if (address < 0x2000) {
+            // Mirroring of RAM:
+            this.nes.cpu.mem[address & 0x7FF] = value;
+        }
+        else if (address > 0x4017) {
+            this.nes.cpu.mem[address] = value;
+        }
+        else if (address > 0x2007 && address < 0x4000) {
+            this.regWrite(0x2000 + (address & 0x7), value);
+        }
+        else {
+            this.regWrite(address, value);
+        }
+    }
+
+    int load(int address) {
+        // Wrap around:
+        address &= 0xFFFF;
+    
+        // Check address range:
+        if (address > 0x4017) {
+            // ROM:
+            return this.nes.cpu.mem[address];
+        }
+        else if (address >= 0x2000) {
+            // I/O Ports.
+            return this.regLoad(address);
+        }
+        else {
+            // RAM (mirrored)
+            return this.nes.cpu.mem[address & 0x7FF];
+        }
+    }
+
     int regLoad(address) {
-      switch (address >> 12) { // use fourth nibble (0xF000)
-        case 0:
-          break;
-          
-        case 1:
-          break;
-          
-        case 2:
-          // Fall through to case 3
-        case 3:
-          // PPU Registers
-          switch (address & 0x7) {
-            case 0x0:
-              // 0x2000:
-              // PPU Control Register 1.
-              // (the value is stored both
-              // in main memory and in the
-              // PPU as flags):
-              // (not in the real NES)
-              return this.nes.cpu.mem[0x2000];
-              
-            case 0x1:
-              // 0x2001:
-              // PPU Control Register 2.
-              // (the value is stored both
-              // in main memory and in the
-              // PPU as flags):
-              // (not in the real NES)
-              return this.nes.cpu.mem[0x2001];
-              
-            case 0x2:
-              // 0x2002:
-              // PPU Status Register.
-              // The value is stored in
-              // main memory in addition
-              // to as flags in the PPU.
-              // (not in the real NES)
-              return this.nes.ppu.readStatusRegister();
-              
-            case 0x3:
-              return 0;
-              
-            case 0x4:
-              // 0x2004:
-              // Sprite Memory read.
-              return this.nes.ppu.sramLoad();
-            case 0x5:
-              return 0;
-              
-            case 0x6:
-              return 0;
-              
-            case 0x7:
-              // 0x2007:
-                // VRAM read:
-              return this.nes.ppu.vramLoad();
-          }
-          break;
-        case 4:
-          // Sound+Joypad registers
-          switch (address - 0x4015) {
+        switch (address >> 12) { // use fourth nibble (0xF000)
             case 0:
-              // 0x4015:
-              // Sound channel enable, DMC Status
-              return this.nes.papu.readReg(address);
-              
+                break;
+            
             case 1:
-              // 0x4016:
-              // Joystick 1 + Strobe
-              return this.joy1Read();
-              
+                break;
+            
             case 2:
-              // 0x4017:
-              // Joystick 2 + Strobe
-              if (this.mousePressed) {
-                
-                // Check for white pixel nearby:
-                var sx = max(0, this.mouseX - 4);
-                var ex = min(256, this.mouseX + 4);
-                var sy = max(0, this.mouseY - 4);
-                var ey = min(240, this.mouseY + 4);
-                var w = 0;
-                
-                for (int y=sy; y<ey; y++) {
-                  for (int x=sx; x<ex; x++) {
+                // Fall through to case 3
+            case 3:
+                // PPU Registers
+                switch (address & 0x7) {
+                    case 0x0:
+                        // 0x2000:
+                        // PPU Control Register 1.
+                        // (the value is stored both
+                        // in main memory and in the
+                        // PPU as flags):
+                        // (not in the real NES)
+                        return this.nes.cpu.mem[0x2000];
                     
-                    if (this.nes.ppu.buffer[(y<<8)+x] == 0xFFFFFF) {
-                      w |= 0x1<<3;
-                      Console.debug("Clicked on white!");
-                      break;
-                    }
-                  }
+                    case 0x1:
+                        // 0x2001:
+                        // PPU Control Register 2.
+                        // (the value is stored both
+                        // in main memory and in the
+                        // PPU as flags):
+                        // (not in the real NES)
+                        return this.nes.cpu.mem[0x2001];
+                    
+                    case 0x2:
+                        // 0x2002:
+                        // PPU Status Register.
+                        // The value is stored in
+                        // main memory in addition
+                        // to as flags in the PPU.
+                        // (not in the real NES)
+                        return this.nes.ppu.readStatusRegister();
+                    
+                    case 0x3:
+                        return 0;
+                    
+                    case 0x4:
+                        // 0x2004:
+                        // Sprite Memory read.
+                        return this.nes.ppu.sramLoad();
+                    case 0x5:
+                        return 0;
+                    
+                    case 0x6:
+                        return 0;
+                    
+                    case 0x7:
+                        // 0x2007:
+                        // VRAM read:
+                        return this.nes.ppu.vramLoad();
                 }
-                
-                w |= (this.mousePressed?(0x1<<4):0);
-                return (this.joy2Read()|w) & 0xFFFF;
-              }
-              else {
-                return this.joy2Read();
-              }
-              
-          }
-          break;
-      }
-      return 0;
+                break;
+            case 4:
+                // Sound+Joypad registers
+                switch (address - 0x4015) {
+                    case 0:
+                        // 0x4015:
+                        // Sound channel enable, DMC Status
+                        return this.nes.papu.readReg(address);
+                    
+                    case 1:
+                        // 0x4016:
+                        // Joystick 1 + Strobe
+                        return this.joy1Read();
+                    
+                    case 2:
+                        // 0x4017:
+                        // Joystick 2 + Strobe
+                        if (this.mousePressed) {
+                        
+                            // Check for white pixel nearby:
+                            var sx = max(0, this.mouseX - 4);
+                            var ex = min(256, this.mouseX + 4);
+                            var sy = max(0, this.mouseY - 4);
+                            var ey = min(240, this.mouseY + 4);
+                            var w = 0;
+                        
+                            for (int y=sy; y<ey; y++) {
+                                for (int x=sx; x<ex; x++) {
+                               
+                                    if (this.nes.ppu.buffer[(y<<8)+x] == 0xFFFFFF) {
+                                        w |= 0x1<<3;
+                                        print("Clicked on white!");
+                                        break;
+                                    }
+                                }
+                            }
+                        
+                            w |= (this.mousePressed?(0x1<<4):0);
+                            return (this.joy2Read()|w) & 0xFFFF;
+                        }
+                        else {
+                            return this.joy2Read();
+                        }
+                    
+                }
+                break;
+        }
+        return 0;
     }
 
     void regWrite(address, value) {
@@ -245,47 +286,47 @@ class JSNES_Mapper {
                 
         }
     }
-    
+
     int joy1Read() {
-      int ret;
-      
-      switch (this.joy1StrobeState) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-          ret = this.nes.keyboard.state1[this.joy1StrobeState];
-          break;
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-          ret = 0;
-          break;
-        case 19:
-          ret = 1;
-          break;
-        default:
-          ret = 0;
-      }
-      
-      this.joy1StrobeState++;
-      if (this.joy1StrobeState == 24) {
-        this.joy1StrobeState = 0;
-      }
-      
-      return ret;
+        int ret;
+    
+        switch (this.joy1StrobeState) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                ret = this.nes.keyboard.state1[this.joy1StrobeState];
+                break;
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+            case 17:
+            case 18:
+                ret = 0;
+                break;
+            case 19:
+                ret = 1;
+                break;
+            default:
+                ret = 0;
+        }
+    
+        this.joy1StrobeState++;
+        if (this.joy1StrobeState == 24) {
+            this.joy1StrobeState = 0;
+        }
+    
+        return ret;
     }
 
     int joy2Read() {
@@ -329,69 +370,6 @@ class JSNES_Mapper {
     
         return ret;
       }
-    
-    void clockIrqCounter() {
-        // Does nothing. This is used by the MMC3 mapper.
-    }
-
-    void latchAccess(address) {
-        // Does nothing. This is used by MMC2.
-    }
-    
-    void toJSON() {
-        return {
-            'joy1StrobeState': this.joy1StrobeState,
-            'joy2StrobeState': this.joy2StrobeState,
-            'joypadLastWrite': this.joypadLastWrite
-        };
-    }
-    
-    void fromJSON(s) {
-        this.joy1StrobeState = s.joy1StrobeState;
-        this.joy2StrobeState = s.joy2StrobeState;
-        this.joypadLastWrite = s.joypadLastWrite;
-    }
-}
-
-class JSNES_Mapper_0 extends JSNES_Mapper {    
-    void write(address, value) {
-        if (address < 0x2000) {
-            // Mirroring of RAM:
-            this.nes.cpu.mem[address & 0x7FF] = value;
-        
-        }
-        else if (address > 0x4017) {
-            this.nes.cpu.mem[address] = value;
-            if (address >= 0x6000 && address < 0x8000) {
-                // Write to SaveRAM. Store in file:
-                // TODO: not yet
-                //if(this.nes.rom!=null)
-                //    this.nes.rom.writeBatteryRam(address,value);
-            }
-        }
-        else if (address > 0x2007 && address < 0x4000) {
-            this.regWrite(0x2000 + (address & 0x7), value);
-        }
-        else {
-            this.regWrite(address, value);
-        }
-    }
-    
-    void writelow(address, value) {
-        if (address < 0x2000) {
-            // Mirroring of RAM:
-            this.nes.cpu.mem[address & 0x7FF] = value;
-        }
-        else if (address > 0x4017) {
-            this.nes.cpu.mem[address] = value;
-        }
-        else if (address > 0x2007 && address < 0x4000) {
-            this.regWrite(0x2000 + (address & 0x7), value);
-        }
-        else {
-            this.regWrite(address, value);
-        }
-    }
 
     void loadROM() {
         if (!this.nes.rom.valid || this.nes.rom.romCount < 1) {
@@ -496,7 +474,7 @@ class JSNES_Mapper_0 extends JSNES_Mapper {
         }
         this.nes.ppu.triggerRendering();
     
-        var bank4k = (bank1k / 4).floor % this.nes.rom.vromCount;
+        var bank4k = (bank1k / 4).floor() % this.nes.rom.vromCount;
         var bankoffset = (bank1k % 4) * 1024;
         JSNES_Utils.copyArrayElements(this.nes.rom.vrom[bank4k], 0, 
             this.nes.ppu.vramMem, bankoffset, 1024);
@@ -515,7 +493,7 @@ class JSNES_Mapper_0 extends JSNES_Mapper {
         }
         this.nes.ppu.triggerRendering();
     
-        var bank4k = (bank2k / 2).floor % this.nes.rom.vromCount;
+        var bank4k = (bank2k / 2).floor() % this.nes.rom.vromCount;
         var bankoffset = (bank2k % 2) * 2048;
         JSNES_Utils.copyArrayElements(this.nes.rom.vrom[bank4k], bankoffset,
             this.nes.ppu.vramMem, address, 2048);
@@ -529,13 +507,36 @@ class JSNES_Mapper_0 extends JSNES_Mapper {
     }
 
     void load8kRomBank(bank8k, address) {
-        var bank16k = (bank8k / 2).floor % this.nes.rom.romCount;
+        var bank16k = (bank8k / 2).floor() % this.nes.rom.romCount;
         var offset = (bank8k % 2) * 8192;
     
         //this.nes.cpu.mem.write(address,this.nes.rom.rom[bank16k],offset,8192);
         JSNES_Utils.copyArrayElements(this.nes.rom.rom[bank16k], offset, 
                   this.nes.cpu.mem, address, 8192);
     }
+
+    void clockIrqCounter() {
+        // Does nothing. This is used by the MMC3 mapper.
+    }
+
+    void latchAccess(address) {
+        // Does nothing. This is used by MMC2.
+    }
+ /*   
+    void toJSON() {
+        return {
+            'joy1StrobeState': this.joy1StrobeState,
+            'joy2StrobeState': this.joy2StrobeState,
+            'joypadLastWrite': this.joypadLastWrite
+        };
+    }
+    
+    void fromJSON(s) {
+        this.joy1StrobeState = s.joy1StrobeState;
+        this.joy2StrobeState = s.joy2StrobeState;
+        this.joypadLastWrite = s.joypadLastWrite;
+    }
+*/
 }
 
 /*

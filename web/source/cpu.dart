@@ -36,30 +36,30 @@ class JSNES_CPU {
     ];
   
     JSNES_NES nes = null;
-    mem = null;
-    REG_ACC = null;
-    REG_X = null;
-    REG_Y = null;
-    REG_SP = null;
-    REG_PC = null;
-    REG_PC_NEW = null;
-    REG_STATUS = null;
-    F_CARRY = null;
-    F_DECIMAL = null;
-    F_INTERRUPT = null;
-    F_INTERRUPT_NEW = null;
-    F_OVERFLOW = null;
-    F_SIGN = null;
-    F_ZERO = null;
-    F_NOTUSED = null;
-    F_NOTUSED_NEW = null;
-    F_BRK = null;
-    F_BRK_NEW = null;
-    opdata = null;
-    cyclesToHalt = null;
-    crash = null;
-    irqRequested = null;
-    irqType = null;
+    List<int> mem = null;
+    int REG_ACC;
+    int REG_X;
+    int REG_Y;
+    int REG_SP;
+    int REG_PC;
+    int REG_PC_NEW;
+    int REG_STATUS;
+    int F_CARRY;
+    int F_DECIMAL;
+    int F_INTERRUPT;
+    int F_INTERRUPT_NEW;
+    int F_OVERFLOW;
+    int F_SIGN;
+    int F_ZERO;
+    int F_NOTUSED;
+    int F_NOTUSED_NEW;
+    int F_BRK;
+    int F_BRK_NEW;
+    List<int> opdata;
+    int cyclesToHalt;
+    bool crash;
+    bool irqRequested;
+    int irqType;
     
     JSNES_CPU(JSNES_NES nes) {
       this.nes = nes;
@@ -68,7 +68,7 @@ class JSNES_CPU {
 
     void reset() {
         // Main memory 
-        this.mem = new List(0x10000);
+        this.mem = new List<int>(0x10000);
         
         for (var i=0; i < 0x2000; i++) {
             this.mem[i] = 0xFF;
@@ -1085,7 +1085,7 @@ class JSNES_CPU {
                 // *******
 
                 this.nes.stop();
-                this.nes.crashMessage = "Game crashed, invalid opcode at address $"+opaddr.toString(16);
+//                this.nes.crashMessage = "Game crashed, invalid opcode at address $"+opaddr.toString(16);
                 break;
 
             }
@@ -1316,7 +1316,7 @@ class JSNES_CPU_OpData {
   
   List<String> instname;
   List<String> addrDesc;
-  List opdata;
+  List<int> opdata;
   List cycTable;
   
   void setOp(inst, op, addr, size, cycles){

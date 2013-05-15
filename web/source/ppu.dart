@@ -61,78 +61,78 @@ class JSNES_PPU {
   const int STATUS_VBLANK = 7;
   
   JSNES_NES nes = null;
-  vramMem = null;
-  spriteMem = null;
-  vramAddress = null;
-  vramTmpAddress = null;
-  vramBufferedReadValue = null;
-  firstWrite = null;
-  sramAddress = null;
-  currentMirroring = null;
-  requestEndFrame = null;
-  nmiOk = null;
-  dummyCycleToggle = null;
-  validTileData = null;
-  nmiCounter = null;
-  scanlineAlreadyRendered = null;
-  f_nmiOnVblank = null;   
-  f_spriteSize = null;
-  f_bgPatternTable = null;
-  f_spPatternTable = null;
-  f_addrInc = null;
-  f_nTblAddress = null;
-  f_color = null;
-  f_spVisibility = null;
-  f_bgVisibility = null;
-  f_spClipping = null;
-  f_bgClipping = null;
-  f_dispType = null;
-  cntFV = null;
-  cntV = null;
-  cntH = null;
-  cntVT = null;
-  cntHT = null;
-  regFV = null;
-  regV = null;
-  regH = null;
-  regVT = null;
-  regHT = null;
-  regFH = null;
-  regS = null;
-  curNt = null;
-  attrib = null;
-  buffer = null;
-  prevBuffer = null;
-  bgbuffer = null;
-  pixrendered = null;
+  var vramMem = null;
+  var spriteMem = null;
+  var vramAddress = null;
+  var vramTmpAddress = null;
+  var vramBufferedReadValue = null;
+  var firstWrite = null;
+  var sramAddress = null;
+  var currentMirroring = null;
+  var requestEndFrame = null;
+  var nmiOk = null;
+  var dummyCycleToggle = null;
+  var validTileData = null;
+  var nmiCounter = null;
+  var scanlineAlreadyRendered = null;
+  var f_nmiOnVblank = null;   
+  var f_spriteSize = null;
+  var f_bgPatternTable = null;
+  var f_spPatternTable = null;
+  var f_addrInc = null;
+  var f_nTblAddress = null;
+  var f_color = null;
+  var f_spVisibility = null;
+  var f_bgVisibility = null;
+  var f_spClipping = null;
+  var f_bgClipping = null;
+  var f_dispType = null;
+  var cntFV = null;
+  var cntV = null;
+  var cntH = null;
+  var cntVT = null;
+  var cntHT = null;
+  var regFV = null;
+  var regV = null;
+  var regH = null;
+  var regVT = null;
+  var regHT = null;
+  var regFH = null;
+  var regS = null;
+  var curNt = null;
+  var attrib = null;
+  var buffer = null;
+  var prevBuffer = null;
+  var bgbuffer = null;
+  var pixrendered = null;
   
-  scantile = null;
-  scanline = null;
-  lastRenderedScanline = null;
-  curX = null;
-  sprX = null; 
-  sprY = null; 
-  sprTile = null; 
-  sprCol = null; 
-  vertFlip = null; 
-  horiFlip = null; 
-  bgPriority = null; 
-  spr0HitX = null; 
-  spr0HitY = null; 
-  hitSpr0 = null;
-  sprPalette = null;
-  imgPalette = null;
-  ptTile = null;
-  ntable1 = null;
-  nameTable = null;
-  vramMirrorTable = null;
-  palTable = null;
+  var scantile = null;
+  var scanline = null;
+  var lastRenderedScanline = null;
+  var curX = null;
+  var sprX = null; 
+  var sprY = null; 
+  var sprTile = null; 
+  var sprCol = null; 
+  var vertFlip = null; 
+  var horiFlip = null; 
+  var bgPriority = null; 
+  var spr0HitX = null; 
+  var spr0HitY = null; 
+  var hitSpr0 = null;
+  var sprPalette = null;
+  var imgPalette = null;
+  var ptTile = null;
+  var ntable1 = null;
+  var nameTable = null;
+  var vramMirrorTable = null;
+  var palTable = null;
   
   bool showSpr0Hit;
   bool clipToTvSize;
   
-  srcy1 = 0;
-  srcy2 = 0;
+  var srcy1 = 0;
+  var srcy2 = 0;
   
   JSNES_PPU(JSNES_NES nes) {
     this.nes = nes;
@@ -1441,7 +1441,7 @@ class JSNES_PPU {
     // table buffers with this new byte.
     // In vNES, there is a version of this with 4 arguments which isn't used.
     void patternWrite(address, value){
-        var tileIndex = (address / 16).floor;
+        var tileIndex = (address / 16).floor();
         var leftOver = address%16;
         if (leftOver<8) {
             this.ptTile[tileIndex].setScanline(
@@ -1479,7 +1479,7 @@ class JSNES_PPU {
     // Updates the internally buffered sprite
     // data with this new byte of info.
     void spriteRamWriteUpdate(address, value) {
-        var tIndex = (address / 4).floor;
+        var tIndex = (address / 4).floor();
         
         if (tIndex == 0) {
             //updateSpr0Hit();
@@ -1580,7 +1580,7 @@ class JSNES_PPU_NameTable {
 
     void writeAttrib(index, value){
         var basex = (index % 8) * 4;
-        var basey = (index / 8).floor * 4;
+        var basey = (index / 8).floor() * 4;
         var add;
         var tx, ty;
         var attindex;
@@ -1617,7 +1617,7 @@ class JSNES_PPU_NameTable {
 class JSNES_PPU_PaletteTable {
   List curTable;
   List emphTable;
-  currentEmph;
+  var currentEmph;
   
   JSNES_PPU_PaletteTable() {
     this.curTable = new List(64);
@@ -1781,17 +1781,17 @@ class JSNES_PPU_PaletteTable {
 class JSNES_PPU_Tile {
   List pix;
   
-  fbIndex = null;
-  tIndex = null;
-  x = null;
-  y = null;
-  w = null;
-  h = null;
-  incX = null;
-  incY = null;
-  palIndex = null;
-  tpri = null;
-  c = null;
+  var fbIndex = null;
+  var tIndex = null;
+  var x = null;
+  var y = null;
+  var w = null;
+  var h = null;
+  var incX = null;
+  var incY = null;
+  var palIndex = null;
+  var tpri = null;
+  var c = null;
   bool initialized;
   List opaque;
   

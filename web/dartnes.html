@@ -8,7 +8,25 @@
 <body>
     <h1>DartNES</h1>
     
-    <div id="emulator"></div>
+  <div id="emulator">
+      <canvas id="screen" class="nes-screen" width="256" height="240"></canvas>
+      <div class="nes-roms">
+        <select id="romSelect">
+          <option>Select a ROM...</option>
+          <optgroup>Local</optgroup>
+          <option value="local-roms/super_mario_bros.nes">Super Mario Bros.</option>
+          <optgroup>Working</optgroup>
+          <option value="local-roms/Contra (U) [!].nes">Contra</option>
+        </select>
+      </div>
+      <div class="nes-controls">
+        <input type="button" id="pause" value="pause" class="nes-pause" disabled="disabled">
+        <input type="button" id="restart" value="restart" class="nes-restart" disabled="disabled">
+        <input type="button" id="sound" value="enable sound" class="nes-enablesound">
+        <input type="button" id="zoom" value="zoom in" class="nes-zoom">
+      </div>
+      <p id="status" class="nes-status">Booting up...</p>
+    </div>
     
     <h2>Controls</h2>
     <table id="controls">
@@ -57,10 +75,7 @@
             <td>Num-3</td>
         </tr>
     </table>
-
-    <script type="application/dart" src="dartnes.dart"></script>
-    <script type="text/javascript"  src="lib/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript"  src="lib/dynamicaudio-min.js"></script>
+    <!--
     <script type="application/dart" src="source/nes.dart"></script>
     <script type="application/dart" src="source/utils.dart"></script>
     <script type="application/dart" src="source/cpu.dart"></script>
@@ -70,49 +85,10 @@
     <script type="application/dart" src="source/ppu.dart"></script>
     <script type="application/dart" src="source/rom.dart"></script>
     <script type="application/dart" src="source/ui.dart"></script>
-
+    -->
+    <script type="application/dart" src="source/main.dart"></script>
+    
     <script src="packages/browser/dart.js"></script>
-    <script type="text/javascript" charset="utf-8">
-        var nes;
-        $(function() {
-            nes = new JSNES_NES({
-                'ui': $('#emulator').JSNESUI({
-                    "Local": [
-                        ['Super Mario Bros.', 'local-roms/super_mario_bros.nes']
-                    ],
-                    "Homebrew": [
-                        ['Concentration Room', 'roms/croom/croom.nes'],
-                        ['LJ65', 'roms/lj65/lj65.nes'],
-                    ],
-                    "Working": [
-                        ['Bubble Bobble', 'local-roms/Bubble Bobble (U).nes'],
-                        
-                        ['Contra', 'local-roms/Contra (U) [!].nes'],
-                        ['Donkey Kong', 'local-roms/Donkey Kong (JU).nes'],
-                        ['Dr. Mario', 'local-roms/Dr. Mario (JU).nes'],
-                        ['Golf', 'local-roms/Golf (JU).nes'],
-                        ['The Legend of Zelda', 'local-roms/Legend of Zelda, The (U) (PRG1).nes'],
-                        ['Lemmings', 'local-roms/Lemmings (U).nes'],
-                        ['Lifeforce', 'local-roms/Lifeforce (U).nes'],
-                        
-                        ['Mario Bros.', 'local-roms/Mario Bros. (JU) [!].nes'],
-                        ['Mega Man', 'local-roms/Mega Man (U).nes'],
-                        ['Pac-Man', 'local-roms/Pac-Man (U) [!].nes'],
-                        ['Super Mario Bros.', 'local-roms/Super Mario Bros. (JU) (PRG0) [!].nes'],
-                        ['Tennis', 'local-roms/Tennis (JU) [!].nes'],
-                        ['Tetris', 'local-roms/Tetris (U) [!].nes'],
-                        ['Tetris 2', 'local-roms/Tetris 2 (U) [!].nes'],
-                        ['Zelda II - The Adventure of Link', 'local-roms/Zelda II - The Adventure of Link (U).nes']
-                    ],
-
-                    "Nearly Working": [
-                        ['Duck Hunt', 'local-roms/Duck Hunt (JUE) [!].nes'],
-                        ['Super Mario Bros. 3', 'local-roms/Super Mario Bros. 3 (U) (PRG1) [!].nes']
-                    ]
-                })
-            });
-        });
-    </script>
 
 </body>
 </html>

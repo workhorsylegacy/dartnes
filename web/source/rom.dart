@@ -38,14 +38,14 @@ class JSNES_ROM {
   List vrom = null;
   List<List<JSNES_PPU_Tile>> vromTile = null;
   
-  romCount = null;
-  vromCount = null;
-  mirroring = null;
-  batteryRam = null;
-  trainer = null;
-  fourScreen = null;
-  mapperType = null;
-  valid = false;
+  var romCount = null;
+  var vromCount = null;
+  var mirroring = null;
+  var batteryRam = null;
+  var trainer = null;
+  var fourScreen = null;
+  var mapperType = null;
+  bool valid = false;
   
   JSNES_ROM(JSNES_NES nes) {
     this.nes = nes;
@@ -212,7 +212,8 @@ class JSNES_ROM {
       }
     }
     
-    JSNES_Mapper createMapper() {
+    // FIXME: Should return JSNES_Mapper
+    JSNES_Mapper_0 createMapper() {
         if (this.mapperSupported()) {
             switch(this.mapperType) {
               case 0: return new JSNES_Mapper_0(this.nes);

@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import 'dart:async';
+import 'dart:core';
 
 import 'ui.dart';
 import 'cpu.dart';
@@ -37,23 +38,22 @@ class JSNES_NES {
     JSNES_CPU cpu;
     JSNES_PPU ppu;
     JSNES_PAPU papu;
-    JSNES_Mapper mmap;
+    // FIXME: Should be JSNES_Mapper
+    JSNES_Mapper_0 mmap;
     JSNES_Keyboard keyboard;
     
     bool isRunning;
     int fpsFrameCount;
     bool limitFrames;
-    lastFrameTime;
-    lastFpsTime;
-    romData = null;
+    int lastFrameTime;
+    int lastFpsTime;
+    List<int> romData = null;
     JSNES_ROM rom;
     Future frameInterval;
     Future fpsInterval;
     
-    
     JSNES_NES(Map opts) {
       this.opts = {
-          'ui': JSNES_DummyUI,
           'swfPath': 'lib/',
           
           'preferredFrameRate': 60,
@@ -67,12 +67,11 @@ class JSNES_NES {
           'CPU_FREQ_PAL': 1773447.4
       };
       if (opts != null) {
-          var key;
-          for (key in this.opts) {
+          this.opts.forEach((key, val) {
               if (opts[key] != null) {
                   this.opts[key] = opts[key];
               }
-          }
+          });
       }
       
       this.frameTime = 1000 / this.opts['preferredFrameRate'];
@@ -178,23 +177,23 @@ class JSNES_NES {
             }
         }
         if (this.limitFrames) {
-            if (this.lastFrameTime) {
-                while (DateTime.now().value - this.lastFrameTime < this.frameTime) {
+            if (this.lastFrameTime > 0) {
+                while (new DateTime.now().millisecondsSinceEpoch - this.lastFrameTime < this.frameTime) {
                     // twiddle thumbs
                 }
             }
         }
         this.fpsFrameCount++;
-        this.lastFrameTime = DateTime.now();
+        this.lastFrameTime = new DateTime.now().millisecondsSinceEpoch;
     }
     
     void printFps() {
-        var now = DateTime.now();
-        var s = 'Running';
-        if (this.lastFpsTime) {
-            s += ': '+(
+        int now = new DateTime.now().millisecondsSinceEpoch;
+        String s = 'Running';
+        if (this.lastFpsTime > 0) {
+            s += ': ' + (
                 this.fpsFrameCount / ((now - this.lastFpsTime) / 1000)
-            ).toFixed(2)+' FPS';
+            ) + ' FPS';
         }
         this.ui.updateStatus(s);
         this.fpsFrameCount = 0;
@@ -202,8 +201,8 @@ class JSNES_NES {
     }
     
     void stop() {
-        this.frameInterval.cancel();
-        this.fpsInterval.cancel();
+//        this.frameInterval.cancel();
+//        this.fpsInterval.cancel();
         this.isRunning = false;
     }
     
@@ -245,19 +244,19 @@ class JSNES_NES {
     }
     
     void resetFps() {
-        this.lastFpsTime = null;
+        this.lastFpsTime = 0;
         this.fpsFrameCount = 0;
     }
     
     void setFramerate(rate) {
         this.opts['preferredFrameRate']= rate;
         this.frameTime = 1000 / rate;
-        this.papu.setSampleRate(this.opts.sampleRate, false);
+//        this.papu.setSampleRate(this.opts['sampleRate'], false);
     }
     
     void setLimitFrames(limit) {
         this.limitFrames = limit;
-        this.lastFrameTime = null;
+        this.lastFrameTime = 0;
     }
 /*    
     String toJSON() {

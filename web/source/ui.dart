@@ -16,185 +16,176 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class JSNES_DummyUI {
-  JSNES_NES nes = null;
+import 'dart:html';
 
-  JSNES_DummyUI(JSNES_NES nes) {
+import 'nes.dart';
+
+class JSNES_DummyUI {
+  var nes;
+  var enable;
+  var updateStatus;
+  var writeAudio;
+  var writeFrame;
+  
+  JSNES_DummyUI(nes) {
     this.nes = nes;
-    void enable() {};
-    void updateStatus() {};
-    void writeAudio() {};
-    void writeFrame() {};
+    this.enable = () {};
+    this.updateStatus = () {};
+    this.writeAudio = () {};
+    this.writeFrame = () {};
   }
 }
-/*
-class JSNESUI {
-  JSNESUI(roms) {
-            var parent = this;
-            var UI = function(nes) {
+
+class JSNES_UI {
+  JSNES_NES nes;
+  Element status;
+  Element parent;
+  CanvasElement screen;
+  CanvasRenderingContext2D canvasContext;
+  ImageData canvasImageData;
+  SelectElement romSelect;
+  Map<String, ButtonElement> buttons;
+  bool zoomed;
+  var dynamicaudio;
+  
+  JSNES_UI(JSNES_NES nes) {
                 var self = this;
-                self.nes = nes;
+                this.nes = nes;
+
+                this.status = query('#status');
+                this.parent = query('#emulator');
                 
                 /*
-                 * Create UI
+                 * Screen
                  */
-                self.root = $('<div></div>');
-                self.screen = $('<canvas class="nes-screen" width="256" height="240"></canvas>').appendTo(self.root);
-                
-                if (!self.screen[0].getContext) {
-                    parent.html("Your browser doesn't support the <code>&lt;canvas&gt;</code> tag. Try Google Chrome, Safari, Opera or Firefox!");
+                this.screen = query('#screen');
+/*                
+                if(this.screen.context2D == null) {
+                    this.parent.innerHtml = "Your browser doesn't support the <code>&lt;canvas&gt;</code> tag. Try Google Chrome, Safari, Opera or Firefox!";
                     return;
                 }
-                
-                self.romContainer = $('<div class="nes-roms"></div>').appendTo(self.root);
-                self.romSelect = $('<select></select>').appendTo(self.romContainer);
-                
-                self.controls = $('<div class="nes-controls"></div>').appendTo(self.root);
-                self.buttons = {
-                    pause: $('<input type="button" value="pause" class="nes-pause" disabled="disabled">').appendTo(self.controls),
-                    restart: $('<input type="button" value="restart" class="nes-restart" disabled="disabled">').appendTo(self.controls),
-                    sound: $('<input type="button" value="enable sound" class="nes-enablesound">').appendTo(self.controls),
-                    zoom: $('<input type="button" value="zoom in" class="nes-zoom">').appendTo(self.controls)
-                };
-                self.status = $('<p class="nes-status">Booting up...</p>').appendTo(self.root);
-                self.root.appendTo(parent);
+*/                
+                /*
+                 * Canvas
+                 */
+                this.canvasContext = this.screen.context2D;
+/*                
+                if (!this.canvasContext.getImageData) {
+                    this.parent.innerHtml = "Your browser doesn't support writing pixels directly to the <code>&lt;canvas&gt;</code> tag. Try the latest versions of Google Chrome, Safari, Opera or Firefox!";
+                    return;
+                }
+*/                
+                this.canvasImageData = this.canvasContext.getImageData(0, 0, 256, 240);
+                this.resetCanvas();
                 
                 /*
                  * ROM loading
                  */
-                self.romSelect.change(function() {
-                    self.loadROM();
+                this.romSelect = query('#romSelect');
+                this.romSelect.onChange.listen(() {
+                    this.loadROM();
                 });
                 
                 /*
                  * Buttons
                  */
-                self.buttons.pause.click(function() {
-                    if (self.nes.isRunning) {
-                        self.nes.stop();
-                        self.updateStatus("Paused");
-                        self.buttons.pause.attr("value", "resume");
+                this.buttons = {
+                    'pause': query('#pause'),
+                    'restart': query('#restart'),
+                    'sound': query('#sound'),
+                    'zoom': query('#zoom')
+                };
+
+                this.buttons['pause'].click(() {
+                    if (this.nes.isRunning) {
+                        this.nes.stop();
+                        this.updateStatus("Paused");
+                        this.buttons['pause'].text = "resume";
                     }
                     else {
-                        self.nes.start();
-                        self.buttons.pause.attr("value", "pause");
+                        this.nes.start();
+                        this.buttons['pause'].text = "pause";
                     }
                 });
         
-                self.buttons.restart.click(function() {
-                    self.nes.reloadRom();
-                    self.nes.start();
+                this.buttons['restart'].click(() {
+                    this.nes.reloadRom();
+                    this.nes.start();
                 });
         
-                self.buttons.sound.click(function() {
-                    if (self.nes.opts.emulateSound) {
-                        self.nes.opts.emulateSound = false;
-                        self.buttons.sound.attr("value", "enable sound");
+                this.buttons['sound'].click(() {
+                    if (this.nes.opts['emulateSound']) {
+                        this.nes.opts['emulateSound'] = false;
+                        this.buttons['sound'].text = "enable sound";
                     }
                     else {
-                        self.nes.opts.emulateSound = true;
-                        self.buttons.sound.attr("value", "disable sound");
+                        this.nes.opts['emulateSound'] = true;
+                        this.buttons['sound'].text = "disable sound";
                     }
                 });
         
-                self.zoomed = false;
-                self.buttons.zoom.click(function() {
-                    if (self.zoomed) {
-                        self.screen.animate({
-                            width: '256px',
-                            height: '240px'
-                        });
-                        self.buttons.zoom.attr("value", "zoom in");
-                        self.zoomed = false;
+                this.zoomed = false;
+                this.buttons['zoom'].click(() {
+                    if (this.zoomed) {
+                      this.screen.width = 256;
+                      this.screen.height = 240;
+                        this.buttons['zoom'].text = "zoom in";
+                        this.zoomed = false;
                     }
                     else {
-                        self.screen.animate({
-                            width: '512px',
-                            height: '480px'
-                        });
-                        self.buttons.zoom.attr("value", "zoom out");
-                        self.zoomed = true;
+                      this.screen.width = 256 * 2;
+                      this.screen.height = 240 * 2;
+                        this.buttons['zoom'].text = "zoom out";
+                        this.zoomed = true;
                     }
                 });
-                
-                /*
-                 * Lightgun experiments with mouse
-                 * (Requires jquery.dimensions.js)
-                 */
-                if ($.offset) {
-                    self.screen.mousedown(function(e) {
-                        if (self.nes.mmap) {
-                            self.nes.mmap.mousePressed = true;
-                            // FIXME: does not take into account zoom
-                            self.nes.mmap.mouseX = e.pageX - self.screen.offset().left;
-                            self.nes.mmap.mouseY = e.pageY - self.screen.offset().top;
-                        }
-                    }).mouseup(function() {
-                        setTimeout(function() {
-                            if (self.nes.mmap) {
-                                self.nes.mmap.mousePressed = false;
-                                self.nes.mmap.mouseX = 0;
-                                self.nes.mmap.mouseY = 0;
-                            }
-                        }, 500);
-                    });
-                }
-            
-                if (typeof roms != 'undefined') {
-                    self.setRoms(roms);
-                }
-            
-                /*
-                 * Canvas
-                 */
-                self.canvasContext = self.screen[0].getContext('2d');
-                
-                if (!self.canvasContext.getImageData) {
-                    parent.html("Your browser doesn't support writing pixels directly to the <code>&lt;canvas&gt;</code> tag. Try the latest versions of Google Chrome, Safari, Opera or Firefox!");
-                    return;
-                }
-                
-                self.canvasImageData = self.canvasContext.getImageData(0, 0, 256, 240);
-                self.resetCanvas();
             
                 /*
                  * Keyboard
                  */
-                $(document).
-                    bind('keydown', function(evt) {
-                        self.nes.keyboard.keyDown(evt); 
-                    }).
-                    bind('keyup', function(evt) {
-                        self.nes.keyboard.keyUp(evt); 
-                    }).
-                    bind('keypress', function(evt) {
-                        self.nes.keyboard.keyPress(evt);
-                    });
+                document.onKeyDown.listen((evt) {
+                  this.nes.keyboard.keyDown(evt);
+                });
+                document.onKeyUp.listen((evt) {
+                  this.nes.keyboard.keyUp(evt);
+                });
+                document.onKeyPress.listen((evt) {
+                  this.nes.keyboard.keyPress(evt);
+                });
             
                 /*
                  * Sound
                  */
-                self.dynamicaudio = new DynamicAudio({
-                    swf: nes.opts.swfPath+'dynamicaudio.swf'
-                });
-            };
-        
-            UI.prototype = {    
-                loadROM: function() {
-                    var self = this;
-                    self.updateStatus("Downloading...");
+//                this.dynamicaudio = new DynamicAudio({
+//                    'swf': nes.opts.swfPath + 'dynamicaudio.swf'
+//                });
+            }
+
+                void loadROM() {
+                    this.updateStatus("Downloading...");
+                    HttpRequest.getString(url: this.romSelect.value)
+                      .then((String data) {
+                        print(data);
+                        this.nes.loadRom(data);
+                        this.nes.start();
+                        this.enable();
+                      })
+                      .catchError((Error error) {
+                        print(error);
+                      });
+/*
                     $.ajax({
-                        url: escape(self.romSelect.val()),
-                        xhr: function() {
+                        'url': escape(this.romSelect.val()),
+                        'xhr': () {
                             var xhr = $.ajaxSettings.xhr();
-                            if (typeof xhr.overrideMimeType !== 'undefined') {
+                            if (xhr != null) {
                                 // Download as binary
                                 xhr.overrideMimeType('text/plain; charset=x-user-defined');
                             }
-                            self.xhr = xhr;
+                            this.xhr = xhr;
                             return xhr;
                         },
-                        complete: function(xhr, status) {
+                        'complete': (xhr, status) {
                             var i, data;
                             if (JSNES.Utils.isIE()) {
                                 var charCodes = JSNESBinaryToArray(
@@ -208,14 +199,15 @@ class JSNESUI {
                             else {
                                 data = xhr.responseText;
                             }
-                            self.nes.loadRom(data);
-                            self.nes.start();
-                            self.enable();
+                            this.nes.loadRom(data);
+                            this.nes.start();
+                            this.enable();
                         }
                     });
-                },
+*/
+                }
                 
-                resetCanvas: function() {
+                void resetCanvas() {
                     this.canvasContext.fillStyle = 'black';
                     // set alpha to opaque
                     this.canvasContext.fillRect(0, 0, 256, 240);
@@ -224,54 +216,37 @@ class JSNESUI {
                     for (var i = 3; i < this.canvasImageData.data.length-3; i += 4) {
                         this.canvasImageData.data[i] = 0xFF;
                     }
-                },
+                }
                 
                 /*
                  * Enable and reset UI elements
                  */
-                enable: function() {
-                    this.buttons.pause.attr("disabled", null);
+                void enable() {
+                    this.buttons['pause'].disabled = false;
                     if (this.nes.isRunning) {
-                        this.buttons.pause.attr("value", "pause");
+                        this.buttons['pause'].text = "pause";
                     }
                     else {
-                        this.buttons.pause.attr("value", "resume");
+                        this.buttons['pause'].text = "resume";
                     }
-                    this.buttons.restart.attr("disabled", null);
-                    if (this.nes.opts.emulateSound) {
-                        this.buttons.sound.attr("value", "disable sound");
+                    this.buttons['restart'].disabled = false;
+                    if (this.nes.opts['emulateSound']) {
+                        this.buttons['sound'].text = "disable sound";
                     }
                     else {
-                        this.buttons.sound.attr("value", "enable sound");
+                        this.buttons['sound'].text = "enable sound";
                     }
-                },
+                }
             
-                updateStatus: function(s) {
-                    this.status.text(s);
-                },
-        
-                setRoms: function(roms) {
-                    this.romSelect.children().remove();
-                    $("<option>Select a ROM...</option>").appendTo(this.romSelect);
-                    for (var groupName in roms) {
-                        if (roms.hasOwnProperty(groupName)) {
-                            var optgroup = $('<optgroup></optgroup>').
-                                attr("label", groupName);
-                            for (var i = 0; i < roms[groupName].length; i++) {
-                                $('<option>'+roms[groupName][i][0]+'</option>')
-                                    .attr("value", roms[groupName][i][1])
-                                    .appendTo(optgroup);
-                            }
-                            this.romSelect.append(optgroup);
-                        }
-                    }
-                },
+                void updateStatus(String s) {
+                    this.status.text = s;
+                }
             
-                writeAudio: function(samples) {
-                    return this.dynamicaudio.writeInt(samples);
-                },
+//                void writeAudio(samples) {
+//                    return this.dynamicaudio.writeInt(samples);
+//                }
             
-                writeFrame: function(buffer, prevBuffer) {
+                void writeFrame(buffer, prevBuffer) {
                     var imageData = this.canvasImageData.data;
                     var pixel, i, j;
 
@@ -289,10 +264,5 @@ class JSNESUI {
 
                     this.canvasContext.putImageData(this.canvasImageData, 0, 0);
                 }
-            };
-        
-            return UI;
-        };
-    })(jQuery);
-}
-*/
+            }
+

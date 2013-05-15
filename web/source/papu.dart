@@ -19,81 +19,81 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import 'nes.dart';
 
 class JSNES_PAPU {
-  nes = nes;
+  JSNES_NES nes = null;
   
-  square1 = null;
-  square2 = null;
-  triangle = null;
-  noise = null;
-  dmc = null;
+  JSNES_PAPU_ChannelSquare square1 = null;
+  JSNES_PAPU_ChannelSquare square2 = null;
+  JSNES_PAPU_ChannelTriangle triangle = null;
+  JSNES_PAPU_ChannelNoise noise = null;
+  JSNES_PAPU_ChannelDM dmc = null;
+  
+  int frameIrqCounter;
+  int frameIrqCounterMax;
+  int initCounter;
+  int channelEnableValue;
 
-  frameIrqCounter = null;
-  frameIrqCounterMax;
-  initCounter;
-  channelEnableValue = null;
+  int bufferSize;
+  int bufferIndex;
+  int sampleRate;
 
-  bufferSize;
-  bufferIndex;
-  sampleRate;
-
-  lengthLookup = null;
-  dmcFreqLookup = null;
-  noiseWavelengthLookup = null;
-  square_table = null;
-  tnd_table = null;
-  sampleBuffer = null;
+  List<int> lengthLookup = null;
+  List<int> dmcFreqLookup = null;
+  List<int> noiseWavelengthLookup = null;
+  List<int> square_table = null;
+  List<int> tnd_table = null;
+  List sampleBuffer = null;
 
   bool frameIrqEnabled;
-  frameIrqActive = null;
-  frameClockNow = null;
+  bool frameIrqActive;
+  //frameClockNow = null;
   bool startedPlaying=false;
   bool recordOutput = false;
   bool initingHardware = false;
 
-  masterFrameCounter = null;
-  derivedFrameCounter = null;
-  countSequence = null;
-  sampleTimer = null;
-  frameTime = null;
-  sampleTimerMax = null;
-  sampleCount = null;
-  triValue = 0;
+  int masterFrameCounter;
+  int derivedFrameCounter;
+  int countSequence;
+  int sampleTimer;
+  int frameTime;
+  int sampleTimerMax;
+  int sampleCount;
+  int triValue;
 
-  smpSquare1 = null;
-  smpSquare2 = null;
-  smpTriangle = null;
-  smpDmc = null;
-  accCount = null;
+  int smpSquare1;
+  int smpSquare2;
+  int smpTriangle;
+  int smpDmc;
+  int accCount;
 
   // DC removal vars:
-  prevSampleL = 0;
-  prevSampleR = 0;
-  smpAccumL = 0;
-  smpAccumR = 0;
+  int prevSampleL = 0;
+  int prevSampleR = 0;
+  int smpAccumL = 0;
+  int smpAccumR = 0;
 
   // DAC range:
-  dacRange = 0;
-  dcValue = 0;
+  int dacRange = 0;
+  int dcValue = 0;
 
   // Master volume:
-  masterVolume = 256;
+  int masterVolume = 256;
 
   // Stereo positioning:
-  stereoPosLSquare1 = null;
-  stereoPosLSquare2 = null;
-  stereoPosLTriangle = null;
-  stereoPosLNoise = null;
-  stereoPosLDMC = null;
-  stereoPosRSquare1 = null;
-  stereoPosRSquare2 = null;
-  stereoPosRTriangle = null;
-  stereoPosRNoise = null;
-  stereoPosRDMC = null;
+  int stereoPosLSquare1;
+  int stereoPosLSquare2;
+  int stereoPosLTriangle;
+  int stereoPosLNoise;
+  int stereoPosLDMC;
+  int stereoPosRSquare1;
+  int stereoPosRSquare2;
+  int stereoPosRTriangle;
+  int stereoPosRNoise;
+  int stereoPosRDMC;
 
-  extraCycles = null;
+  int extraCycles;
   
-  maxSample = null;
-  minSample = null;
+  int maxSample;
+  int minSample;
   
   List panning = null;
   
@@ -124,25 +124,25 @@ class JSNES_PAPU {
 
     this.frameIrqEnabled = false;
     this.frameIrqActive = null;
-    this.frameClockNow = null;
+    //this.frameClockNow = null;
     this.startedPlaying=false;
     this.recordOutput = false;
     this.initingHardware = false;
 
-    this.masterFrameCounter = null;
-    this.derivedFrameCounter = null;
-    this.countSequence = null;
-    this.sampleTimer = null;
-    this.frameTime = null;
-    this.sampleTimerMax = null;
-    this.sampleCount = null;
+    this.masterFrameCounter = 0;
+    this.derivedFrameCounter = 0;
+    this.countSequence = 0;
+    this.sampleTimer = 0;
+    this.frameTime = 0;
+    this.sampleTimerMax = 0;
+    this.sampleCount = 0;
     this.triValue = 0;
 
-    this.smpSquare1 = null;
-    this.smpSquare2 = null;
-    this.smpTriangle = null;
-    this.smpDmc = null;
-    this.accCount = null;
+    this.smpSquare1 = 0;
+    this.smpSquare2 = 0;
+    this.smpTriangle = 0;
+    this.smpDmc = 0;
+    this.accCount = 0;
 
     // DC removal vars:
     this.prevSampleL = 0;
@@ -158,21 +158,21 @@ class JSNES_PAPU {
     this.masterVolume = 256;
 
     // Stereo positioning:
-    this.stereoPosLSquare1 = null;
-    this.stereoPosLSquare2 = null;
-    this.stereoPosLTriangle = null;
-    this.stereoPosLNoise = null;
-    this.stereoPosLDMC = null;
-    this.stereoPosRSquare1 = null;
-    this.stereoPosRSquare2 = null;
-    this.stereoPosRTriangle = null;
-    this.stereoPosRNoise = null;
-    this.stereoPosRDMC = null;
+    this.stereoPosLSquare1 = 0;
+    this.stereoPosLSquare2 = 0;
+    this.stereoPosLTriangle = 0;
+    this.stereoPosLNoise = 0;
+    this.stereoPosLDMC = 0;
+    this.stereoPosRSquare1 = 0;
+    this.stereoPosRSquare2 = 0;
+    this.stereoPosRTriangle = 0;
+    this.stereoPosRNoise = 0;
+    this.stereoPosRDMC = 0;
 
-    this.extraCycles = null;
+    this.extraCycles = 0;
     
-    this.maxSample = null;
-    this.minSample = null;
+    this.maxSample = 0;
+    this.minSample = 0;
     
     // Panning:
     this.panning = [80, 170, 100, 150, 128];
@@ -197,16 +197,16 @@ class JSNES_PAPU {
     this.reset();
   }
     void reset() {
-        this.sampleRate = this.nes.opts.sampleRate;
+        this.sampleRate = this.nes.opts['sampleRate'];
         this.sampleTimerMax = (
-            (1024.0 * this.nes.opts.CPU_FREQ_NTSC *
-                this.nes.opts.preferredFrameRate) / 
+            (1024.0 * this.nes.opts['CPU_FREQ_NTSC'] *
+                this.nes.opts['preferredFrameRate']) / 
                 (this.sampleRate * 60.0)
-        ).floor;
+        ).floor();
     
         this.frameTime = (
-            (14915.0 * this.nes.opts.preferredFrameRate) / 60.0
-        ).floor;
+            (14915.0 * this.nes.opts['preferredFrameRate']) / 60.0
+        ).floor();
 
         this.sampleTimer = 0;
         this.bufferIndex = 0;
@@ -535,7 +535,7 @@ class JSNES_PAPU {
         // Special treatment for triangle channel - need to interpolate.
         if (this.triangle.sampleCondition) {
             this.triValue = ((this.triangle.progTimerCount << 4) /
-                    (this.triangle.progTimerMax + 1)).floor;
+                    (this.triangle.progTimerMax + 1)).floor();
             if (this.triValue > 16) {
                 this.triValue = 16;
             }
@@ -626,15 +626,15 @@ class JSNES_PAPU {
         if (this.accCount > 0) {
 
             this.smpSquare1 <<= 4;
-            this.smpSquare1 = (this.smpSquare1 / this.accCount).floor;
+            this.smpSquare1 = (this.smpSquare1 / this.accCount).floor();
 
             this.smpSquare2 <<= 4;
-            this.smpSquare2 = (this.smpSquare2 / this.accCount).floor;
+            this.smpSquare2 = (this.smpSquare2 / this.accCount).floor();
 
-            this.smpTriangle = (this.smpTriangle / this.accCount).floor;
+            this.smpTriangle = (this.smpTriangle / this.accCount).floor();
 
             this.smpDmc <<= 4;
-            this.smpDmc = (this.smpDmc / this.accCount).floor;
+            this.smpDmc = (this.smpDmc / this.accCount).floor();
         
             this.accCount = 0;
         }
@@ -645,8 +645,8 @@ class JSNES_PAPU {
             this.smpDmc = this.dmc.sample << 4;
         }
     
-        var smpNoise = ((this.noise.accValue << 4) / 
-                this.noise.accCount).floor;
+        int smpNoise = ((this.noise.accValue << 4) / 
+                this.noise.accCount).floor();
         this.noise.accValue = smpNoise >> 4;
         this.noise.accCount = 1;
 
@@ -712,7 +712,7 @@ class JSNES_PAPU {
         
         // Write full buffer
         if (this.bufferIndex == this.sampleBuffer.length) {
-            this.nes.ui.writeAudio(this.sampleBuffer);
+//            this.nes.ui.writeAudio(this.sampleBuffer);
             this.sampleBuffer = new List(this.bufferSize*2);
             this.bufferIndex = 0;
         }
@@ -725,18 +725,18 @@ class JSNES_PAPU {
 
     }
 
-    void getLengthMax(value){
+    int getLengthMax(value){
         return this.lengthLookup[value >> 3];
     }
 
-    void getDmcFrequency(value){
+    int getDmcFrequency(value){
         if (value >= 0 && value < 0x10) {
             return this.dmcFreqLookup[value];
         }
         return 0;
     }
 
-    void getNoiseWaveLength(value){
+    int getNoiseWaveLength(value){
         if (value >= 0 && value < 0x10) {
             return this.noiseWavelengthLookup[value];
         }
@@ -799,7 +799,7 @@ class JSNES_PAPU {
 
     void initDmcFrequencyLookup(){
 
-        this.dmcFreqLookup = new List(16);
+        this.dmcFreqLookup = new List<int>(16);
 
         this.dmcFreqLookup[0x0] = 0xD60;
         this.dmcFreqLookup[0x1] = 0xBE0;
@@ -823,7 +823,7 @@ class JSNES_PAPU {
 
     void initNoiseWavelengthLookup(){
 
-        this.noiseWavelengthLookup = new List(16);
+        this.noiseWavelengthLookup = new List<int>(16);
 
         this.noiseWavelengthLookup[0x0] = 0x004;
         this.noiseWavelengthLookup[0x1] = 0x008;
@@ -849,14 +849,14 @@ class JSNES_PAPU {
         var max_sqr = 0;
         var max_tnd = 0;
         
-        this.square_table = new List(32*16);
+        this.square_table = new List<int> (32*16);
         this.tnd_table = new List(204*16);
 
         for (i = 0; i < 32 * 16; i++) {
             value = 95.52 / (8128.0 / (i/16.0) + 100.0);
             value *= 0.98411;
             value *= 50000.0;
-            ival = value.floor;
+            ival = value.floor();
         
             this.square_table[i] = ival;
             if (ival > max_sqr) {
@@ -868,7 +868,7 @@ class JSNES_PAPU {
             value = 163.67 / (24329.0 / (i/16.0) + 100.0);
             value *= 0.98411;
             value *= 50000.0;
-            ival = value.floor;
+            ival = value.floor();
         
             this.tnd_table[i] = ival;
             if (ival > max_tnd) {
@@ -878,7 +878,7 @@ class JSNES_PAPU {
         }
     
         this.dacRange = max_sqr+max_tnd;
-        this.dcValue = this.dacRange/2;
+        this.dcValue = (int)(this.dacRange/2);
 
     }
 }
@@ -891,24 +891,24 @@ class JSNES_PAPU_ChannelDM {
   
   JSNES_PAPU papu = null;
   
-  isEnabled = null;
-  hasSample = null;
-  irqGenerated = false;
+  bool isEnabled = false;
+  bool hasSample = false;
+  bool irqGenerated = false;
   
-  playMode = null;
-  dmaFrequency = null;
-  dmaCounter = null;
-  deltaCounter = null;
-  playStartAddress = null;
-  playAddress = null;
-  playLength = null;
-  playLengthCounter = null;
-  shiftCounter = null;
-  reg4012 = null;
-  reg4013 = null;
-  sample = null;
-  dacLsb = null;
-  data = null;
+  int playMode;
+  int dmaFrequency;
+  int dmaCounter;
+  int deltaCounter;
+  int playStartAddress;
+  int playAddress;
+  int playLength;
+  int playLengthCounter;
+  int shiftCounter;
+  int reg4012;
+  int reg4013;
+  int sample;
+  int dacLsb;
+  int data;
   
   JSNES_PAPU_ChannelDM(JSNES_PAPU papu) {
     this.papu = papu;
@@ -1071,11 +1071,11 @@ class JSNES_PAPU_ChannelDM {
         this.isEnabled = value;
     }
 
-    void getLengthStatus(){
+    int getLengthStatus() {
         return ((this.playLengthCounter == 0 || !this.isEnabled) ? 0 : 1);
     }
 
-    void getIrqStatus(){
+    int getIrqStatus(){
         return (this.irqGenerated ? 1 : 0);
     }
 
@@ -1101,29 +1101,29 @@ class JSNES_PAPU_ChannelDM {
 
 
 class JSNES_PAPU_ChannelNoise {
-  papu = papu;
+  JSNES_PAPU papu = null;
   
-  isEnabled = null;
-  envDecayDisable = null;
-  envDecayLoopEnable = null;
-  lengthCounterEnable = null;
-  envReset = null;
-  shiftNow = null;
+  var isEnabled = null;
+  var envDecayDisable = null;
+  var envDecayLoopEnable = null;
+  var lengthCounterEnable = null;
+  var envReset = null;
+  var shiftNow = null;
   
-  lengthCounter = null;
-  progTimerCount = null;
-  progTimerMax = null;
-  envDecayRate = null;
-  envDecayCounter = null;
-  envVolume = null;
-  masterVolume = null;
+  var lengthCounter = null;
+  var progTimerCount = null;
+  var progTimerMax = null;
+  var envDecayRate = null;
+  var envDecayCounter = null;
+  var envVolume = null;
+  var masterVolume = null;
   int shiftReg;
-  randomBit = null;
-  randomMode = null;
-  sampleValue = null;
+  var randomBit = null;
+  var randomMode = null;
+  var sampleValue = null;
   int accValue;
   int accCount;
-  tmp = null;
+  var tmp = null;
   
   JSNES_PAPU_ChannelNoise(JSNES_PAPU papu) {
     this.papu = papu;
@@ -1221,7 +1221,7 @@ class JSNES_PAPU_ChannelNoise {
         this.updateSampleValue();
     }
 
-    void getLengthStatus() {
+    int getLengthStatus() {
         return ((this.lengthCounter==0 || !this.isEnabled)?0:1);
     }
 }
@@ -1244,32 +1244,32 @@ class JSNES_PAPU_ChannelSquare {
   
   JSNES_PAPU papu = null;
   
-  isEnabled = null;
-  lengthCounterEnable = null;
-  sweepActive = null;
-  envDecayDisable = null;
-  envDecayLoopEnable = null;
-  envReset = null;
-  sweepCarry = null;
-  updateSweepPeriod = null;
+  var isEnabled = null;
+  var lengthCounterEnable = null;
+  var sweepActive = null;
+  var envDecayDisable = null;
+  var envDecayLoopEnable = null;
+  var envReset = null;
+  var sweepCarry = null;
+  var updateSweepPeriod = null;
   
-  progTimerCount = null;
-  progTimerMax = null;
-  lengthCounter = null;
-  squareCounter = null;
-  sweepCounter = null;
-  sweepCounterMax = null;
-  sweepMode = null;
-  sweepShiftAmount = null;
-  envDecayRate = null;
-  envDecayCounter = null;
-  envVolume = null;
-  masterVolume = null;
-  dutyMode = null;
-  sweepResult = null;
-  sampleValue = null;
-  vol = null;
-  sqr1 = null;
+  var progTimerCount = null;
+  var progTimerMax = null;
+  var lengthCounter = null;
+  var squareCounter = null;
+  var sweepCounter = null;
+  var sweepCounterMax = null;
+  var sweepMode = null;
+  var sweepShiftAmount = null;
+  var envDecayRate = null;
+  var envDecayCounter = null;
+  var envVolume = null;
+  var masterVolume = null;
+  var dutyMode = null;
+  var sweepResult = null;
+  var sampleValue = null;
+  var vol = null;
+  var sqr1 = null;
   
   JSNES_PAPU_ChannelSquare(JSNES_PAPU papu, square1) {
     this.papu = papu;    
@@ -1418,7 +1418,7 @@ class JSNES_PAPU_ChannelSquare {
         this.updateSampleValue();
     }
 
-    void getLengthStatus() {
+    int getLengthStatus() {
         return ((this.lengthCounter == 0 || !this.isEnabled) ? 0 : 1);
     }
 }
@@ -1427,20 +1427,20 @@ class JSNES_PAPU_ChannelSquare {
 class JSNES_PAPU_ChannelTriangle {
   JSNES_PAPU papu = null;
   
-  isEnabled = null;
-  sampleCondition = null;
-  lengthCounterEnable = null;
-  lcHalt = null;
-  lcControl = null;
+  var isEnabled = null;
+  var sampleCondition = null;
+  var lengthCounterEnable = null;
+  var lcHalt = null;
+  var lcControl = null;
   
-  progTimerCount = null;
-  progTimerMax = null;
-  triangleCounter = null;
-  lengthCounter = null;
-  linearCounter = null;
-  lcLoadValue = null;
-  sampleValue = null;
-  tmp = null;
+  var progTimerCount = null;
+  var progTimerMax = null;
+  var triangleCounter = null;
+  var lengthCounter = null;
+  var linearCounter = null;
+  var lcLoadValue = null;
+  var sampleValue = null;
+  var tmp = null;
   
   JSNES_PAPU_ChannelTriangle(JSNES_PAPU papu) {
     this.papu = papu;    
@@ -1489,7 +1489,7 @@ class JSNES_PAPU_ChannelTriangle {
         }
     }
 
-    void getLengthStatus(){
+    int getLengthStatus(){
         return ((this.lengthCounter == 0 || !this.isEnabled)?0:1);
     }
 
