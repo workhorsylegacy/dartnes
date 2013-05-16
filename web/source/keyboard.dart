@@ -22,7 +22,6 @@ class JSNES_Keyboard {
     Map<String, int> keys = null;
     List<int> state1 = null;
     List<int> state2 = null;
-    int i = 0;
     
     JSNES_Keyboard() {
         this.keys = {
@@ -36,17 +35,14 @@ class JSNES_Keyboard {
         'KEY_RIGHT': 7
         };
 
-        this.state1 = new List<int>(8);
-        for (i = 0; i < this.state1.length; i++) {
-            this.state1[i] = 0x40;
-        }
-        this.state2 = new List<int>(8);
-        for (i = 0; i < this.state2.length; i++) {
-            this.state2[i] = 0x40;
-        }
+        this.state1 = new List<int>.filled(8, 0x40);
+        this.state2 = new List<int>.filled(8, 0x40);
     }
     
     bool setKey(String key, int value) {
+        assert(key is String);
+        assert(value is int);
+        
         switch (key) {
             case 88: this.state1[this.keys['KEY_A']] = value; break;      // X
             case 89: this.state1[this.keys['KEY_B']] = value; break;      // Y (Central European keyboard)

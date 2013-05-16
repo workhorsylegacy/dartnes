@@ -62,6 +62,8 @@ class JSNES_CPU {
     int irqType = 0;
     
     JSNES_CPU(JSNES_NES nes) {
+      assert(nes is JSNES_NES);
+      
       this.nes = nes;
       this.reset();
     }
@@ -126,8 +128,8 @@ class JSNES_CPU {
     
     // Emulates a single CPU instruction, returns the number of cycles
     int emulate() {
-        int temp;
-        int add;
+        int temp = 0;
+        int add = 0;
         
         // Check interrupts:
         if(this.irqRequested){
@@ -1106,6 +1108,8 @@ class JSNES_CPU {
     }
     
     int load16bit(int addr){
+        assert(addr is int);
+        
         if (addr < 0x1FFF) {
             return this.mem[addr&0x7FF] 
                 | (this.mem[(addr+1)&0x7FF]<<8);
@@ -1116,6 +1120,9 @@ class JSNES_CPU {
     }
     
     void write(int addr, int val){
+        assert(addr is int);
+        assert(val is int);
+        
         if(addr < 0x2000) {
             this.mem[addr&0x7FF] = val;
         }
@@ -1125,6 +1132,8 @@ class JSNES_CPU {
     }
 
     void requestIrq(int type){
+        assert(type is int);
+        
         if(this.irqRequested){
             if(type == this.IRQ_NORMAL){
                 return;
@@ -1136,6 +1145,8 @@ class JSNES_CPU {
     }
 
     void push(int value){
+        assert(value is int);
+        
         this.nes.mmap.write(this.REG_SP, value);
         this.REG_SP--;
         this.REG_SP = 0x0100 | (this.REG_SP&0xFF);
@@ -1152,14 +1163,21 @@ class JSNES_CPU {
     }
 
     bool pageCrossed(int addr1, int addr2){
+        assert(addr1 is int);
+        assert(addr2 is int);
+        
         return ((addr1&0xFF00) != (addr2&0xFF00));
     }
 
     void haltCycles(int cycles){
+        assert(cycles is int);
+        
         this.cyclesToHalt += cycles;
     }
 
     void doNonMaskableInterrupt(int status){
+        assert(status is int);
+        
         if((this.nes.mmap.load(0x2000) & 128) != 0) { // Check whether VBlank Interrupts are enabled
 
             this.REG_PC_NEW++;
@@ -1179,6 +1197,8 @@ class JSNES_CPU {
     }
 
     void doIrq(int status){
+        assert(status is int);
+        
         this.REG_PC_NEW++;
         this.push((this.REG_PC_NEW>>8)&0xFF);
         this.push(this.REG_PC_NEW&0xFF);
@@ -1202,6 +1222,8 @@ class JSNES_CPU {
     }
 
     void setStatus(int st){
+        assert(st is int);
+        
         this.F_CARRY     = (st   )&1;
         this.F_ZERO      = (st>>1)&1;
         this.F_INTERRUPT = (st>>2)&1;
@@ -1320,6 +1342,12 @@ class JSNES_CPU_OpData {
   List<int> cycTable = null;
   
   void setOp(int inst, int op, int addr, int size, int cycles){
+    assert(inst is int);
+    assert(op is int);
+    assert(addr is int);
+    assert(size is int);
+    assert(cycles is int);
+    
     this.opdata[op] = 
         ((inst  &0xFF)    )| 
         ((addr  &0xFF)<< 8)| 
@@ -1327,7 +1355,7 @@ class JSNES_CPU_OpData {
         ((cycles&0xFF)<<24);
   }
 
-    OpData() {
+  OpData() {
       this.opdata = new List<int>.filled(256, 0);
       
       // Set all to invalid instruction (to detect crashes):

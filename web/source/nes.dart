@@ -51,6 +51,8 @@ class JSNES_NES {
     Timer fpsInterval = null;
     
     JSNES_NES(Map opts) {
+      assert(opts is Map);
+      
       this.opts = {
           'swfPath': 'lib/',
           
@@ -213,6 +215,8 @@ class JSNES_NES {
     // Loads a ROM file into the CPU and PPU.
     // The ROM file is validated first.
     bool loadRom(String data) {
+        assert(data is String);
+        
         if (this.isRunning) {
             this.stop();
         }
@@ -247,12 +251,16 @@ class JSNES_NES {
     }
     
     void setFramerate(int rate) {
+        assert(rate is int);
+        
         this.opts['preferredFrameRate']= rate;
         this.frameTime = 1000 / rate;
 //        this.papu.setSampleRate(this.opts['sampleRate'], false);
     }
     
     void setLimitFrames(bool limit) {
+        assert(limit is bool);
+        
         this.limitFrames = limit;
         this.lastFrameTime = 0;
     }

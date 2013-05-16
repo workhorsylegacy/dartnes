@@ -46,6 +46,7 @@ class JSNES_UI {
   var dynamicaudio = null;
   
   JSNES_UI(JSNES_NES nes) {
+      assert(nes is JSNES_NES);
                 this.nes = nes;
 
                 this.status = query('#status');

@@ -98,6 +98,8 @@ class JSNES_PAPU {
   List<int> panning = null;
   
   JSNES_PAPU(JSNES_NES nes) {
+    assert(nes is JSNES_NES);
+    
     this.nes = nes;
     
     this.square1 = new JSNES_PAPU_ChannelSquare(this, true);
@@ -250,6 +252,8 @@ class JSNES_PAPU {
     }
 
     int readReg(int address){
+        assert(address is int);
+        
         // Read 0x4015:
         int tmp = 0;
         tmp |= (this.square1.getLengthStatus()   );
@@ -267,6 +271,9 @@ class JSNES_PAPU {
     }
 
     void writeReg(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         if (address >= 0x4000 && address < 0x4004) {
             // Square Wave 1 Control
             this.square1.writeReg(address, value);
@@ -353,6 +360,8 @@ class JSNES_PAPU {
     // and when the user enables/disables channels
     // in the GUI.
     void updateChannelEnable(int value){
+        assert(value is int);
+        
         this.channelEnableValue = value&0xFFFF;
         this.square1.setEnabled((value&1) != 0);
         this.square2.setEnabled((value&2) != 0);
@@ -366,6 +375,8 @@ class JSNES_PAPU {
     // divided by 2 for those counters that are
     // clocked at cpu speed.
     void clockFrameCounter(int nCycles){
+        assert(nCycles is int);
+        
         if (this.initCounter > 0) {
             if (this.initingHardware) {
                 this.initCounter -= nCycles;
@@ -532,6 +543,8 @@ class JSNES_PAPU {
     }
 
     void accSample(int cycles) {
+        assert(cycles is int);
+        
         // Special treatment for triangle channel - need to interpolate.
         if (this.triangle.sampleCondition) {
             this.triValue = ((this.triangle.progTimerCount << 4) /
@@ -726,10 +739,14 @@ class JSNES_PAPU {
     }
 
     int getLengthMax(int value){
+        assert(value is int);
+        
         return this.lengthLookup[value >> 3];
     }
 
     int getDmcFrequency(int value){
+        assert(value is int);
+        
         if (value >= 0 && value < 0x10) {
             return this.dmcFreqLookup[value];
         }
@@ -737,6 +754,8 @@ class JSNES_PAPU {
     }
 
     int getNoiseWaveLength(int value){
+        assert(value is int);
+        
         if (value >= 0 && value < 0x10) {
             return this.noiseWavelengthLookup[value];
         }
@@ -744,6 +763,8 @@ class JSNES_PAPU {
     }
 
     void setPanning(List<int> pos){
+        assert(pos is List<int>);
+        
         for (int i = 0; i < 5; i++) {
             this.panning[i] = pos[i];
         }
@@ -751,6 +772,8 @@ class JSNES_PAPU {
     }
 
     void setMasterVolume(int value){
+        assert(value is int);
+        
         if (value < 0) {
             value = 0;
         }
@@ -912,6 +935,8 @@ class JSNES_PAPU_ChannelDM {
   int data = 0;
   
   JSNES_PAPU_ChannelDM(JSNES_PAPU papu) {
+    assert(papu is JSNES_PAPU);
+    
     this.papu = papu;
     
     this.reset();
@@ -1005,6 +1030,9 @@ class JSNES_PAPU_ChannelDM {
     }
 
     void writeReg(int address, int value) {
+        assert(address is int);
+        assert(value is int);
+        
         if (address == 0x4010) {
         
             // Play mode, DMA Frequency
@@ -1066,6 +1094,8 @@ class JSNES_PAPU_ChannelDM {
     }
 
     void setEnabled(bool value) {
+        assert(value is bool);
+        
         if ((!this.isEnabled) && value) {
             this.playLengthCounter = this.playLength;
         }
@@ -1127,6 +1157,8 @@ class JSNES_PAPU_ChannelNoise {
   int tmp = 0;
   
   JSNES_PAPU_ChannelNoise(JSNES_PAPU papu) {
+    assert(papu is JSNES_PAPU);
+    
     this.papu = papu;
     this.shiftReg = 1<<14;
     this.accValue=0;
@@ -1192,6 +1224,9 @@ class JSNES_PAPU_ChannelNoise {
     }
 
     void writeReg(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         if(address == 0x400C) {
             // Volume/Envelope decay:
             this.envDecayDisable = ((value&0x10) != 0);
@@ -1215,6 +1250,8 @@ class JSNES_PAPU_ChannelNoise {
     }
 
     void setEnabled(bool value){
+        assert(value is bool);
+        
         this.isEnabled = value;
         if (!value) {
             this.lengthCounter = 0;
@@ -1273,6 +1310,9 @@ class JSNES_PAPU_ChannelSquare {
   bool sqr1 = false;
   
   JSNES_PAPU_ChannelSquare(JSNES_PAPU papu, bool square1) {
+    assert(papu is JSNES_PAPU);
+    assert(square1 is bool);
+    
     this.papu = papu;
     this.sqr1 = square1;
     
@@ -1373,6 +1413,9 @@ class JSNES_PAPU_ChannelSquare {
     }
 
     void writeReg(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         int addrAdd = (this.sqr1?0:4);
         if (address == 0x4000 + addrAdd) {
             // Volume/Envelope decay:
@@ -1412,6 +1455,8 @@ class JSNES_PAPU_ChannelSquare {
     }
 
     void setEnabled(bool value) {
+        assert(value is bool);
+        
         this.isEnabled = value;
         if (!value) {
             this.lengthCounter = 0;
@@ -1444,6 +1489,8 @@ class JSNES_PAPU_ChannelTriangle {
   int tmp = 0;
   
   JSNES_PAPU_ChannelTriangle(JSNES_PAPU papu) {
+    assert(papu is JSNES_PAPU);
+    
     this.papu = papu;    
     this.reset();
   }
@@ -1495,10 +1542,15 @@ class JSNES_PAPU_ChannelTriangle {
     }
 
     void readReg(int address){
+        assert(address is int);
+        
         return 0;
     }
 
     void writeReg(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         if (address == 0x4008) {
             // New values for linear counter:
             this.lcControl  = (value&0x80)!=0;
@@ -1525,6 +1577,8 @@ class JSNES_PAPU_ChannelTriangle {
     }
 
     void clockProgrammableTimer(int nCycles){
+        assert(nCycles is int);
+        
         if (this.progTimerMax>0) {
             this.progTimerCount += nCycles;
             while (this.progTimerMax > 0 && 
@@ -1544,6 +1598,8 @@ class JSNES_PAPU_ChannelTriangle {
     }
 
     void setEnabled(bool value) {
+        assert(value is bool);
+        
         this.isEnabled = value;
         if(!value) {
             this.lengthCounter = 0;

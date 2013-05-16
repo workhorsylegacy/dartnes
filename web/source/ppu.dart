@@ -135,6 +135,8 @@ class JSNES_PPU {
   int srcy2 = 0;
   
   JSNES_PPU(JSNES_NES nes) {
+    assert(nes is JSNES_NES);
+    
     this.nes = nes;
         
     // Rendering Options:
@@ -268,6 +270,7 @@ class JSNES_PPU {
     
     // Sets Nametable mirroring.
     void setMirroring(int mirroring){
+        assert(mirroring is int);
     
         if (mirroring == this.currentMirroring) {
             return;
@@ -359,6 +362,10 @@ class JSNES_PPU {
     // Assumes the regions don't overlap.
     // The 'to' region is the region that is physically in memory.
     void defineMirrorRegion(int fromStart, int toStart, int size){
+        assert(fromStart is int);
+        assert(toStart is int);
+        assert(size is int);
+        
         for (int i=0;i<size;i++) {
             this.vramMirrorTable[fromStart+i] = toStart+i;
         }
@@ -608,6 +615,7 @@ class JSNES_PPU {
     }
     
     void updateControlReg1(int value){
+        assert(value is int);
         
         this.triggerRendering();
         
@@ -625,6 +633,7 @@ class JSNES_PPU {
     }
     
     void updateControlReg2(int value){
+        assert(value is int);
         
         this.triggerRendering();
         
@@ -642,6 +651,9 @@ class JSNES_PPU {
     }
     
     void setStatusFlag(int flag, bool value){
+        assert(flag is int);
+        assert(value is bool);
+        
         int n = 1<<flag;
         this.nes.cpu.mem[0x2002] = 
             ((this.nes.cpu.mem[0x2002] & (255-n)) | (value ? n : 0));
@@ -667,6 +679,8 @@ class JSNES_PPU {
     // CPU Register $2003:
     // Write the SPR-RAM address that is used for sramWrite (Register 0x2004 in CPU memory map)
     void writeSRAMAddress(int address) {
+        assert(address is int);
+        
         this.sramAddress = address;
     }
     
@@ -685,6 +699,8 @@ class JSNES_PPU {
     // Write to SPR-RAM (Sprite RAM).
     // The address should be set first.
     void sramWrite(int value){
+        assert(value is int);
+        
         this.spriteMem[this.sramAddress] = value;
         this.spriteRamWriteUpdate(this.sramAddress,value);
         this.sramAddress++; // Increment address
@@ -696,6 +712,8 @@ class JSNES_PPU {
     // The first write is the vertical offset, the second is the
     // horizontal offset:
     void scrollWrite(int value){
+        assert(value is int);
+        
         this.triggerRendering();
         
         if (this.firstWrite) {
@@ -718,6 +736,7 @@ class JSNES_PPU {
     // Sets the adress used when reading/writing from/to VRAM.
     // The first write sets the high byte, the second the low byte.
     void writeVRAMAddress(int address){
+        assert(address is int);
         
         if (this.firstWrite) {
             
@@ -802,6 +821,7 @@ class JSNES_PPU {
     // CPU Register $2007(W):
     // Write to PPU memory. The address should be set first.
     void vramWrite(int value){
+        assert(value is int);
         
         this.triggerRendering();
         this.cntsToAddress();
@@ -831,6 +851,8 @@ class JSNES_PPU {
     // Write 256 bytes of main memory
     // into Sprite RAM.
     void sramDMA(int value){
+        assert(value is int);
+        
         int baseAddress = value * 0x100;
         int data;
         for (int i=this.sramAddress; i < 256; i++) {
@@ -896,7 +918,9 @@ class JSNES_PPU {
         this.vramAddress = ((b1<<8) | b2)&0x7FFF;
     }
     
-    void incTileCounter(int count) { 
+    void incTileCounter(int count) {
+        assert(count is int);
+        
         for (int i=count; i!=0; i--) {
             this.cntHT++;
             if (this.cntHT == 32) {
@@ -921,12 +945,17 @@ class JSNES_PPU {
     // Reads from memory, taking into account
     // mirroring/mapping of address ranges.
     int mirroredLoad(int address) {
+        assert(address is int);
+        
         return this.vramMem[this.vramMirrorTable[address]];
     }
     
     // Writes to memory, taking into account
     // mirroring/mapping of address ranges.
     void mirroredWrite(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         if (address>=0x3f00 && address<0x3f20) {
             // Palette write mirroring.
             if (address==0x3F00 || address==0x3F10) {
@@ -979,6 +1008,9 @@ class JSNES_PPU {
     }
     
     void renderFramePartially(int startScan, int scanCount){
+        assert(startScan is int);
+        assert(scanCount is int);
+        
         if (this.f_spVisibility == 1) {
             this.renderSpritesPartially(startScan,scanCount,true);
         }
@@ -1007,6 +1039,9 @@ class JSNES_PPU {
     }
     
     void renderBgScanline(List<int> bgbuffer, int scan) {
+        assert(bgbuffer is List<int>);
+        assert(scan is int);
+        
         int baseTile = (this.regS == 0 ? 0 : 256);
         int destIndex = (scan<<8)-this.regFH;
 
@@ -1121,6 +1156,9 @@ class JSNES_PPU {
     }
     
     void renderSpritesPartially(int startscan, int scancount, bool bgPri){
+        assert(startscan is int);
+        assert(bgPri is bool);
+        
         if (this.f_spVisibility == 1) {
             
             for (int i=0;i<64;i++) {
@@ -1220,6 +1258,7 @@ class JSNES_PPU {
     }
     
     bool checkSprite0(int scan){
+        assert(scan is int);
         
         this.spr0HitX = -1;
         this.spr0HitY = -1;
@@ -1367,6 +1406,9 @@ class JSNES_PPU {
     // update internally buffered data
     // appropriately.
     void writeMem(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         this.vramMem[address] = value;
         
         // Update internally buffered data:
@@ -1438,6 +1480,9 @@ class JSNES_PPU {
     // table buffers with this new byte.
     // In vNES, there is a version of this with 4 arguments which isn't used.
     void patternWrite(int address, int value){
+        assert(address is int);
+        assert(value is int);
+        
         int tileIndex = (address / 16).floor();
         int leftOver = address%16;
         if (leftOver<8) {
@@ -1459,6 +1504,10 @@ class JSNES_PPU {
     // Updates the internal name table buffers
     // with this new byte.
     void nameTableWrite(int index, int address, JSNES_PPU_Tile value){
+        assert(index is int);
+        assert(address is int);
+        assert(value is JSNES_PPU_Tile);
+        
         this.nameTable[index].tile[address] = value;
         
         // Update Sprite #0 hit:
@@ -1470,12 +1519,19 @@ class JSNES_PPU {
     // table buffers with this new attribute
     // table byte.
     void attribTableWrite(int index, int address, JSNES_PPU_NameTable value){
+        assert(index is int);
+        assert(address is int);
+        assert(value is JSNES_PPU_NameTable);
+        
         this.nameTable[index].writeAttrib(address,value);
     }
     
     // Updates the internally buffered sprite
     // data with this new byte of info.
     void spriteRamWriteUpdate(int address, int value) {
+        assert(address is int);
+        assert(value is int);
+        
         int tIndex = (address / 4).floor();
         
         if (tIndex == 0) {
@@ -1559,6 +1615,10 @@ class JSNES_PPU_NameTable {
   List<int> attrib = null;
   
   JSNES_PPU_NameTable(int width, int height, String name) {
+    assert(width is int);
+    assert(height is int);
+    assert(name is String);
+    
     this.width = width;
     this.height = height;
     this.name = name;
@@ -1568,14 +1628,21 @@ class JSNES_PPU_NameTable {
   }
   
   JSNES_PPU_Tile getTileIndex(int x, int y){
+      assert(x is int);
+      assert(y is int);
+      
         return this.tile[y*this.width+x];
     }
 
     int getAttrib(int x, int y){
+        assert(x is int);
+        assert(y is int);
         return this.attrib[y*this.width+x];
     }
 
     void writeAttrib(int index, int value){
+        assert(index is int);
+        assert(value is int);
         int basex = (index % 8) * 4;
         int basey = (index / 8).floor() * 4;
         int add;
@@ -1678,6 +1745,8 @@ class JSNES_PPU_PaletteTable {
     }
     
     void setEmphasis(int emph){
+        assert(emph is int);
+        
         if (emph != this.currentEmph) {
             this.currentEmph = emph;
             for (int i = 0; i < 64; i++) {
@@ -1687,22 +1756,34 @@ class JSNES_PPU_PaletteTable {
     }
     
     int getEntry(int yiq){
+        assert(yiq is int);
+        
         return this.curTable[yiq];
     }
     
     int getRed(int rgb){
+        assert(rgb is int);
+        
         return (rgb>>16)&0xFF;
     }
     
     int getGreen(int rgb){
+        assert(rgb is int);
+        
         return (rgb>>8)&0xFF;
     }
     
     int getBlue(int rgb){
+        assert(rgb is int);
+        
         return rgb&0xFF;
     }
     
     int getRgb(int r, int g, int b){
+        assert(r is int);
+        assert(g is int);
+        assert(b is int);
+        
         return ((r<<16)|(g<<8)|(b));
     }
     
@@ -1803,6 +1884,8 @@ class JSNES_PPU_Tile {
   }
 
     void setBuffer(List<int> scanline){
+        assert(scanline is List<int>);
+        
         for (this.y=0;this.y<8;this.y++) {
             this.setScanline(this.y,scanline[this.y],scanline[this.y+8]);
         }
@@ -1812,6 +1895,7 @@ class JSNES_PPU_Tile {
         assert(sline is int);
         assert(b1 is int);
         assert(b2 is int);
+        
         this.initialized = true;
         this.tIndex = sline<<3;
         for (this.x = 0; this.x < 8; this.x++) {
@@ -1825,7 +1909,20 @@ class JSNES_PPU_Tile {
     }
     
     void render(List<int> buffer, int srcx1, int srcy1, int srcx2, int srcy2, int dx, int dy, int palAdd, List<int> palette, int flipHorizontal, int flipVertical, int pri, List<int> priTable) {
-
+        assert(buffer is List<int> && 
+            srcx1 is int && 
+            srcy1 is int && 
+            srcx2 is int && 
+            srcy2 is int && 
+            dx is int && 
+            dy is int && 
+            palAdd is int && 
+            palette is List<int> && 
+            flipHorizontal is int &&
+            flipVertical is int && 
+            pri is int && 
+            priTable is List<int>);
+        
         if (dx<-7 || dx>=256 || dy<-7 || dy>=240) {
             return;
         }
@@ -1944,6 +2041,9 @@ class JSNES_PPU_Tile {
     }
     
     bool isTransparent(int x, int y){
+        assert(x is int);
+        assert(y is int);
+        
         return (this.pix[(y << 3) + x] == 0);
     }
 /*    

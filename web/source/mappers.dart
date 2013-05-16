@@ -34,12 +34,15 @@ class BaseJSNES_Mapper {
   int mouseY = 0;
   
   BaseJSNES_Mapper(JSNES_NES nes) {
+    assert(nes is JSNES_NES);
+    
     this.nes = nes;
   }
 }
 
 class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     JSNES_Mapper_0(JSNES_NES nes) : super(nes){
+        assert(nes is JSNES_NES);
     }
   
     void reset() {
@@ -53,6 +56,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
     
     void write(int address, int value) {
+        assert(address is int);
+        assert(value is int);
+        
         if (address < 0x2000) {
             // Mirroring of RAM:
             this.nes.cpu.mem[address & 0x7FF] = value;
@@ -76,6 +82,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
     
     void writelow(int address, int value) {
+        assert(address is int);
+        assert(value is int);
+        
         if (address < 0x2000) {
             // Mirroring of RAM:
             this.nes.cpu.mem[address & 0x7FF] = value;
@@ -92,6 +101,8 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     int load(int address) {
+        assert(address is int);
+        
         // Wrap around:
         address &= 0xFFFF;
     
@@ -111,6 +122,8 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     int regLoad(int address) {
+        assert(address is int);
+        
         switch (address >> 12) { // use fourth nibble (0xF000)
             case 0:
                 break;
@@ -219,6 +232,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void regWrite(int address, int value) {
+        assert(address is int);
+        assert(value is int);
+        
         switch (address) {
             case 0x2000:
                 // PPU Control register 1
@@ -438,6 +454,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void loadRomBank(int bank, int address) {
+        assert(bank is int);
+        assert(address is int);
+        
         // Loads a ROM bank into the specified address.
         bank %= this.nes.rom.romCount;
         //var data = this.nes.rom.rom[bank];
@@ -446,6 +465,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void loadVromBank(int bank, int address) {
+        assert(bank is int);
+        assert(address is int);
+        
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -459,11 +481,17 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void load32kRomBank(int bank, int address) {
+        assert(bank is int);
+        assert(address is int);
+        
         this.loadRomBank((bank*2) % this.nes.rom.romCount, address);
         this.loadRomBank((bank*2+1) % this.nes.rom.romCount, address+16384);
     }
 
     void load8kVromBank(int bank4kStart, int address) {
+        assert(bank4kStart is int);
+        assert(address is int);
+        
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -475,6 +503,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void load1kVromBank(int bank1k, int address) {
+        assert(bank1k is int);
+        assert(address is int);
+        
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -494,6 +525,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void load2kVromBank(int bank2k, int address) {
+        assert(bank2k is int);
+        assert(address is int);
+        
         if (this.nes.rom.vromCount == 0) {
             return;
         }
@@ -513,6 +547,9 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void load8kRomBank(int bank8k, int address) {
+        assert(bank8k is int);
+        assert(address is int);
+        
         int bank16k = (bank8k / 2).floor() % this.nes.rom.romCount;
         int offset = (bank8k % 2) * 8192;
     

@@ -95,6 +95,8 @@ class JSNES_ROM {
   }
     
     void load(String data) {
+        assert(data is String);
+        
         int i, j, v;
         
         if (data.indexOf("NES\x1a") == -1) {
