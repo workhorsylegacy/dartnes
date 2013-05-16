@@ -27,14 +27,14 @@ class JSNES_PAPU {
   JSNES_PAPU_ChannelNoise noise = null;
   JSNES_PAPU_ChannelDM dmc = null;
   
-  int frameIrqCounter;
-  int frameIrqCounterMax;
-  int initCounter;
-  int channelEnableValue;
+  int frameIrqCounter = 0;
+  int frameIrqCounterMax = 0;
+  int initCounter = 0;
+  int channelEnableValue = 0;
 
-  int bufferSize;
-  int bufferIndex;
-  int sampleRate;
+  int bufferSize = 0;
+  int bufferIndex = 0;
+  int sampleRate = 0;
 
   List<int> lengthLookup = null;
   List<int> dmcFreqLookup = null;
@@ -43,27 +43,27 @@ class JSNES_PAPU {
   List<int> tnd_table = null;
   List<int> sampleBuffer = null;
 
-  bool frameIrqEnabled;
-  bool frameIrqActive;
+  bool frameIrqEnabled = false;
+  bool frameIrqActive = false;
   //frameClockNow = null;
-  bool startedPlaying=false;
+  bool startedPlaying = false;
   bool recordOutput = false;
   bool initingHardware = false;
 
-  int masterFrameCounter;
-  int derivedFrameCounter;
-  int countSequence;
-  int sampleTimer;
-  int frameTime;
-  int sampleTimerMax;
-  int sampleCount;
-  int triValue;
+  int masterFrameCounter = 0;
+  int derivedFrameCounter = 0;
+  int countSequence = 0;
+  int sampleTimer = 0;
+  int frameTime = 0;
+  int sampleTimerMax = 0;
+  int sampleCount = 0;
+  int triValue = 0;
 
-  int smpSquare1;
-  int smpSquare2;
-  int smpTriangle;
-  int smpDmc;
-  int accCount;
+  int smpSquare1 = 0;
+  int smpSquare2 = 0;
+  int smpTriangle = 0;
+  int smpDmc = 0;
+  int accCount = 0;
 
   // DC removal vars:
   int prevSampleL = 0;
@@ -79,21 +79,21 @@ class JSNES_PAPU {
   int masterVolume = 256;
 
   // Stereo positioning:
-  int stereoPosLSquare1;
-  int stereoPosLSquare2;
-  int stereoPosLTriangle;
-  int stereoPosLNoise;
-  int stereoPosLDMC;
-  int stereoPosRSquare1;
-  int stereoPosRSquare2;
-  int stereoPosRTriangle;
-  int stereoPosRNoise;
-  int stereoPosRDMC;
+  int stereoPosLSquare1 = 0;
+  int stereoPosLSquare2 = 0;
+  int stereoPosLTriangle = 0;
+  int stereoPosLNoise = 0;
+  int stereoPosLDMC = 0;
+  int stereoPosRSquare1 = 0;
+  int stereoPosRSquare2 = 0;
+  int stereoPosRTriangle = 0;
+  int stereoPosRNoise = 0;
+  int stereoPosRDMC = 0;
 
-  int extraCycles;
+  int extraCycles = 0;
   
-  int maxSample;
-  int minSample;
+  int maxSample = 0;
+  int minSample = 0;
   
   List<int> panning = null;
   
@@ -120,7 +120,7 @@ class JSNES_PAPU {
     this.noiseWavelengthLookup = null;
     this.square_table = null;
     this.tnd_table = null;
-    this.sampleBuffer = new List<int>(this.bufferSize*2);
+    this.sampleBuffer = new List<int>.filled(this.bufferSize*2, 0);
 
     this.frameIrqEnabled = false;
     this.frameIrqActive = null;
@@ -713,7 +713,7 @@ class JSNES_PAPU {
         // Write full buffer
         if (this.bufferIndex == this.sampleBuffer.length) {
 //            this.nes.ui.writeAudio(this.sampleBuffer);
-            this.sampleBuffer = new List<int>(this.bufferSize*2);
+            this.sampleBuffer = new List<int>.filled(this.bufferSize*2, 0);
             this.bufferIndex = 0;
         }
 
@@ -799,7 +799,7 @@ class JSNES_PAPU {
 
     void initDmcFrequencyLookup(){
 
-        this.dmcFreqLookup = new List<int>(16);
+        this.dmcFreqLookup = new List<int>.filled(16, 0);
 
         this.dmcFreqLookup[0x0] = 0xD60;
         this.dmcFreqLookup[0x1] = 0xBE0;
@@ -823,7 +823,7 @@ class JSNES_PAPU {
 
     void initNoiseWavelengthLookup(){
 
-        this.noiseWavelengthLookup = new List<int>(16);
+        this.noiseWavelengthLookup = new List<int>.filled(16, 0);
 
         this.noiseWavelengthLookup[0x0] = 0x004;
         this.noiseWavelengthLookup[0x1] = 0x008;
@@ -850,8 +850,8 @@ class JSNES_PAPU {
         int max_sqr = 0;
         int max_tnd = 0;
         
-        this.square_table = new List<int> (32*16);
-        this.tnd_table = new List<int>(204*16);
+        this.square_table = new List<int>.filled(32*16, 0);
+        this.tnd_table = new List<int>.filled(204*16, 0);
 
         for (i = 0; i < 32 * 16; i++) {
             value = 95.52 / (8128.0 / (i/16.0) + 100.0);
@@ -896,20 +896,20 @@ class JSNES_PAPU_ChannelDM {
   bool hasSample = false;
   bool irqGenerated = false;
   
-  int playMode;
-  int dmaFrequency;
-  int dmaCounter;
-  int deltaCounter;
-  int playStartAddress;
-  int playAddress;
-  int playLength;
-  int playLengthCounter;
-  int shiftCounter;
-  int reg4012;
-  int reg4013;
-  int sample;
-  int dacLsb;
-  int data;
+  int playMode = 0;
+  int dmaFrequency = 0;
+  int dmaCounter = 0;
+  int deltaCounter = 0;
+  int playStartAddress = 0;
+  int playAddress = 0;
+  int playLength = 0;
+  int playLengthCounter = 0;
+  int shiftCounter = 0;
+  int reg4012 = 0;
+  int reg4013 = 0;
+  int sample = 0;
+  int dacLsb = 0;
+  int data = 0;
   
   JSNES_PAPU_ChannelDM(JSNES_PAPU papu) {
     this.papu = papu;

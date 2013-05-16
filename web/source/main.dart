@@ -1,5 +1,6 @@
 
 import 'dart:html';
+import 'dart:async';
 
 import 'cpu.dart';
 import 'keyboard.dart';
@@ -11,6 +12,6 @@ import 'rom.dart';
 import 'ui.dart';
 import 'utils.dart';
 
-main() {
+void main() {
   JSNES_NES nes = new JSNES_NES({});
 }

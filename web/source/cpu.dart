@@ -37,29 +37,29 @@ class JSNES_CPU {
   
     JSNES_NES nes = null;
     List<int> mem = null;
-    int REG_ACC;
-    int REG_X;
-    int REG_Y;
-    int REG_SP;
-    int REG_PC;
-    int REG_PC_NEW;
-    int REG_STATUS;
-    int F_CARRY;
-    int F_DECIMAL;
-    int F_INTERRUPT;
-    int F_INTERRUPT_NEW;
-    int F_OVERFLOW;
-    int F_SIGN;
-    int F_ZERO;
-    int F_NOTUSED;
-    int F_NOTUSED_NEW;
-    int F_BRK;
-    int F_BRK_NEW;
-    List<int> opdata;
-    int cyclesToHalt;
-    bool crash;
-    bool irqRequested;
-    int irqType;
+    int REG_ACC = 0;
+    int REG_X = 0;
+    int REG_Y = 0;
+    int REG_SP = 0;
+    int REG_PC = 0;
+    int REG_PC_NEW = 0;
+    int REG_STATUS = 0;
+    int F_CARRY = 0;
+    int F_DECIMAL = 0;
+    int F_INTERRUPT = 0;
+    int F_INTERRUPT_NEW = 0;
+    int F_OVERFLOW = 0;
+    int F_SIGN = 0;
+    int F_ZERO = 0;
+    int F_NOTUSED = 0;
+    int F_NOTUSED_NEW = 0;
+    int F_BRK = 0;
+    int F_BRK_NEW = 0;
+    List<int> opdata = null;
+    int cyclesToHalt = 0;
+    bool crash = false;
+    bool irqRequested = false;
+    int irqType = 0;
     
     JSNES_CPU(JSNES_NES nes) {
       this.nes = nes;
@@ -68,7 +68,7 @@ class JSNES_CPU {
 
     void reset() {
         // Main memory 
-        this.mem = new List<int>(0x10000);
+        this.mem = new List<int>.filled(0x10000, 0);
         
         for (int i=0; i < 0x2000; i++) {
             this.mem[i] = 0xFF;
@@ -1314,10 +1314,10 @@ class JSNES_CPU_OpData {
   const int ADDR_POSTIDXIND= 11;
   const int ADDR_INDABS    = 12;
   
-  List<String> instname;
-  List<String> addrDesc;
-  List<int> opdata;
-  List<int> cycTable;
+  List<String> instname = null;
+  List<String> addrDesc = null;
+  List<int> opdata = null;
+  List<int> cycTable = null;
   
   void setOp(int inst, int op, int addr, int size, int cycles){
     this.opdata[op] = 
@@ -1328,7 +1328,7 @@ class JSNES_CPU_OpData {
   }
 
     OpData() {
-      this.opdata = new List<int>(256);
+      this.opdata = new List<int>.filled(256, 0);
       
       // Set all to invalid instruction (to detect crashes):
       for(int i=0;i<256;i++) this.opdata[i]=0xFF;

@@ -29,7 +29,7 @@ class BaseJSNES_Mapper {
   int joy2StrobeState = 0;
   int joypadLastWrite = 0;
   
-  bool mousePressed;
+  bool mousePressed = false;
   int mouseX = 0;
   int mouseY = 0;
   

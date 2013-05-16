@@ -16,14 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//import 'package:js/js.dart' as js;
 
 // Keyboard events are bound in the UI
 class JSNES_Keyboard {
-    Map<String, int> keys;
-    List<int> state1;
-    List<int> state2;
-    int i;
+    Map<String, int> keys = null;
+    List<int> state1 = null;
+    List<int> state2 = null;
+    int i = 0;
     
     JSNES_Keyboard() {
         this.keys = {

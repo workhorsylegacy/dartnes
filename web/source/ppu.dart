@@ -128,8 +128,8 @@ class JSNES_PPU {
   List<int> vramMirrorTable = null;
   JSNES_PPU_PaletteTable palTable = null;
   
-  bool showSpr0Hit;
-  bool clipToTvSize;
+  bool showSpr0Hit = false;
+  bool clipToTvSize = false;
   
   int srcy1 = 0;
   int srcy2 = 0;
@@ -148,14 +148,8 @@ class JSNES_PPU {
         int i;
         
         // Memory
-        this.vramMem = new List<int>(0x8000);
-        this.spriteMem = new List<int>(0x100);
-        for (i=0; i<this.vramMem.length; i++) {
-            this.vramMem[i] = 0;
-        }
-        for (i=0; i<this.spriteMem.length; i++) {
-            this.spriteMem[i] = 0;
-        }
+        this.vramMem = new List<int>.filled(0x8000, 0);
+        this.spriteMem = new List<int>.filled(0x100, 0);
         
         // VRAM I/O:
         this.vramAddress = 0;
@@ -212,11 +206,11 @@ class JSNES_PPU {
         this.curNt = null;
         
         // Variables used when rendering:
-        this.attrib = new List<int>(32);
-        this.buffer = new List<int>(256*240);
-        this.prevBuffer = new List<int>(256*240);
-        this.bgbuffer = new List<int>(256*240);
-        this.pixrendered = new List<int>(256*240);
+        this.attrib = new List<int>.filled(32, 0);
+        this.buffer = new List<int>.filled(256*240, 0);
+        this.prevBuffer = new List<int>.filled(256*240, 0);
+        this.bgbuffer = new List<int>.filled(256*240, 0);
+        this.pixrendered = new List<int>.filled(256*240, 0);
 
         this.validTileData = false;
 
@@ -228,20 +222,20 @@ class JSNES_PPU {
         this.curX = 0;
         
         // Sprite data:
-        this.sprX = new List<int>(64); // X coordinate
-        this.sprY = new List<int>(64); // Y coordinate
-        this.sprTile = new List<int>(64); // Tile Index (into pattern table)
-        this.sprCol = new List<int>(64); // Upper two bits of color
-        this.vertFlip = new List<bool>(64); // Vertical Flip
-        this.horiFlip = new List<bool>(64); // Horizontal Flip
-        this.bgPriority = new List<bool>(64); // Background priority
+        this.sprX = new List<int>.filled(64, 0); // X coordinate
+        this.sprY = new List<int>.filled(64, 0); // Y coordinate
+        this.sprTile = new List<int>.filled(64, 0); // Tile Index (into pattern table)
+        this.sprCol = new List<int>.filled(64, 0); // Upper two bits of color
+        this.vertFlip = new List<bool>.filled(64, false); // Vertical Flip
+        this.horiFlip = new List<bool>.filled(64, false); // Horizontal Flip
+        this.bgPriority = new List<bool>.filled(64, false); // Background priority
         this.spr0HitX = 0; // Sprite #0 hit X coordinate
         this.spr0HitY = 0; // Sprite #0 hit Y coordinate
         this.hitSpr0 = false;
         
         // Palette data:
-        this.sprPalette = new List<int>(16);
-        this.imgPalette = new List<int>(16);
+        this.sprPalette = new List<int>.filled(16, 0);
+        this.imgPalette = new List<int>.filled(16, 0);
         
         // Create pattern table tile buffers:
         this.ptTile = new List<JSNES_PPU_Tile>(512);
@@ -251,7 +245,7 @@ class JSNES_PPU {
         
         // Create nametable buffers:
         // Name table data:
-        this.ntable1 = new List<int>(4);
+        this.ntable1 = new List<int>.filled(4, 0);
         this.currentMirroring = -1;
         this.nameTable = new List<JSNES_PPU_NameTable>(4);
         for (i=0; i<4; i++) {
@@ -259,7 +253,7 @@ class JSNES_PPU {
         }
         
         // Initialize mirroring lookup table:
-        this.vramMirrorTable = new List<int>(0x8000);
+        this.vramMirrorTable = new List<int>.filled(0x8000, 0);
         for (i=0; i<0x8000; i++) {
             this.vramMirrorTable[i] = i;
         }
@@ -284,7 +278,7 @@ class JSNES_PPU {
     
         // Remove mirroring:
         if (this.vramMirrorTable == null) {
-            this.vramMirrorTable = new List<int>(0x8000);
+            this.vramMirrorTable = new List<int>.filled(0x8000, 0);
         }
         for (int i=0; i<0x8000; i++) {
             this.vramMirrorTable[i] = i;
@@ -1557,9 +1551,9 @@ class JSNES_PPU {
 }
 
 class JSNES_PPU_NameTable {
-  int width;
-  int height;
-  String name;
+  int width = 0;
+  int height = 0;
+  String name = null;
   
   List<JSNES_PPU_Tile> tile = null;
   List<int> attrib = null;
@@ -1570,7 +1564,7 @@ class JSNES_PPU_NameTable {
     this.name = name;
     
     this.tile = new List<JSNES_PPU_Tile>(width*height);
-    this.attrib = new List<int>(width*height);
+    this.attrib = new List<int>.filled(width*height, 0);
   }
   
   JSNES_PPU_Tile getTileIndex(int x, int y){
@@ -1619,12 +1613,12 @@ class JSNES_PPU_NameTable {
 
 
 class JSNES_PPU_PaletteTable {
-  List<int> curTable;
-  List<List<int>> emphTable;
-  int currentEmph;
+  List<int> curTable = null;
+  List<List<int>> emphTable = null;
+  int currentEmph = 0;
   
   JSNES_PPU_PaletteTable() {
-    this.curTable = new List<int>(64);
+    this.curTable = new List<int>.filled(64, 0);
     this.emphTable = new List<List<int>>(8);
     this.currentEmph = -1;
   }
@@ -1670,7 +1664,7 @@ class JSNES_PPU_PaletteTable {
                 bFactor = 0.75;
             }
             
-            this.emphTable[emph] = new List<int>(64);
+            this.emphTable[emph] = new List<int>.filled(64, 0);
             
             // Calculate table:
             for (i = 0; i < 64; i++) {
@@ -1784,7 +1778,7 @@ class JSNES_PPU_PaletteTable {
 }
 
 class JSNES_PPU_Tile {
-  List<int> pix;
+  List<int> pix = null;
   
   int fbIndex = 0;
   int tIndex = 0;
@@ -1797,15 +1791,15 @@ class JSNES_PPU_Tile {
   int palIndex = 0;
   int tpri = 0;
   int c = 0;
-  bool initialized;
-  List<bool> opaque;
+  bool initialized = false;
+  List<bool> opaque = null;
   
   JSNES_PPU_Tile() {
     // Tile data:
-    this.pix = new List<int>(64);
+    this.pix = new List<int>.filled(64, 0);
     
     this.initialized = false;
-    this.opaque = new List<bool>(8);
+    this.opaque = new List<bool>.filled(8, false);
   }
 
     void setBuffer(List<int> scanline){
@@ -1815,6 +1809,9 @@ class JSNES_PPU_Tile {
     }
     
     void setScanline(int sline, int b1, int b2){
+        assert(sline is int);
+        assert(b1 is int);
+        assert(b2 is int);
         this.initialized = true;
         this.tIndex = sline<<3;
         for (this.x = 0; this.x < 8; this.x++) {

@@ -21,7 +21,7 @@ import 'dart:html';
 import 'nes.dart';
 
 class JSNES_DummyUI {
-  JSNES_NES nes;
+  JSNES_NES nes = null;
   
   JSNES_DummyUI(JSNES_NES nes) {
     this.nes = nes;
@@ -34,16 +34,16 @@ class JSNES_DummyUI {
 }
 
 class JSNES_UI {
-  JSNES_NES nes;
-  Element status;
-  Element parent;
-  CanvasElement screen;
-  CanvasRenderingContext2D canvasContext;
-  ImageData canvasImageData;
-  SelectElement romSelect;
-  Map<String, ButtonElement> buttons;
-  bool zoomed;
-  var dynamicaudio;
+  JSNES_NES nes = null;
+  Element status = null;
+  Element parent = null;
+  CanvasElement screen = null;
+  CanvasRenderingContext2D canvasContext = null;
+  ImageData canvasImageData = null;
+  SelectElement romSelect = null;
+  Map<String, ButtonElement> buttons = null;
+  bool zoomed = false;
+  var dynamicaudio = null;
   
   JSNES_UI(JSNES_NES nes) {
                 this.nes = nes;
@@ -159,12 +159,17 @@ class JSNES_UI {
 
                 void loadROM() {
                     this.updateStatus("Downloading...");
-                    HttpRequest.request(this.romSelect.value)
+                    String url = this.romSelect.value;
+                    HttpRequest.request(url)
                       .then((xhr) {
-                        print('Response' + xhr.response.length.toString());
-                        this.nes.loadRom(xhr.response);
-                        this.nes.start();
-                        this.enable();
+                        if(xhr.status != 200) {
+                          print('Failed to download rom "' + url + '". Status: ' + xhr.status.toString());
+                        } else {
+                          print('Response' + xhr.response.length.toString());
+                          this.nes.loadRom(xhr.response);
+                          this.nes.start();
+                          this.enable();
+                        }
                       },
                       onError: (e) {
                         print('Error' + e.toString());

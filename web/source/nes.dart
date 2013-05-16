@@ -28,29 +28,27 @@ import 'keyboard.dart';
 import 'rom.dart';
 
 class JSNES_NES {
-//JSNES.VERSION = "<%= version %>";
-  
-    Map opts;
-    double frameTime;
-    String crashMessage;
+    Map opts = null;
+    double frameTime = 0.0;
+    String crashMessage = null;
     
-    JSNES_UI ui;
-    JSNES_CPU cpu;
-    JSNES_PPU ppu;
-    JSNES_PAPU papu;
+    JSNES_UI ui = null;
+    JSNES_CPU cpu = null;
+    JSNES_PPU ppu = null;
+    JSNES_PAPU papu = null;
     // FIXME: Should be JSNES_Mapper
-    JSNES_Mapper_0 mmap;
-    JSNES_Keyboard keyboard;
+    JSNES_Mapper_0 mmap = null;
+    JSNES_Keyboard keyboard = null;
     
     bool isRunning = false;
-    int fpsFrameCount;
-    bool limitFrames;
-    int lastFrameTime;
-    int lastFpsTime;
+    int fpsFrameCount = 0;
+    bool limitFrames = false;
+    int lastFrameTime = 0;
+    int lastFpsTime = 0;
     String romData = null;
-    JSNES_ROM rom;
-    Future frameInterval;
-    Future fpsInterval;
+    JSNES_ROM rom = null;
+    Timer frameInterval = null;
+    Timer fpsInterval = null;
     
     JSNES_NES(Map opts) {
       this.opts = {
@@ -102,12 +100,14 @@ class JSNES_NES {
             if (!this.isRunning) {
                 this.isRunning = true;
                 
-                this.frameInterval = new Future.delayed(const Duration(milliseconds: this.frameTime / 2), () {
+                Duration dur = new Duration(milliseconds: (this.frameTime / 2).toInt());
+                this.frameInterval = new Timer.periodic(dur, (Timer timer) {
                   this.frame();
                 });
                 this.resetFps();
                 this.printFps();
-                this.fpsInterval = new Future.delayed(const Duration(milliseconds: this.opts['fpsInterval']), () {
+                dur = new Duration(milliseconds: this.opts['fpsInterval']);
+                this.fpsInterval = new Timer.periodic(dur, (Timer timer) {
                   this.printFps();
                 });
             }
@@ -199,8 +199,8 @@ class JSNES_NES {
     }
     
     void stop() {
-//        this.frameInterval.cancel();
-//        this.fpsInterval.cancel();
+        this.frameInterval.cancel();
+        this.fpsInterval.cancel();
         this.isRunning = false;
     }
     
@@ -212,7 +212,7 @@ class JSNES_NES {
     
     // Loads a ROM file into the CPU and PPU.
     // The ROM file is validated first.
-    void loadRom(String data) {
+    bool loadRom(String data) {
         if (this.isRunning) {
             this.stop();
         }
@@ -226,8 +226,8 @@ class JSNES_NES {
         if (this.rom.valid) {
             this.reset();
             this.mmap = this.rom.createMapper();
-            if (!this.mmap) {
-                return;
+            if (this.mmap == null) {
+                return false;
             }
             this.mmap.loadROM();
             this.ppu.setMirroring(this.rom.getMirroringType());

@@ -101,7 +101,7 @@ class JSNES_ROM {
             this.nes.ui.updateStatus("Not a valid NES ROM.");
             return;
         }
-        this.header = new List<int>(16);
+        this.header = new List<int>.filled(16, 0);
         for (i = 0; i < 16; i++) {
             this.header[i] = data.codeUnitAt(i) & 0xFF;
         }
@@ -130,7 +130,7 @@ class JSNES_ROM {
         this.rom = new List<List<int>>(this.romCount);
         int offset = 16;
         for (i=0; i < this.romCount; i++) {
-            this.rom[i] = new List<int>(16384);
+            this.rom[i] = new List<int>.filled(16384, 0);
             for (j=0; j < 16384; j++) {
                 if (offset+j >= data.length) {
                     break;
@@ -142,7 +142,7 @@ class JSNES_ROM {
         // Load CHR-ROM banks:
         this.vrom = new List<List<int>>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
-            this.vrom[i] = new List<int>(4096);
+            this.vrom[i] = new List<int>.filled(4096, 0);
             for (j=0; j < 4096; j++) {
                 if (offset+j >= data.length){
                     break;
@@ -155,7 +155,7 @@ class JSNES_ROM {
         // Create VROM tiles:
         this.vromTile = new List<List<JSNES_PPU_Tile>>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
-            this.vromTile[i] = new List(256);
+            this.vromTile[i] = new List<JSNES_PPU_Tile>(256);
             for (j=0; j < 256; j++) {
                 this.vromTile[i][j] = new JSNES_PPU_Tile();
             }
@@ -188,7 +188,7 @@ class JSNES_ROM {
         this.valid = true;
     }
     
-    void getMirroringType() {
+    int getMirroringType() {
         if (this.fourScreen) {
             return this.FOURSCREEN_MIRRORING;
         }
