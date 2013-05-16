@@ -1355,7 +1355,7 @@ class JSNES_CPU_OpData {
         ((cycles&0xFF)<<24);
   }
 
-  OpData() {
+  JSNES_CPU_OpData() {
       this.opdata = new List<int>.filled(256, 0);
       
       // Set all to invalid instruction (to detect crashes):
