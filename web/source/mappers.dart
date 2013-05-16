@@ -21,9 +21,9 @@ import 'dart:html';
 
 import 'nes.dart';
 import 'utils.dart';
+import 'rom.dart';
 
-// FIXME: Make this a proper interface
-class BaseJSNES_Mapper {
+class JSNES_MapperDefault {
   JSNES_NES nes = null;
   int joy1StrobeState = 0;
   int joy2StrobeState = 0;
@@ -33,16 +33,9 @@ class BaseJSNES_Mapper {
   int mouseX = 0;
   int mouseY = 0;
   
-  BaseJSNES_Mapper(JSNES_NES nes) {
-    assert(nes is JSNES_NES);
-    
-    this.nes = nes;
-  }
-}
-
-class JSNES_Mapper_0 extends BaseJSNES_Mapper {
-    JSNES_Mapper_0(JSNES_NES nes) : super(nes){
+    JSNES_MapperDefault(JSNES_NES nes) {
         assert(nes is JSNES_NES);
+        this.nes = nes;
     }
   
     void reset() {
@@ -442,15 +435,13 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
     }
 
     void loadBatteryRam() {
-/*
       if (this.nes.rom.batteryRam) {
-            bool ram = this.nes.rom.batteryRam;
+            List<int> ram = this.nes.rom.saveRam;
             if (ram != null && ram.length == 0x2000) {
                 // Load Battery RAM into memory:
                 JSNES_Utils.copyArrayElements(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);
             }
         }
-*/
     }
 
     void loadRomBank(int bank, int address) {
@@ -582,16 +573,32 @@ class JSNES_Mapper_0 extends BaseJSNES_Mapper {
 */
 }
 
-/*
-JSNES.Mappers[1] = function(nes) {
-    this.nes = nes;
-};
+class JSNES_Mapper_1 extends JSNES_MapperDefault {
+  // 5-bit buffer:
+  int regBuffer = 0;
+  int regBufferCounter = 0;
 
-JSNES.Mappers[1].prototype = new JSNES.Mappers[0]();
+  // Register 0:
+  int mirroring = 0;
+  int oneScreenMirroring = 0;
+  int prgSwitchingArea = 0;
+  int prgSwitchingSize = 0;
+  int vromSwitchingSize = 0;
 
-JSNES.Mappers[1].prototype.reset = function() {
-    JSNES.Mappers[0].prototype.reset.apply(this);
-    
+  // Register 1:
+  int romSelectionReg0 = 0;
+
+  // Register 2:
+  int romSelectionReg1 = 0;
+
+  // Register 3:
+  int romBankSelect = 0;
+  
+  JSNES_Mapper_1(JSNES_NES nes) : super(nes){
+    assert(nes is JSNES_NES);
+  }
+
+  void reset() {
     // 5-bit buffer:
     this.regBuffer = 0;
     this.regBufferCounter = 0;
@@ -611,24 +618,27 @@ JSNES.Mappers[1].prototype.reset = function() {
 
     // Register 3:
     this.romBankSelect = 0;
-};
+  }
 
-JSNES.Mappers[1].prototype.write = function(address, value) {
+  void write(int address, int value) {
+    assert(address is int);
+    assert(value is int);
+    
     // Writes to addresses other than MMC registers are handled by NoMapper.
     if (address < 0x8000) {
-        JSNES.Mappers[0].prototype.write.apply(this, arguments);
+        super.write(address, value);
         return;
     }
 
     // See what should be done with the written value:
-    if ((value & 128) !== 0) {
+    if ((value & 128) != 0) {
 
         // Reset buffering:
         this.regBufferCounter = 0;
         this.regBuffer = 0;
     
         // Reset register:
-        if (this.getRegNumber(address) === 0) {
+        if (this.getRegNumber(address) == 0) {
         
             this.prgSwitchingArea = 1;
             this.prgSwitchingSize = 1;
@@ -651,25 +661,28 @@ JSNES.Mappers[1].prototype.write = function(address, value) {
             this.regBufferCounter = 0;
         }
     }
-};
+  }
 
-JSNES.Mappers[1].prototype.setReg = function(reg, value) {
-    var tmp;
+  void setReg(int reg, int value) {
+    assert(reg is int);
+    assert(value is int);
+    
+    int tmp = 0;
 
     switch (reg) {
         case 0:
             // Mirroring:
             tmp = value & 3;
-            if (tmp !== this.mirroring) {
+            if (tmp != this.mirroring) {
                 // Set mirroring:
                 this.mirroring = tmp;
-                if ((this.mirroring & 2) === 0) {
+                if ((this.mirroring & 2) == 0) {
                     // SingleScreen mirroring overrides the other setting:
                     this.nes.ppu.setMirroring(
                         this.nes.rom.SINGLESCREEN_MIRRORING);
                 }
                 // Not overridden by SingleScreen mirroring.
-                else if ((this.mirroring & 1) !== 0) {
+                else if ((this.mirroring & 1) != 0) {
                     this.nes.ppu.setMirroring(
                         this.nes.rom.HORIZONTAL_MIRRORING
                     );
@@ -698,15 +711,15 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
             if (this.nes.rom.vromCount > 0) {
         
                 // Select VROM bank at 0x0000:
-                if (this.vromSwitchingSize === 0) {
+                if (this.vromSwitchingSize == 0) {
         
                     // Swap 8kB VROM:
-                    if (this.romSelectionReg0 === 0) {
+                    if (this.romSelectionReg0 == 0) {
                         this.load8kVromBank((value & 0xF), 0x0000);
                     }
                     else {
                         this.load8kVromBank(
-                            Math.floor(this.nes.rom.vromCount / 2) +
+                            (this.nes.rom.vromCount / 2).floor() +
                                 (value & 0xF), 
                             0x0000
                         );
@@ -715,12 +728,12 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
                 }
                 else {
                     // Swap 4kB VROM:
-                    if (this.romSelectionReg0 === 0) {
+                    if (this.romSelectionReg0 == 0) {
                         this.loadVromBank((value & 0xF), 0x0000);
                     }
                     else {
                         this.loadVromBank(
-                            Math.floor(this.nes.rom.vromCount / 2) +
+                            (this.nes.rom.vromCount / 2).floor() +
                                 (value & 0xF),
                             0x0000
                         );
@@ -738,14 +751,14 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
             if (this.nes.rom.vromCount > 0) {
                 
                 // Select VROM bank at 0x1000:
-                if (this.vromSwitchingSize === 1) {
+                if (this.vromSwitchingSize == 1) {
                     // Swap 4kB of VROM:
-                    if (this.romSelectionReg1 === 0) {
+                    if (this.romSelectionReg1 == 0) {
                         this.loadVromBank((value & 0xF), 0x1000);
                     }
                     else {
                         this.loadVromBank(
-                            Math.floor(this.nes.rom.vromCount / 2) +
+                            (this.nes.rom.vromCount / 2).floor() +
                                 (value & 0xF),
                             0x1000
                         );
@@ -763,8 +776,8 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
     
             if (this.nes.rom.romCount >= 32) {
                 // 1024 kB cart
-                if (this.vromSwitchingSize === 0) {
-                    if (this.romSelectionReg0 === 1) {
+                if (this.vromSwitchingSize == 0) {
+                    if (this.romSelectionReg0 == 1) {
                         baseBank = 16;
                     }
                 }
@@ -775,12 +788,12 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
             }
             else if (this.nes.rom.romCount >= 16) {
                 // 512 kB cart
-                if (this.romSelectionReg0 === 1) {
+                if (this.romSelectionReg0 == 1) {
                     baseBank = 8;
                 }
             }
     
-            if (this.prgSwitchingSize === 0) {
+            if (this.prgSwitchingSize == 0) {
                 // 32kB
                 bank = baseBank + (value & 0xF);
                 this.load32kRomBank(bank, 0x8000);
@@ -788,7 +801,7 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
             else {
                 // 16kB
                 bank = baseBank * 2 + (value & 0xF);
-                if (this.prgSwitchingArea === 0) {
+                if (this.prgSwitchingArea == 0) {
                     this.loadRomBank(bank, 0xC000);
                 }
                 else {
@@ -796,10 +809,12 @@ JSNES.Mappers[1].prototype.setReg = function(reg, value) {
                 }
             }  
     }
-};
+  }
 
 // Returns the register number from the address written to:
-JSNES.Mappers[1].prototype.getRegNumber = function(address) {
+  int getRegNumber(int address) {
+    assert(address is int);
+    
     if (address >= 0x8000 && address <= 0x9FFF) {
         return 0;
     }
@@ -812,11 +827,11 @@ JSNES.Mappers[1].prototype.getRegNumber = function(address) {
     else {
         return 3;
     }
-};
+  }
 
-JSNES.Mappers[1].prototype.loadROM = function(rom) {
+  void loadROM() {
     if (!this.nes.rom.valid) {
-        alert("MMC1: Invalid ROM! Unable to load.");
+        Window.alert("MMC1: Invalid ROM! Unable to load.");
         return;
     }
 
@@ -832,20 +847,21 @@ JSNES.Mappers[1].prototype.loadROM = function(rom) {
 
     // Do Reset-Interrupt:
     this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
-};
+  }
 
-JSNES.Mappers[1].prototype.switchLowHighPrgRom = function(oldSetting) {
+  void switchLowHighPrgRom(int oldSetting) {
+    assert(oldSetting is int);
     // not yet.
-};
+  }
 
-JSNES.Mappers[1].prototype.switch16to32 = function() {
+  void switch16to32() {
     // not yet.
-};
+  }
 
-JSNES.Mappers[1].prototype.switch32to16 = function() {
+  void switch32to16() {
     // not yet.
-};
-
+  }
+/*
 JSNES.Mappers[1].prototype.toJSON = function() {
     var s = JSNES.Mappers[0].prototype.toJSON.apply(this);
     s.mirroring = this.mirroring;
@@ -874,45 +890,50 @@ JSNES.Mappers[1].prototype.fromJSON = function(s) {
     this.regBuffer = s.regBuffer;
     this.regBufferCounter = s.regBufferCounter;
 };
+*/
+}
 
-JSNES.Mappers[2] = function(nes) {
-    this.nes = nes;
-};
+class JSNES_Mapper_2 extends JSNES_MapperDefault {
+  JSNES_Mapper_2(JSNES_NES nes) : super(nes) {
+    assert(nes is JSNES_NES);
+  }
+  
+  void write(int address, int value) {
+      assert(address is int);
+      assert(value is int);
+      
+      // Writes to addresses other than MMC registers are handled by NoMapper.
+      if (address < 0x8000) {
+          super.write(address, value);
+          return;
+      }
+  
+      else {
+          // This is a ROM bank select command.
+          // Swap in the given ROM bank at 0x8000:
+          this.loadRomBank(value, 0x8000);
+      }
+  }
+  
+  void loadROM() {
+      if (!this.nes.rom.valid) {
+          Window.alert("UNROM: Invalid ROM! Unable to load.");
+          return;
+      }
+  
+      // Load PRG-ROM:
+      this.loadRomBank(0, 0x8000);
+      this.loadRomBank(this.nes.rom.romCount - 1, 0xC000);
+  
+      // Load CHR-ROM:
+      this.loadCHRROM();
+  
+      // Do Reset-Interrupt:
+      this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+  }
+}
 
-JSNES.Mappers[2].prototype = new JSNES.Mappers[0]();
-
-JSNES.Mappers[2].prototype.write = function(address, value) {
-    // Writes to addresses other than MMC registers are handled by NoMapper.
-    if (address < 0x8000) {
-        JSNES.Mappers[0].prototype.write.apply(this, arguments);
-        return;
-    }
-
-    else {
-        // This is a ROM bank select command.
-        // Swap in the given ROM bank at 0x8000:
-        this.loadRomBank(value, 0x8000);
-    }
-};
-
-JSNES.Mappers[2].prototype.loadROM = function(rom) {
-    if (!this.nes.rom.valid) {
-        alert("UNROM: Invalid ROM! Unable to load.");
-        return;
-    }
-
-    // Load PRG-ROM:
-    this.loadRomBank(0, 0x8000);
-    this.loadRomBank(this.nes.rom.romCount - 1, 0xC000);
-
-    // Load CHR-ROM:
-    this.loadCHRROM();
-
-    // Do Reset-Interrupt:
-    this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
-};
-
-
+/*
 JSNES.Mappers[4] = function(nes) {
     this.nes = nes;
     

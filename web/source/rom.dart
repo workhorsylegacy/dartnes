@@ -36,6 +36,7 @@ class JSNES_ROM {
   List<int> header = null;
   List<List<int>> rom = null;
   List<List<int>> vrom = null;
+  List<int> saveRam = null;
   List<List<JSNES_PPU_Tile>> vromTile = null;
   
   int romCount = 0;
@@ -114,9 +115,9 @@ class JSNES_ROM {
         this.trainer = (this.header[6] & 4) != 0;
         this.fourScreen = (this.header[6] & 8) != 0;
         this.mapperType = (this.header[6] >> 4) | (this.header[7] & 0xF0);
-        /* TODO
-        if (this.batteryRam)
-            this.loadBatteryRam();*/
+
+        if (this.saveRam == null)
+            this.saveRam = new List<int>.filled(0x2000, 0);
         // Check whether byte 8-15 are zero's:
         bool foundError = false;
         for (i=8; i<16; i++) {
@@ -200,7 +201,7 @@ class JSNES_ROM {
         return this.VERTICAL_MIRRORING;
     }
     
-    void getMapperName() {
+    String getMapperName() {
         if (this.mapperType >= 0 && this.mapperType < this.mapperName.length) {
             return this.mapperName[this.mapperType];
         }
@@ -208,21 +209,19 @@ class JSNES_ROM {
     }
     
     bool mapperSupported() {
-      switch(this.mapperType) {
-        case 0: return true;
-        default: return false;
-      }
+      return [0, 1, 2].contains(this.mapperType);
     }
     
-    // FIXME: Should return JSNES_Mapper
-    JSNES_Mapper_0 createMapper() {
+    JSNES_MapperDefault createMapper() {
         if (this.mapperSupported()) {
             switch(this.mapperType) {
-              case 0: return new JSNES_Mapper_0(this.nes);
+              case 0: return new JSNES_MapperDefault(this.nes);
+              case 1: return new JSNES_Mapper_1(this.nes);
+              case 2: return new JSNES_Mapper_2(this.nes);
             }
         }
         else {
-            this.nes.ui.updateStatus("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType+")");
+            this.nes.ui.updateStatus("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType.toString()+")");
             return null;
         }
     }

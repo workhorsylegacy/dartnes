@@ -37,7 +37,7 @@ class JSNES_NES {
     JSNES_PPU ppu = null;
     JSNES_PAPU papu = null;
     // FIXME: Should be JSNES_Mapper
-    JSNES_Mapper_0 mmap = null;
+    JSNES_MapperDefault mmap = null;
     JSNES_Keyboard keyboard = null;
     
     bool isRunning = false;
@@ -185,7 +185,7 @@ class JSNES_NES {
         if (this.lastFpsTime > 0) {
             s += ': ' + (
                 this.fpsFrameCount / ((now - this.lastFpsTime) / 1000)
-            ).toString() + ' FPS';
+            ).toStringAsFixed(1) + ' FPS';
         }
         this.ui.updateStatus(s);
         this.fpsFrameCount = 0;

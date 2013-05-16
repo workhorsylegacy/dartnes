@@ -166,9 +166,10 @@ class JSNES_UI {
                     request.onReadyStateChange.listen((_) {
                       if (request.readyState == HttpRequest.DONE &&
                           (request.status == 200 || request.status == 0)) {
-                        this.nes.loadRom(request.responseText);
-                        this.nes.start();
-                        this.enable();
+                        if(this.nes.loadRom(request.responseText)){
+                            this.nes.start();
+                            this.enable();
+                        }
                       }
                     });
                     request.open('GET', url);
