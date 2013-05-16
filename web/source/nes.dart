@@ -42,7 +42,6 @@ class JSNES_NES {
     
     bool isRunning = false;
     int fpsFrameCount = 0;
-    bool limitFrames = false;
     int lastFrameTime = 0;
     int lastFpsTime = 0;
     String romData = null;
@@ -102,7 +101,7 @@ class JSNES_NES {
             if (!this.isRunning) {
                 this.isRunning = true;
                 
-                Duration dur = new Duration(milliseconds: (this.frameTime / 2).toInt());
+                Duration dur = new Duration(milliseconds: this.frameTime.toInt());
                 this.frameInterval = new Timer.periodic(dur, (Timer timer) {
                   this.frame();
                 });
@@ -173,13 +172,6 @@ class JSNES_NES {
                 if (ppu.curX == 341) {
                     ppu.curX = 0;
                     ppu.endScanline();
-                }
-            }
-        }
-        if (this.limitFrames) {
-            if (this.lastFrameTime > 0) {
-                while (new DateTime.now().millisecondsSinceEpoch - this.lastFrameTime < this.frameTime) {
-                    // twiddle thumbs
                 }
             }
         }
@@ -256,13 +248,6 @@ class JSNES_NES {
         this.opts['preferredFrameRate']= rate;
         this.frameTime = 1000 / rate;
 //        this.papu.setSampleRate(this.opts['sampleRate'], false);
-    }
-    
-    void setLimitFrames(bool limit) {
-        assert(limit is bool);
-        
-        this.limitFrames = limit;
-        this.lastFrameTime = 0;
     }
 /*    
     String toJSON() {
