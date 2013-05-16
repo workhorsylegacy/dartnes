@@ -1,4 +1,5 @@
-name: dartnes
-description: A sample web application
+name: Dartnes
+author: Matthew Brennan Jones <mattjones@workhorsy.org>
+description: A NES emulator written in Dart.
 dependencies:
   browser: any

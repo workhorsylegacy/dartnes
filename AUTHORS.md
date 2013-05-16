@@ -1,10 +1,7 @@
 Authors
 =======
 
- * Matthew Brennan Jones<mattjones@workhorsy.org>
-
-Thanks to:
-
+ * Matthew Brennan Jones <mattjones@workhorsy.org>
  * Ben Firshman for JsNes, a port of vNES to javascript
  * Jamie Sanders for vNES, the Java emulator that JSNES owes so much to.
  * Matt Westcott for JSSpeccy, the original inspiration for JSNES.

@@ -1,6 +1,7 @@
 /*
-JSNES, based on Jamie Sanders' vNES
-Copyright (C) 2010 Ben Firshman
+DartNES Copyright (c) 2013 Matthew Brennan Jones <mattjones@workhorsy.org>
+JSNes Copyright (C) 2010 Ben Firshman
+vNES Copyright (C) 2006-2011 Jamie Sanders
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
