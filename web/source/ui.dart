@@ -161,52 +161,18 @@ class JSNES_UI {
                 void loadROM() {
                     this.updateStatus("Downloading...");
                     String url = this.romSelect.value;
-                    HttpRequest.request(url)
-                      .then((xhr) {
-                        if(xhr.status != 200) {
-                          print('Failed to download rom "' + url + '". Status: ' + xhr.status.toString());
-                        } else {
-                          print('Response' + xhr.response.length.toString());
-                          this.nes.loadRom(xhr.response);
-                          this.nes.start();
-                          this.enable();
-                        }
-                      },
-                      onError: (e) {
-                        print('Error' + e.toString());
-                      });
-/*
-                    $.ajax({
-                        'url': escape(this.romSelect.val()),
-                        'xhr': () {
-                            var xhr = $.ajaxSettings.xhr();
-                            if (xhr != null) {
-                                // Download as binary
-                                xhr.overrideMimeType('text/plain; charset=x-user-defined');
-                            }
-                            this.xhr = xhr;
-                            return xhr;
-                        },
-                        'complete': (xhr, status) {
-                            var i, data;
-                            if (JSNES.Utils.isIE()) {
-                                var charCodes = JSNESBinaryToArray(
-                                    xhr.responseBody
-                                ).toArray();
-                                data = String.fromCharCode.apply(
-                                    undefined, 
-                                    charCodes
-                                );
-                            }
-                            else {
-                                data = xhr.responseText;
-                            }
-                            this.nes.loadRom(data);
-                            this.nes.start();
-                            this.enable();
-                        }
+                    HttpRequest request = new HttpRequest();
+                    request.overrideMimeType('text/plain; charset=x-user-defined');
+                    request.onReadyStateChange.listen((_) {
+                      if (request.readyState == HttpRequest.DONE &&
+                          (request.status == 200 || request.status == 0)) {
+                        this.nes.loadRom(request.responseText);
+                        this.nes.start();
+                        this.enable();
+                      }
                     });
-*/
+                    request.open('GET', url);
+                    request.send();
                 }
                 
                 void resetCanvas() {

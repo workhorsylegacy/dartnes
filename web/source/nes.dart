@@ -193,7 +193,7 @@ class JSNES_NES {
         if (this.lastFpsTime > 0) {
             s += ': ' + (
                 this.fpsFrameCount / ((now - this.lastFpsTime) / 1000)
-            ) + ' FPS';
+            ).toString() + ' FPS';
         }
         this.ui.updateStatus(s);
         this.fpsFrameCount = 0;

@@ -39,8 +39,8 @@ class JSNES_Keyboard {
         this.state2 = new List<int>.filled(8, 0x40);
     }
     
-    bool setKey(String key, int value) {
-        assert(key is String);
+    bool setKey(int key, int value) {
+        assert(key is int);
         assert(value is int);
         
         switch (key) {
@@ -68,18 +68,18 @@ class JSNES_Keyboard {
     }
 
     void keyDown(evt) {
-        if (!this.setKey(evt.keyCode, 0x41) && evt.preventDefault) {
+        if (!this.setKey(evt.keyCode, 0x41)) {
             evt.preventDefault();
         }
     }
     
-    void keyUp(evt) {
-        if (!this.setKey(evt.keyCode, 0x40) && evt.preventDefault) {
+    void keyUp(var evt) {
+        if (!this.setKey(evt.keyCode, 0x40)) {
             evt.preventDefault();
         }
     }
     
-    void keyPress(evt) {
+    void keyPress(var evt) {
         evt.preventDefault();
     }
 }

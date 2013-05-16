@@ -1038,8 +1038,8 @@ class JSNES_PPU {
         this.validTileData = false;
     }
     
-    void renderBgScanline(List<int> bgbuffer, int scan) {
-        assert(bgbuffer is List<int>);
+    void renderBgScanline(bool is_bgbuffer, int scan) {
+        assert(is_bgbuffer is bool);
         assert(scan is int);
         
         int baseTile = (this.regS == 0 ? 0 : 256);
@@ -1060,7 +1060,7 @@ class JSNES_PPU {
             List<JSNES_PPU_NameTable> nameTable = this.nameTable;
             List<int> imgPalette = this.imgPalette;
             List<int> pixrendered = this.pixrendered;
-            List<int> targetBuffer = bgbuffer != null ? this.bgbuffer : this.buffer;
+            List<int> targetBuffer = is_bgbuffer ? this.bgbuffer : this.buffer;
 
             JSNES_PPU_Tile t;
             List<int> tpix;
@@ -1503,10 +1503,10 @@ class JSNES_PPU {
 
     // Updates the internal name table buffers
     // with this new byte.
-    void nameTableWrite(int index, int address, JSNES_PPU_Tile value){
+    void nameTableWrite(int index, int address, int value){
         assert(index is int);
         assert(address is int);
-        assert(value is JSNES_PPU_Tile);
+        assert(value is int);
         
         this.nameTable[index].tile[address] = value;
         
@@ -1518,10 +1518,10 @@ class JSNES_PPU {
     // Updates the internal pattern
     // table buffers with this new attribute
     // table byte.
-    void attribTableWrite(int index, int address, JSNES_PPU_NameTable value){
+    void attribTableWrite(int index, int address, int value){
         assert(index is int);
         assert(address is int);
-        assert(value is JSNES_PPU_NameTable);
+        assert(value is int);
         
         this.nameTable[index].writeAttrib(address,value);
     }
@@ -1611,7 +1611,7 @@ class JSNES_PPU_NameTable {
   int height = 0;
   String name = null;
   
-  List<JSNES_PPU_Tile> tile = null;
+  List<int> tile = null;
   List<int> attrib = null;
   
   JSNES_PPU_NameTable(int width, int height, String name) {
@@ -1623,11 +1623,11 @@ class JSNES_PPU_NameTable {
     this.height = height;
     this.name = name;
     
-    this.tile = new List<JSNES_PPU_Tile>(width*height);
+    this.tile = new List<int>.filled(width*height, 0);
     this.attrib = new List<int>.filled(width*height, 0);
   }
   
-  JSNES_PPU_Tile getTileIndex(int x, int y){
+  int getTileIndex(int x, int y){
       assert(x is int);
       assert(y is int);
       
@@ -1908,7 +1908,7 @@ class JSNES_PPU_Tile {
         }
     }
     
-    void render(List<int> buffer, int srcx1, int srcy1, int srcx2, int srcy2, int dx, int dy, int palAdd, List<int> palette, int flipHorizontal, int flipVertical, int pri, List<int> priTable) {
+    void render(List<int> buffer, int srcx1, int srcy1, int srcx2, int srcy2, int dx, int dy, int palAdd, List<int> palette, bool flipHorizontal, bool flipVertical, int pri, List<int> priTable) {
         assert(buffer is List<int> && 
             srcx1 is int && 
             srcy1 is int && 
@@ -1918,8 +1918,8 @@ class JSNES_PPU_Tile {
             dy is int && 
             palAdd is int && 
             palette is List<int> && 
-            flipHorizontal is int &&
-            flipVertical is int && 
+            flipHorizontal is bool &&
+            flipVertical is bool && 
             pri is int && 
             priTable is List<int>);
         
