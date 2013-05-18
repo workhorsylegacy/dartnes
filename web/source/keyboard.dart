@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+library dartnes;
 
 // Keyboard events are bound in the UI
 class JSNES_Keyboard {

@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+library dartnes;
 import 'dart:async';
 import 'dart:core';
 
@@ -37,7 +38,6 @@ class JSNES_NES {
     JSNES_CPU cpu = null;
     JSNES_PPU ppu = null;
     JSNES_PAPU papu = null;
-    // FIXME: Should be JSNES_Mapper
     JSNES_MapperDefault mmap = null;
     JSNES_Keyboard keyboard = null;
     
@@ -59,7 +59,7 @@ class JSNES_NES {
           'preferredFrameRate': 60,
           'fpsInterval': 500, // Time between updating FPS in ms
           'showDisplay': true,
-  
+          
           'emulateSound': false,
           'sampleRate': 44100, // Sound sample rate in hz
           
