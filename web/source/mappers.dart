@@ -388,7 +388,7 @@ class JSNES_MapperDefault {
 
     void loadROM() {
         if (!this.nes.rom.valid || this.nes.rom.romCount < 1) {
-            Window.alert("NoMapper: Invalid ROM! Unable to load.");
+            window.alert("NoMapper: Invalid ROM! Unable to load.");
             return;
         }
     
@@ -833,7 +833,7 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
 
   void loadROM() {
     if (!this.nes.rom.valid) {
-        Window.alert("MMC1: Invalid ROM! Unable to load.");
+        window.alert("MMC1: Invalid ROM! Unable to load.");
         return;
     }
 
@@ -919,7 +919,7 @@ class JSNES_Mapper_2 extends JSNES_MapperDefault {
   
   void loadROM() {
       if (!this.nes.rom.valid) {
-          Window.alert("UNROM: Invalid ROM! Unable to load.");
+          window.alert("UNROM: Invalid ROM! Unable to load.");
           return;
       }
   

@@ -1543,7 +1543,7 @@ class JSNES_PAPU_ChannelTriangle {
         return ((this.lengthCounter == 0 || !this.isEnabled)?0:1);
     }
 
-    void readReg(int address){
+    int readReg(int address){
         assert(address is int);
         
         return 0;
