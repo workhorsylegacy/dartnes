@@ -21,10 +21,10 @@ library dartnes;
 
 
 class JSNES_Utils {    
-    static void copyArrayElements(List<int> src, int srcPos, List<int> dest, int destPos, int length) {
-        assert(src is List<int>);
+    static void copyArrayElements(List src, int srcPos, List dest, int destPos, int length) {
+        assert(src is List);
         assert(srcPos is int);
-        assert(dest is List<int>);
+        assert(dest is List);
         assert(destPos is int);
         assert(length is int);
         
