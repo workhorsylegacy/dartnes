@@ -27,7 +27,7 @@ class JSNES_CPU {
     const int IRQ_NMI = 1;
     const int IRQ_RESET = 2;
     
-    List<String> JSON_PROPERTIES = [
+    final List<String> JSON_PROPERTIES = [
         'mem', 'cyclesToHalt', 'irqRequested', 'irqType',
         // Registers
         'REG_ACC', 'REG_X', 'REG_Y', 'REG_SP', 'REG_PC', 'REG_PC_NEW',
@@ -175,15 +175,15 @@ class JSNES_CPU {
             this.irqRequested = false;
         }
 
-        int opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
+        final int opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
         int cycleCount = (opinf>>24);
         int cycleAdd = 0;
 
         // Find address mode:
-        int addrMode = (opinf >> 8) & 0xFF;
+        final int addrMode = (opinf >> 8) & 0xFF;
 
         // Increment PC by number of op bytes:
-        int opaddr = this.REG_PC;
+        final int opaddr = this.REG_PC;
         this.REG_PC += ((opinf >> 16) & 0xFF);
         
         int addr = 0;
