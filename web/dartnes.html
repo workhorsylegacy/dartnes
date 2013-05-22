@@ -6,7 +6,10 @@
 </head>
 
 <body>
-    <h1>DartNES</h1>
+    <h1>
+    <span style="font-size: 130%">DartNES</span>
+    is a <a href="http://dartlang.org">Dart</a> port of <a href="http://workhorsy.org/jsnes">JSNES</a>
+    </h1>
     
   <div id="emulator">
       <canvas id="screen" class="nes-screen" width="256" height="240"></canvas>
@@ -15,14 +18,14 @@
           <option>Select a ROM...</option>
           <option value="local-roms/super_mario_bros.nes">Super Mario Bros.</option>
           <option value="local-roms/contra.nes">Contra</option>
-          <option value="local-roms/mega_man_2.nes">Mega Man 2</option>
+          <!--<option value="local-roms/mega_man_2.nes">Mega Man 2</option>-->
         </select>
       </div>
       <div class="nes-controls">
         <input type="button" id="pause" value="pause" class="nes-pause" disabled="disabled">
         <input type="button" id="restart" value="restart" class="nes-restart" disabled="disabled">
-        <input type="button" id="sound" value="enable sound" class="nes-enablesound">
-        <input type="button" id="zoom" value="zoom in" class="nes-zoom">
+        <input type="button" id="sound" value="enable sound" class="nes-enablesound" disabled="disabled">
+        <input type="button" id="zoom" value="zoom in" class="nes-zoom" disabled="disabled">
       </div>
       <p id="status" class="nes-status">Booting up...</p>
     </div>
@@ -74,6 +77,15 @@
             <td>Num-3</td>
         </tr>
     </table>
+    
+    <p>
+    DartNES source code <a href="https://github.com/workhorsy/dartnes">https://github.com/workhorsy/dartnes</a>
+    </p>
+    
+    <p>
+    Original JSNES source code <a href="https://github.com/bfirsh/jsnes">https://github.com/bfirsh/jsnes</a>
+    </p>
+    
     <script type="application/dart" src="source/main.dart"></script>
     
     <script src="packages/browser/dart.js"></script>
