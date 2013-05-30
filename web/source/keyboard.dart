@@ -18,12 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes;
+import 'dart:typed_data';
 
 // Keyboard events are bound in the UI
 class JSNES_Keyboard {
     Map<String, int> keys = null;
-    List<int> state1 = null;
-    List<int> state2 = null;
+    Int32List state1 = null;
+    Int32List state2 = null;
     
     JSNES_Keyboard() {
         this.keys = {
@@ -37,8 +38,12 @@ class JSNES_Keyboard {
         'KEY_RIGHT': 7
         };
 
-        this.state1 = new List<int>.filled(8, 0x40);
-        this.state2 = new List<int>.filled(8, 0x40);
+        this.state1 = new Int32List(8);
+        this.state2 = new Int32List(8);
+        for(int i=0; i<8; i++) {
+            this.state1[i] = 0x40;
+            this.state2[i] = 0x40;
+        }
     }
     
     bool setKey(int key, int value) {

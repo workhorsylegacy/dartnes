@@ -20,10 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes;
 import 'dart:math';
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'nes.dart';
 import 'utils.dart';
 import 'rom.dart';
+import 'ppu.dart';
 
 class JSNES_MapperDefault {
   JSNES_NES nes = null;
@@ -438,7 +440,7 @@ class JSNES_MapperDefault {
 
     void loadBatteryRam() {
       if (this.nes.rom.batteryRam) {
-            List<int> ram = this.nes.rom.saveRam;
+            Int32List ram = this.nes.rom.saveRam;
             if (ram != null && ram.length == 0x2000) {
                 // Load Battery RAM into memory:
                 JSNES_Utils.copyArrayElements(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);
@@ -469,8 +471,8 @@ class JSNES_MapperDefault {
         JSNES_Utils.copyArrayElements(this.nes.rom.vrom[bank % this.nes.rom.vromCount], 
             0, this.nes.ppu.vramMem, address, 4096);
     
-        var vromTile = this.nes.rom.vromTile[bank % this.nes.rom.vromCount];
-        JSNES_Utils.copyArrayElements(vromTile, 0, this.nes.ppu.ptTile,address >> 4, 256);
+        List<JSNES_PPU_Tile> vromTile = this.nes.rom.vromTile[bank % this.nes.rom.vromCount];
+        JSNES_Utils.copyTileElements(vromTile, 0, this.nes.ppu.ptTile,address >> 4, 256);
     }
 
     void load32kRomBank(int bank, int address) {
@@ -504,15 +506,15 @@ class JSNES_MapperDefault {
         }
         this.nes.ppu.triggerRendering();
     
-        var bank4k = (bank1k / 4).floor() % this.nes.rom.vromCount;
-        var bankoffset = (bank1k % 4) * 1024;
+        int bank4k = (bank1k / 4).floor() % this.nes.rom.vromCount;
+        int bankoffset = (bank1k % 4) * 1024;
         JSNES_Utils.copyArrayElements(this.nes.rom.vrom[bank4k], 0, 
             this.nes.ppu.vramMem, bankoffset, 1024);
     
         // Update tiles:
-        var vromTile = this.nes.rom.vromTile[bank4k];
-        var baseIndex = address >> 4;
-        for (var i = 0; i < 64; i++) {
+        List<JSNES_PPU_Tile> vromTile = this.nes.rom.vromTile[bank4k];
+        int baseIndex = address >> 4;
+        for (int i = 0; i < 64; i++) {
             this.nes.ppu.ptTile[baseIndex+i] = vromTile[((bank1k%4) << 6) + i];
         }
     }
@@ -526,15 +528,15 @@ class JSNES_MapperDefault {
         }
         this.nes.ppu.triggerRendering();
     
-        var bank4k = (bank2k / 2).floor() % this.nes.rom.vromCount;
-        var bankoffset = (bank2k % 2) * 2048;
+        int bank4k = (bank2k / 2).floor() % this.nes.rom.vromCount;
+        int bankoffset = (bank2k % 2) * 2048;
         JSNES_Utils.copyArrayElements(this.nes.rom.vrom[bank4k], bankoffset,
             this.nes.ppu.vramMem, address, 2048);
     
         // Update tiles:
-        var vromTile = this.nes.rom.vromTile[bank4k];
-        var baseIndex = address >> 4;
-        for (var i = 0; i < 128; i++) {
+        List<JSNES_PPU_Tile> vromTile = this.nes.rom.vromTile[bank4k];
+        int baseIndex = address >> 4;
+        for (int i = 0; i < 128; i++) {
             this.nes.ppu.ptTile[baseIndex+i] = vromTile[((bank2k%2) << 7) + i];
         }
     }
@@ -773,8 +775,8 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
             // Select ROM bank:
             // -------------------------
             tmp = value & 0xF;
-            var bank;
-            var baseBank = 0;
+            int bank;
+            int baseBank = 0;
     
             if (this.nes.rom.romCount >= 32) {
                 // 1024 kB cart

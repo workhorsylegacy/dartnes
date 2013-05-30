@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 library dartnes;
 import 'dart:html';
+import 'dart:web_audio';
+import 'dart:typed_data';
 
 import 'nes.dart';
 
@@ -151,13 +153,6 @@ class JSNES_UI {
                 document.onKeyPress.listen((evt) {
                   this.nes.keyboard.keyPress(evt);
                 });
-            
-                /*
-                 * Sound
-                 */
-//                this.dynamicaudio = new DynamicAudio({
-//                    'swf': nes.opts.swfPath + 'dynamicaudio.swf'
-//                });
             }
 
                 void loadROM() {
@@ -212,10 +207,10 @@ class JSNES_UI {
                 void updateStatus(String s) {
                     this.status.text = s;
                 }
-            
-//                void writeAudio(samples) {
-//                    return this.dynamicaudio.writeInt(samples);
-//                }
+                
+                void writeAudio(samples) {
+                  return this.dynamicaudio.writeInt(samples);
+                }
             
                 void writeFrame(List<int> buffer, List<int> prevBuffer) {
                     List<int> imageData = this.canvasImageData.data;

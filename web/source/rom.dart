@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes;
+import 'dart:typed_data';
+
 import 'mappers.dart';
 import 'nes.dart';
 import 'ppu.dart';
@@ -35,10 +37,10 @@ class JSNES_ROM {
   
   JSNES_NES nes = null;
   List<String> mapperName = null;
-  List<int> header = null;
-  List<List<int>> rom = null;
-  List<List<int>> vrom = null;
-  List<int> saveRam = null;
+  Int32List header = null;
+  List<Int32List> rom = null;
+  List<Int32List> vrom = null;
+  Int32List saveRam = null;
   List<List<JSNES_PPU_Tile>> vromTile = null;
   
   int romCount = 0;
@@ -106,7 +108,7 @@ class JSNES_ROM {
             this.nes.ui.updateStatus("Not a valid NES ROM.");
             return;
         }
-        this.header = new List<int>.filled(16, 0);
+        this.header = new Int32List(16);
         for (i = 0; i < 16; i++) {
             this.header[i] = data.codeUnitAt(i) & 0xFF;
         }
@@ -119,7 +121,7 @@ class JSNES_ROM {
         this.mapperType = (this.header[6] >> 4) | (this.header[7] & 0xF0);
 
         if (this.saveRam == null)
-            this.saveRam = new List<int>.filled(0x2000, 0);
+            this.saveRam = new Int32List(0x2000);
         // Check whether byte 8-15 are zero's:
         bool foundError = false;
         for (i=8; i<16; i++) {
@@ -132,10 +134,10 @@ class JSNES_ROM {
             this.mapperType &= 0xF; // Ignore byte 7
         }
         // Load PRG-ROM banks:
-        this.rom = new List<List<int>>(this.romCount);
+        this.rom = new List<Int32List>(this.romCount);
         int offset = 16;
         for (i=0; i < this.romCount; i++) {
-            this.rom[i] = new List<int>.filled(16384, 0);
+            this.rom[i] = new Int32List(16384);
             for (j=0; j < 16384; j++) {
                 if (offset+j >= data.length) {
                     break;
@@ -145,9 +147,9 @@ class JSNES_ROM {
             offset += 16384;
         }
         // Load CHR-ROM banks:
-        this.vrom = new List<List<int>>(this.vromCount);
+        this.vrom = new List<Int32List>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
-            this.vrom[i] = new List<int>.filled(4096, 0);
+            this.vrom[i] = new Int32List(4096);
             for (j=0; j < 4096; j++) {
                 if (offset+j >= data.length){
                     break;

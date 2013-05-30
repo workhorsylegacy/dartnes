@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes;
 import 'dart:math';
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'nes.dart';
 
@@ -63,8 +64,8 @@ class JSNES_PPU {
   const int STATUS_VBLANK = 7;
   
   JSNES_NES nes = null;
-  List<int> vramMem = null;
-  List<int> spriteMem = null;
+  Int32List vramMem = null;
+  Int32List spriteMem = null;
   int vramAddress = 0;
   int vramTmpAddress = 0;
   int vramBufferedReadValue = 0;
@@ -102,32 +103,32 @@ class JSNES_PPU {
   int regFH = 0;
   int regS = 0;
   int curNt = 0;
-  List<int> attrib = null;
-  List<int> buffer = null;
-  List<int> prevBuffer = null;
-  List<int> bgbuffer = null;
-  List<int> pixrendered = null;
+  Int32List attrib = null;
+  Int32List buffer = null;
+  Int32List prevBuffer = null;
+  Int32List bgbuffer = null;
+  Int32List pixrendered = null;
   
   List<JSNES_PPU_Tile> scantile = null;
   int scanline = 0;
   int lastRenderedScanline = 0;
   int curX = 0;
-  List<int> sprX = null; 
-  List<int> sprY = null; 
-  List<int> sprTile = null; 
-  List<int> sprCol = null; 
+  Int32List sprX = null; 
+  Int32List sprY = null; 
+  Int32List sprTile = null; 
+  Int32List sprCol = null; 
   List<bool> vertFlip = null;
   List<bool> horiFlip = null;
   List<bool> bgPriority = null; 
   int spr0HitX = 0; 
   int spr0HitY = 0; 
   bool hitSpr0 = false;
-  List<int> sprPalette = null;
-  List<int> imgPalette = null;
+  Int32List sprPalette = null;
+  Int32List imgPalette = null;
   List<JSNES_PPU_Tile> ptTile = null;
-  List<int> ntable1 = null;
+  Int32List ntable1 = null;
   List<JSNES_PPU_NameTable> nameTable = null;
-  List<int> vramMirrorTable = null;
+  Int32List vramMirrorTable = null;
   JSNES_PPU_PaletteTable palTable = null;
   
   bool showSpr0Hit = false;
@@ -152,8 +153,8 @@ class JSNES_PPU {
         int i;
         
         // Memory
-        this.vramMem = new List<int>.filled(0x8000, 0);
-        this.spriteMem = new List<int>.filled(0x100, 0);
+        this.vramMem = new Int32List(0x8000);
+        this.spriteMem = new Int32List(0x100);
         
         // VRAM I/O:
         this.vramAddress = 0;
@@ -210,11 +211,11 @@ class JSNES_PPU {
         this.curNt = null;
         
         // Variables used when rendering:
-        this.attrib = new List<int>.filled(32, 0);
-        this.buffer = new List<int>.filled(256*240, 0);
-        this.prevBuffer = new List<int>.filled(256*240, 0);
-        this.bgbuffer = new List<int>.filled(256*240, 0);
-        this.pixrendered = new List<int>.filled(256*240, 0);
+        this.attrib = new Int32List(32);
+        this.buffer = new Int32List(256*240);
+        this.prevBuffer = new Int32List(256*240);
+        this.bgbuffer = new Int32List(256*240);
+        this.pixrendered = new Int32List(256*240);
 
         this.validTileData = false;
 
@@ -226,10 +227,10 @@ class JSNES_PPU {
         this.curX = 0;
         
         // Sprite data:
-        this.sprX = new List<int>.filled(64, 0); // X coordinate
-        this.sprY = new List<int>.filled(64, 0); // Y coordinate
-        this.sprTile = new List<int>.filled(64, 0); // Tile Index (into pattern table)
-        this.sprCol = new List<int>.filled(64, 0); // Upper two bits of color
+        this.sprX = new Int32List(64); // X coordinate
+        this.sprY = new Int32List(64); // Y coordinate
+        this.sprTile = new Int32List(64); // Tile Index (into pattern table)
+        this.sprCol = new Int32List(64); // Upper two bits of color
         this.vertFlip = new List<bool>.filled(64, false); // Vertical Flip
         this.horiFlip = new List<bool>.filled(64, false); // Horizontal Flip
         this.bgPriority = new List<bool>.filled(64, false); // Background priority
@@ -238,8 +239,8 @@ class JSNES_PPU {
         this.hitSpr0 = false;
         
         // Palette data:
-        this.sprPalette = new List<int>.filled(16, 0);
-        this.imgPalette = new List<int>.filled(16, 0);
+        this.sprPalette = new Int32List(16);
+        this.imgPalette = new Int32List(16);
         
         // Create pattern table tile buffers:
         this.ptTile = new List<JSNES_PPU_Tile>(512);
@@ -249,7 +250,7 @@ class JSNES_PPU {
         
         // Create nametable buffers:
         // Name table data:
-        this.ntable1 = new List<int>.filled(4, 0);
+        this.ntable1 = new Int32List(4);
         this.currentMirroring = -1;
         this.nameTable = new List<JSNES_PPU_NameTable>(4);
         for (i=0; i<4; i++) {
@@ -257,7 +258,7 @@ class JSNES_PPU {
         }
         
         // Initialize mirroring lookup table:
-        this.vramMirrorTable = new List<int>.filled(0x8000, 0);
+        this.vramMirrorTable = new Int32List(0x8000);
         for (i=0; i<0x8000; i++) {
             this.vramMirrorTable[i] = i;
         }
@@ -283,7 +284,7 @@ class JSNES_PPU {
     
         // Remove mirroring:
         if (this.vramMirrorTable == null) {
-            this.vramMirrorTable = new List<int>.filled(0x8000, 0);
+            this.vramMirrorTable = new Int32List(0x8000);
         }
         for (int i=0; i<0x8000; i++) {
             this.vramMirrorTable[i] = i;
@@ -541,12 +542,12 @@ class JSNES_PPU {
             }
         }
         
-        List<int> buffer = this.buffer;
+        Int32List buffer = this.buffer;
         int i;
         for (i=0; i<256*240; i++) {
             buffer[i] = bgColor;
         }
-        List<int> pixrendered = this.pixrendered;
+        Int32List pixrendered = this.pixrendered;
         for (i=0; i<pixrendered.length; i++) {
             pixrendered[i]=65;
         }
@@ -554,7 +555,7 @@ class JSNES_PPU {
     
     void endFrame(){
         int i, x, y;
-        List<int> buffer = this.buffer;
+        Int32List buffer = this.buffer;
         
         // Draw spr#0 hit coordinates:
         if (this.showSpr0Hit) {
@@ -1023,9 +1024,9 @@ class JSNES_PPU {
             if (ei > 0xF000) {
                 ei = 0xF000;
             }
-            List<int> buffer = this.buffer;
-            List<int> bgbuffer = this.bgbuffer;
-            List<int> pixrendered = this.pixrendered;
+            Int32List buffer = this.buffer;
+            Int32List bgbuffer = this.bgbuffer;
+            Int32List pixrendered = this.pixrendered;
             for (int destIndex=si; destIndex<ei; destIndex++) {
                 if (pixrendered[destIndex] > 0xFF) {
                     buffer[destIndex] = bgbuffer[destIndex];
@@ -1057,15 +1058,15 @@ class JSNES_PPU {
             
             int tscanoffset = this.cntFV<<3;
             List<JSNES_PPU_Tile> scantile = this.scantile;
-            List<int> attrib = this.attrib;
+            Int32List attrib = this.attrib;
             List<JSNES_PPU_Tile> ptTile = this.ptTile;
             List<JSNES_PPU_NameTable> nameTable = this.nameTable;
-            List<int> imgPalette = this.imgPalette;
-            List<int> pixrendered = this.pixrendered;
-            List<int> targetBuffer = is_bgbuffer ? this.bgbuffer : this.buffer;
+            Int32List imgPalette = this.imgPalette;
+            Int32List pixrendered = this.pixrendered;
+            Int32List targetBuffer = is_bgbuffer ? this.bgbuffer : this.buffer;
 
             JSNES_PPU_Tile t;
-            List<int> tpix;
+            Int32List tpix;
             int att, col;
 
             for (int tile=0;tile<32;tile++) {
@@ -1613,8 +1614,8 @@ class JSNES_PPU_NameTable {
   int height = 0;
   String name = null;
   
-  List<int> tile = null;
-  List<int> attrib = null;
+  Int32List tile = null;
+  Int32List attrib = null;
   
   JSNES_PPU_NameTable(int width, int height, String name) {
     assert(width is int);
@@ -1625,8 +1626,8 @@ class JSNES_PPU_NameTable {
     this.height = height;
     this.name = name;
     
-    this.tile = new List<int>.filled(width*height, 0);
-    this.attrib = new List<int>.filled(width*height, 0);
+    this.tile = new Int32List(width*height);
+    this.attrib = new Int32List(width*height);
   }
   
   int getTileIndex(int x, int y){
@@ -1682,13 +1683,13 @@ class JSNES_PPU_NameTable {
 
 
 class JSNES_PPU_PaletteTable {
-  List<int> curTable = null;
-  List<List<int>> emphTable = null;
+  Int32List curTable = null;
+  List<Int32List> emphTable = null;
   int currentEmph = 0;
   
   JSNES_PPU_PaletteTable() {
-    this.curTable = new List<int>.filled(64, 0);
-    this.emphTable = new List<List<int>>(8);
+    this.curTable = new Int32List(64);
+    this.emphTable = new List<Int32List>(8);
     this.currentEmph = -1;
   }
   
@@ -1697,13 +1698,13 @@ class JSNES_PPU_PaletteTable {
     }
     
     void loadNTSCPalette() {
-        this.curTable = [0x525252, 0xB40000, 0xA00000, 0xB1003D, 0x740069, 0x00005B, 0x00005F, 0x001840, 0x002F10, 0x084A08, 0x006700, 0x124200, 0x6D2800, 0x000000, 0x000000, 0x000000, 0xC4D5E7, 0xFF4000, 0xDC0E22, 0xFF476B, 0xD7009F, 0x680AD7, 0x0019BC, 0x0054B1, 0x006A5B, 0x008C03, 0x00AB00, 0x2C8800, 0xA47200, 0x000000, 0x000000, 0x000000, 0xF8F8F8, 0xFFAB3C, 0xFF7981, 0xFF5BC5, 0xFF48F2, 0xDF49FF, 0x476DFF, 0x00B4F7, 0x00E0FF, 0x00E375, 0x03F42B, 0x78B82E, 0xE5E218, 0x787878, 0x000000, 0x000000, 0xFFFFFF, 0xFFF2BE, 0xF8B8B8, 0xF8B8D8, 0xFFB6FF, 0xFFC3FF, 0xC7D1FF, 0x9ADAFF, 0x88EDF8, 0x83FFDD, 0xB8F8B8, 0xF5F8AC, 0xFFFFB0, 0xF8D8F8, 0x000000, 0x000000];
+        this.curTable = new Int32List.fromList([0x525252, 0xB40000, 0xA00000, 0xB1003D, 0x740069, 0x00005B, 0x00005F, 0x001840, 0x002F10, 0x084A08, 0x006700, 0x124200, 0x6D2800, 0x000000, 0x000000, 0x000000, 0xC4D5E7, 0xFF4000, 0xDC0E22, 0xFF476B, 0xD7009F, 0x680AD7, 0x0019BC, 0x0054B1, 0x006A5B, 0x008C03, 0x00AB00, 0x2C8800, 0xA47200, 0x000000, 0x000000, 0x000000, 0xF8F8F8, 0xFFAB3C, 0xFF7981, 0xFF5BC5, 0xFF48F2, 0xDF49FF, 0x476DFF, 0x00B4F7, 0x00E0FF, 0x00E375, 0x03F42B, 0x78B82E, 0xE5E218, 0x787878, 0x000000, 0x000000, 0xFFFFFF, 0xFFF2BE, 0xF8B8B8, 0xF8B8D8, 0xFFB6FF, 0xFFC3FF, 0xC7D1FF, 0x9ADAFF, 0x88EDF8, 0x83FFDD, 0xB8F8B8, 0xF5F8AC, 0xFFFFB0, 0xF8D8F8, 0x000000, 0x000000]);
         this.makeTables();
         this.setEmphasis(0);
     }
     
     void loadPALPalette() {
-        this.curTable = [0x525252, 0xB40000, 0xA00000, 0xB1003D, 0x740069, 0x00005B, 0x00005F, 0x001840, 0x002F10, 0x084A08, 0x006700, 0x124200, 0x6D2800, 0x000000, 0x000000, 0x000000, 0xC4D5E7, 0xFF4000, 0xDC0E22, 0xFF476B, 0xD7009F, 0x680AD7, 0x0019BC, 0x0054B1, 0x006A5B, 0x008C03, 0x00AB00, 0x2C8800, 0xA47200, 0x000000, 0x000000, 0x000000, 0xF8F8F8, 0xFFAB3C, 0xFF7981, 0xFF5BC5, 0xFF48F2, 0xDF49FF, 0x476DFF, 0x00B4F7, 0x00E0FF, 0x00E375, 0x03F42B, 0x78B82E, 0xE5E218, 0x787878, 0x000000, 0x000000, 0xFFFFFF, 0xFFF2BE, 0xF8B8B8, 0xF8B8D8, 0xFFB6FF, 0xFFC3FF, 0xC7D1FF, 0x9ADAFF, 0x88EDF8, 0x83FFDD, 0xB8F8B8, 0xF5F8AC, 0xFFFFB0, 0xF8D8F8, 0x000000, 0x000000];
+        this.curTable = new Int32List.fromList([0x525252, 0xB40000, 0xA00000, 0xB1003D, 0x740069, 0x00005B, 0x00005F, 0x001840, 0x002F10, 0x084A08, 0x006700, 0x124200, 0x6D2800, 0x000000, 0x000000, 0x000000, 0xC4D5E7, 0xFF4000, 0xDC0E22, 0xFF476B, 0xD7009F, 0x680AD7, 0x0019BC, 0x0054B1, 0x006A5B, 0x008C03, 0x00AB00, 0x2C8800, 0xA47200, 0x000000, 0x000000, 0x000000, 0xF8F8F8, 0xFFAB3C, 0xFF7981, 0xFF5BC5, 0xFF48F2, 0xDF49FF, 0x476DFF, 0x00B4F7, 0x00E0FF, 0x00E375, 0x03F42B, 0x78B82E, 0xE5E218, 0x787878, 0x000000, 0x000000, 0xFFFFFF, 0xFFF2BE, 0xF8B8B8, 0xF8B8D8, 0xFFB6FF, 0xFFC3FF, 0xC7D1FF, 0x9ADAFF, 0x88EDF8, 0x83FFDD, 0xB8F8B8, 0xF5F8AC, 0xFFFFB0, 0xF8D8F8, 0x000000, 0x000000]);
         this.makeTables();
         this.setEmphasis(0);
     }
@@ -1733,7 +1734,7 @@ class JSNES_PPU_PaletteTable {
                 bFactor = 0.75;
             }
             
-            this.emphTable[emph] = new List<int>.filled(64, 0);
+            this.emphTable[emph] = new Int32List(64);
             
             // Calculate table:
             for (i = 0; i < 64; i++) {
@@ -1861,7 +1862,7 @@ class JSNES_PPU_PaletteTable {
 }
 
 class JSNES_PPU_Tile {
-  List<int> pix = null;
+  Int32List pix = null;
   
   int fbIndex = 0;
   int tIndex = 0;
@@ -1879,14 +1880,14 @@ class JSNES_PPU_Tile {
   
   JSNES_PPU_Tile() {
     // Tile data:
-    this.pix = new List<int>.filled(64, 0);
+    this.pix = new Int32List(64);
     
     this.initialized = false;
     this.opaque = new List<bool>.filled(8, false);
   }
 
-    void setBuffer(List<int> scanline){
-        assert(scanline is List<int>);
+    void setBuffer(Int32List scanline){
+        assert(scanline is Int32List);
         
         for (this.y=0;this.y<8;this.y++) {
             this.setScanline(this.y,scanline[this.y],scanline[this.y+8]);
@@ -1910,8 +1911,8 @@ class JSNES_PPU_Tile {
         }
     }
     
-    void render(List<int> buffer, int srcx1, int srcy1, int srcx2, int srcy2, int dx, int dy, int palAdd, List<int> palette, bool flipHorizontal, bool flipVertical, int pri, List<int> priTable) {
-        assert(buffer is List<int> && 
+    void render(Int32List buffer, int srcx1, int srcy1, int srcx2, int srcy2, int dx, int dy, int palAdd, Int32List palette, bool flipHorizontal, bool flipVertical, int pri, Int32List priTable) {
+        assert(buffer is Int32List && 
             srcx1 is int && 
             srcy1 is int && 
             srcx2 is int && 
@@ -1919,11 +1920,11 @@ class JSNES_PPU_Tile {
             dx is int && 
             dy is int && 
             palAdd is int && 
-            palette is List<int> && 
+            palette is Int32List && 
             flipHorizontal is bool &&
             flipVertical is bool && 
             pri is int && 
-            priTable is List<int>);
+            priTable is Int32List);
         
         if (dx<-7 || dx>=256 || dy<-7 || dy>=240) {
             return;

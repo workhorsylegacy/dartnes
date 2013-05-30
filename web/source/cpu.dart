@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes;
+import 'dart:typed_data';
+
 import 'nes.dart';
 import 'utils.dart';
 
@@ -38,7 +40,7 @@ class JSNES_CPU {
     ];
   
     JSNES_NES nes = null;
-    List<int> mem = null;
+    Int32List mem = null;
     int REG_ACC = 0;
     int REG_X = 0;
     int REG_Y = 0;
@@ -57,7 +59,7 @@ class JSNES_CPU {
     int F_NOTUSED_NEW = 0;
     int F_BRK = 0;
     int F_BRK_NEW = 0;
-    List<int> opdata = null;
+    Int32List opdata = null;
     int cyclesToHalt = 0;
     bool crash = false;
     bool irqRequested = false;
@@ -69,10 +71,10 @@ class JSNES_CPU {
       this.nes = nes;
       this.reset();
     }
-
+    
     void reset() {
         // Main memory 
-        this.mem = new List<int>.filled(0x10000, 0);
+        this.mem = new Int32List(0x10000);
         
         for (int i=0; i < 0x2000; i++) {
             this.mem[i] = 0xFF;
@@ -1340,8 +1342,8 @@ class JSNES_CPU_OpData {
   
   List<String> instname = null;
   List<String> addrDesc = null;
-  List<int> opdata = null;
-  List<int> cycTable = null;
+  Int32List opdata = null;
+  Int32List cycTable = null;
   
   void setOp(int inst, int op, int addr, int size, int cycles){
     assert(inst is int);
@@ -1358,7 +1360,7 @@ class JSNES_CPU_OpData {
   }
 
   JSNES_CPU_OpData() {
-      this.opdata = new List<int>.filled(256, 0);
+      this.opdata = new Int32List(256);
       
       // Set all to invalid instruction (to detect crashes):
       for(int i=0;i<256;i++) this.opdata[i]=0xFF;
@@ -1629,7 +1631,7 @@ class JSNES_CPU_OpData {
       // TYA:
       this.setOp(this.INS_TYA,0x98,this.ADDR_IMP,1,2);
       
-      this.cycTable = [
+      this.cycTable = new Int32List.fromList([
       /*0x00*/ 7,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6,
       /*0x10*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
       /*0x20*/ 6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6,
@@ -1646,7 +1648,7 @@ class JSNES_CPU_OpData {
       /*0xD0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
       /*0xE0*/ 2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6,
       /*0xF0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7
-      ];
+      ]);
       
       
       this.instname = new List<String>(56);

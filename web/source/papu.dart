@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes;
+import 'dart:typed_data';
+
 import 'nes.dart';
 
 class JSNES_PAPU {
@@ -38,12 +40,12 @@ class JSNES_PAPU {
   int bufferIndex = 0;
   int sampleRate = 0;
 
-  List<int> lengthLookup = null;
-  List<int> dmcFreqLookup = null;
-  List<int> noiseWavelengthLookup = null;
-  List<int> square_table = null;
-  List<int> tnd_table = null;
-  List<int> sampleBuffer = null;
+  Int32List lengthLookup = null;
+  Int32List dmcFreqLookup = null;
+  Int32List noiseWavelengthLookup = null;
+  Int32List square_table = null;
+  Int32List tnd_table = null;
+  Int32List sampleBuffer = null;
 
   bool frameIrqEnabled = false;
   bool frameIrqActive = false;
@@ -97,7 +99,7 @@ class JSNES_PAPU {
   int maxSample = 0;
   int minSample = 0;
   
-  List<int> panning = null;
+  Int32List panning = null;
   
   JSNES_PAPU(JSNES_NES nes) {
     assert(nes is JSNES_NES);
@@ -124,7 +126,7 @@ class JSNES_PAPU {
     this.noiseWavelengthLookup = null;
     this.square_table = null;
     this.tnd_table = null;
-    this.sampleBuffer = new List<int>.filled(this.bufferSize*2, 0);
+    this.sampleBuffer = new Int32List(this.bufferSize*2);
 
     this.frameIrqEnabled = false;
     this.frameIrqActive = null;
@@ -179,7 +181,7 @@ class JSNES_PAPU {
     this.minSample = 0;
     
     // Panning:
-    this.panning = [80, 170, 100, 150, 128];
+    this.panning = new Int32List.fromList([80, 170, 100, 150, 128]);
     this.setPanning(this.panning);
 
     // Initialize lookup tables:
@@ -728,7 +730,7 @@ class JSNES_PAPU {
         // Write full buffer
         if (this.bufferIndex == this.sampleBuffer.length) {
 //            this.nes.ui.writeAudio(this.sampleBuffer);
-            this.sampleBuffer = new List<int>.filled(this.bufferSize*2, 0);
+            this.sampleBuffer = new Int32List(this.bufferSize*2);
             this.bufferIndex = 0;
         }
 
@@ -764,8 +766,8 @@ class JSNES_PAPU {
         return 0;
     }
 
-    void setPanning(List<int> pos){
-        assert(pos is List<int>);
+    void setPanning(Int32List pos){
+        assert(pos is Int32List);
         
         for (int i = 0; i < 5; i++) {
             this.panning[i] = pos[i];
@@ -802,7 +804,7 @@ class JSNES_PAPU {
 
     void initLengthLookup(){
 
-        this.lengthLookup = [
+        this.lengthLookup = new Int32List.fromList([
             0x0A, 0xFE,
             0x14, 0x02,
             0x28, 0x04,
@@ -819,12 +821,12 @@ class JSNES_PAPU {
             0x48, 0x1A,
             0x10, 0x1C,
             0x20, 0x1E
-        ];
+        ]);
     }
 
     void initDmcFrequencyLookup(){
 
-        this.dmcFreqLookup = new List<int>.filled(16, 0);
+        this.dmcFreqLookup = new Int32List(16);
 
         this.dmcFreqLookup[0x0] = 0xD60;
         this.dmcFreqLookup[0x1] = 0xBE0;
@@ -848,7 +850,7 @@ class JSNES_PAPU {
 
     void initNoiseWavelengthLookup(){
 
-        this.noiseWavelengthLookup = new List<int>.filled(16, 0);
+        this.noiseWavelengthLookup = new Int32List(16);
 
         this.noiseWavelengthLookup[0x0] = 0x004;
         this.noiseWavelengthLookup[0x1] = 0x008;
@@ -875,8 +877,8 @@ class JSNES_PAPU {
         int max_sqr = 0;
         int max_tnd = 0;
         
-        this.square_table = new List<int>.filled(32*16, 0);
-        this.tnd_table = new List<int>.filled(204*16, 0);
+        this.square_table = new Int32List(32*16);
+        this.tnd_table = new Int32List(204*16);
 
         for (i = 0; i < 32 * 16; i++) {
             value = 95.52 / (8128.0 / (i/16.0) + 100.0);
@@ -1268,19 +1270,19 @@ class JSNES_PAPU_ChannelNoise {
 
 
 class JSNES_PAPU_ChannelSquare {
-  List<int> dutyLookup = [
+  Int32List dutyLookup = new Int32List.fromList([
                      0, 1, 0, 0, 0, 0, 0, 0,
                      0, 1, 1, 0, 0, 0, 0, 0,
                      0, 1, 1, 1, 1, 0, 0, 0,
                      1, 0, 0, 1, 1, 1, 1, 1
-  ];
+  ]);
   
-  List<int> impLookup = [
+  Int32List impLookup = new Int32List.fromList([
                     1,-1, 0, 0, 0, 0, 0, 0,
                     1, 0,-1, 0, 0, 0, 0, 0,
                     1, 0, 0, 0,-1, 0, 0, 0,
                     -1, 0, 1, 0, 0, 0, 0, 0
-  ];
+  ]);
   
   JSNES_PAPU papu = null;
   

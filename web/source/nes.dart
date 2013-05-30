@@ -29,7 +29,8 @@ import 'mappers.dart';
 import 'keyboard.dart';
 import 'rom.dart';
 
-class JSNES_NES {
+
+class JSNES_NES {    
     Map opts = null;
     double frameTime = 0.0;
     String crashMessage = null;

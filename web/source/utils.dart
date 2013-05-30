@@ -18,13 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes;
+import 'dart:typed_data';
 
+import 'ppu.dart';
 
 class JSNES_Utils {    
-    static void copyArrayElements(List src, int srcPos, List dest, int destPos, int length) {
-        assert(src is List);
+    static void copyArrayElements(Int32List src, int srcPos, Int32List dest, int destPos, int length) {
+        assert(src is Int32List);
         assert(srcPos is int);
-        assert(dest is List);
+        assert(dest is Int32List);
         assert(destPos is int);
         assert(length is int);
         
@@ -33,6 +35,19 @@ class JSNES_Utils {
         }
     }
     
+    static void copyTileElements(List<JSNES_PPU_Tile> src, int srcPos, List<JSNES_PPU_Tile> dest, int destPos, int length) {
+      assert(src is List<JSNES_PPU_Tile>);
+      assert(srcPos is int);
+      assert(dest is List<JSNES_PPU_Tile>);
+      assert(destPos is int);
+      assert(length is int);
+      
+      for (int i = 0; i < length; ++i) {
+        dest[destPos + i] = src[srcPos + i];
+      }
+    }
+    
+    /*
     static List<int> copyArray(List<int> src) {
         assert(src is List<int>);
         
@@ -42,6 +57,7 @@ class JSNES_Utils {
         }
         return dest;
     }
+    */
 /*
     static void fromJSON(obj, state) {
         for (var i = 0; i < obj.JSON_PROPERTIES.length; i++) {
