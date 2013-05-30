@@ -105,7 +105,6 @@ class JSNES_PPU {
   int curNt = 0;
   Int32List attrib = null;
   Int32List buffer = null;
-  Int32List prevBuffer = null;
   Int32List bgbuffer = null;
   Int32List pixrendered = null;
   
@@ -213,7 +212,6 @@ class JSNES_PPU {
         // Variables used when rendering:
         this.attrib = new Int32List(32);
         this.buffer = new Int32List(256*240);
-        this.prevBuffer = new Int32List(256*240);
         this.bgbuffer = new Int32List(256*240);
         this.pixrendered = new Int32List(256*240);
 
@@ -613,7 +611,7 @@ class JSNES_PPU {
         }
         
         if (this.nes.opts['showDisplay']) {
-            this.nes.ui.writeFrame(buffer, this.prevBuffer);
+            this.nes.ui.writeFrame(buffer);
         }
     }
     

@@ -150,7 +150,7 @@ class JSNES_CPU {
             this.REG_PC_NEW = this.REG_PC;
             this.F_INTERRUPT_NEW = this.F_INTERRUPT;
             switch(this.irqType){
-                case 0: {
+                case 0:
                     // Normal IRQ:
                     if(this.F_INTERRUPT!=0){
                         ////System.out.println("Interrupt was masked.");
@@ -159,16 +159,15 @@ class JSNES_CPU {
                     this.doIrq(temp);
                     ////System.out.println("Did normal IRQ. I="+this.F_INTERRUPT);
                     break;
-                }case 1:{
+                case 1:
                     // NMI:
                     this.doNonMaskableInterrupt(temp);
                     break;
 
-                }case 2:{
+                case 2:
                     // Reset:
                     this.doResetInterrupt();
                     break;
-                }
             }
 
             this.REG_PC = this.REG_PC_NEW;
@@ -190,13 +189,13 @@ class JSNES_CPU {
         
         int addr = 0;
         switch(addrMode){
-            case 0:{
+            case 0:
                 // Zero Page mode. Use the address given after the opcode, 
                 // but without high byte.
                 addr = this.load(opaddr+2);
                 break;
 
-            }case 1:{
+            case 1:
                 // Relative mode.
                 addr = this.load(opaddr+2);
                 if(addr<0x80){
@@ -205,36 +204,36 @@ class JSNES_CPU {
                     addr += this.REG_PC-256;
                 }
                 break;
-            }case 2:{
+            case 2:
                 // Ignore. Address is implied in instruction.
                 break;
-            }case 3:{
+            case 3:
                 // Absolute mode. Use the two bytes following the opcode as 
                 // an address.
                 addr = this.load16bit(opaddr+2);
                 break;
-            }case 4:{
+            case 4:
                 // Accumulator mode. The address is in the accumulator 
                 // register.
                 addr = this.REG_ACC;
                 break;
-            }case 5:{
+            case 5:
                 // Immediate mode. The value is given after the opcode.
                 addr = this.REG_PC;
                 break;
-            }case 6:{
+            case 6:
                 // Zero Page Indexed mode, X as index. Use the address given 
                 // after the opcode, then add the
                 // X register to it to get the final address.
                 addr = (this.load(opaddr+2)+this.REG_X)&0xFF;
                 break;
-            }case 7:{
+            case 7:
                 // Zero Page Indexed mode, Y as index. Use the address given 
                 // after the opcode, then add the
                 // Y register to it to get the final address.
                 addr = (this.load(opaddr+2)+this.REG_Y)&0xFF;
                 break;
-            }case 8:{
+            case 8:
                 // Absolute Indexed Mode, X as index. Same as zero page 
                 // indexed, but with the high byte.
                 addr = this.load16bit(opaddr+2);
@@ -243,7 +242,7 @@ class JSNES_CPU {
                 }
                 addr+=this.REG_X;
                 break;
-            }case 9:{
+            case 9:
                 // Absolute Indexed Mode, Y as index. Same as zero page 
                 // indexed, but with the high byte.
                 addr = this.load16bit(opaddr+2);
@@ -252,7 +251,7 @@ class JSNES_CPU {
                 }
                 addr+=this.REG_Y;
                 break;
-            }case 10:{
+            case 10:
                 // Pre-indexed Indirect mode. Find the 16-bit address 
                 // starting at the given location plus
                 // the current X register. The value is the contents of that 
@@ -265,7 +264,7 @@ class JSNES_CPU {
                 addr&=0xFF;
                 addr = this.load16bit(addr);
                 break;
-            }case 11:{
+            case 11:
                 // Post-indexed Indirect mode. Find the 16-bit address 
                 // contained in the given location
                 // (and the one following). Add to that address the contents 
@@ -277,7 +276,7 @@ class JSNES_CPU {
                 }
                 addr+=this.REG_Y;
                 break;
-            }case 12:{
+            case 12:
                 // Indirect Absolute mode. Find the 16-bit address contained 
                 // at the given location.
                 addr = this.load16bit(opaddr+2);// Find op
@@ -289,11 +288,9 @@ class JSNES_CPU {
                 }
                 break;
 
-            }
-
         }
         // Wrap around for addresses above 0xFFFF:
-        addr&=0xFFFF;
+        addr &= 0xFFFF;
 
         // ----------------------------------------------------------------------------------------------------
         // Decode & execute instruction:
@@ -301,7 +298,7 @@ class JSNES_CPU {
 
         // This should be compiled to a jump table.
         switch(opinf&0xFF){
-            case 0:{
+            case 0:
                 // *******
                 // * ADC *
                 // *******
@@ -316,7 +313,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 1:{
+            case 1:
                 // *******
                 // * AND *
                 // *******
@@ -328,7 +325,7 @@ class JSNES_CPU {
                 //this.REG_ACC = temp;
                 if(addrMode!=11)cycleCount+=cycleAdd; // PostIdxInd = 11
                 break;
-            }case 2:{
+            case 2:
                 // *******
                 // * ASL *
                 // *******
@@ -353,7 +350,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 3:{
+            case 3:
 
                 // *******
                 // * BCC *
@@ -366,7 +363,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 4:{
+            case 4:
 
                 // *******
                 // * BCS *
@@ -379,7 +376,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 5:{
+            case 5:
 
                 // *******
                 // * BEQ *
@@ -392,7 +389,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 6:{
+            case 6:
 
                 // *******
                 // * BIT *
@@ -405,7 +402,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp;
                 break;
 
-            }case 7:{
+            case 7:
 
                 // *******
                 // * BMI *
@@ -418,7 +415,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 8:{
+            case 8:
 
                 // *******
                 // * BNE *
@@ -431,7 +428,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 9:{
+            case 9:
 
                 // *******
                 // * BPL *
@@ -444,7 +441,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 10:{
+            case 10:
 
                 // *******
                 // * BRK *
@@ -472,7 +469,7 @@ class JSNES_CPU {
                 this.REG_PC--;
                 break;
 
-            }case 11:{
+            case 11:
 
                 // *******
                 // * BVC *
@@ -485,7 +482,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 12:{
+            case 12:
 
                 // *******
                 // * BVS *
@@ -498,7 +495,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 13:{
+            case 13:
 
                 // *******
                 // * CLC *
@@ -508,7 +505,7 @@ class JSNES_CPU {
                 this.F_CARRY = 0;
                 break;
 
-            }case 14:{
+            case 14:
 
                 // *******
                 // * CLD *
@@ -518,7 +515,7 @@ class JSNES_CPU {
                 this.F_DECIMAL = 0;
                 break;
 
-            }case 15:{
+            case 15:
 
                 // *******
                 // * CLI *
@@ -528,7 +525,7 @@ class JSNES_CPU {
                 this.F_INTERRUPT = 0;
                 break;
 
-            }case 16:{
+            case 16:
 
                 // *******
                 // * CLV *
@@ -538,7 +535,7 @@ class JSNES_CPU {
                 this.F_OVERFLOW = 0;
                 break;
 
-            }case 17:{
+            case 17:
 
                 // *******
                 // * CMP *
@@ -552,7 +549,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 18:{
+            case 18:
 
                 // *******
                 // * CPX *
@@ -565,7 +562,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp&0xFF;
                 break;
 
-            }case 19:{
+            case 19:
 
                 // *******
                 // * CPY *
@@ -578,7 +575,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp&0xFF;
                 break;
 
-            }case 20:{
+            case 20:
 
                 // *******
                 // * DEC *
@@ -591,7 +588,7 @@ class JSNES_CPU {
                 this.write(addr, temp);
                 break;
 
-            }case 21:{
+            case 21:
 
                 // *******
                 // * DEX *
@@ -603,7 +600,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_X;
                 break;
 
-            }case 22:{
+            case 22:
 
                 // *******
                 // * DEY *
@@ -615,7 +612,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_Y;
                 break;
 
-            }case 23:{
+            case 23:
 
                 // *******
                 // * EOR *
@@ -628,7 +625,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 24:{
+            case 24:
 
                 // *******
                 // * INC *
@@ -641,7 +638,7 @@ class JSNES_CPU {
                 this.write(addr, temp&0xFF);
                 break;
 
-            }case 25:{
+            case 25:
 
                 // *******
                 // * INX *
@@ -653,7 +650,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_X;
                 break;
 
-            }case 26:{
+            case 26:
 
                 // *******
                 // * INY *
@@ -666,7 +663,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_Y;
                 break;
 
-            }case 27:{
+            case 27:
 
                 // *******
                 // * JMP *
@@ -676,7 +673,7 @@ class JSNES_CPU {
                 this.REG_PC = addr-1;
                 break;
 
-            }case 28:{
+            case 28:
 
                 // *******
                 // * JSR *
@@ -689,7 +686,7 @@ class JSNES_CPU {
                 this.REG_PC = addr-1;
                 break;
 
-            }case 29:{
+            case 29:
 
                 // *******
                 // * LDA *
@@ -702,7 +699,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 30:{
+            case 30:
 
                 // *******
                 // * LDX *
@@ -715,7 +712,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 31:{
+            case 31:
 
                 // *******
                 // * LDY *
@@ -728,7 +725,7 @@ class JSNES_CPU {
                 cycleCount+=cycleAdd;
                 break;
 
-            }case 32:{
+            case 32:
 
                 // *******
                 // * LSR *
@@ -754,7 +751,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp;
                 break;
 
-            }case 33:{
+            case 33:
 
                 // *******
                 // * NOP *
@@ -764,7 +761,7 @@ class JSNES_CPU {
                 // Ignore.
                 break;
 
-            }case 34:{
+            case 34:
 
                 // *******
                 // * ORA *
@@ -778,7 +775,7 @@ class JSNES_CPU {
                 if(addrMode!=11)cycleCount+=cycleAdd; // PostIdxInd = 11
                 break;
 
-            }case 35:{
+            case 35:
 
                 // *******
                 // * PHA *
@@ -788,7 +785,7 @@ class JSNES_CPU {
                 this.push(this.REG_ACC);
                 break;
 
-            }case 36:{
+            case 36:
 
                 // *******
                 // * PHP *
@@ -808,7 +805,7 @@ class JSNES_CPU {
                 );
                 break;
 
-            }case 37:{
+            case 37:
 
                 // *******
                 // * PLA *
@@ -820,7 +817,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_ACC;
                 break;
 
-            }case 38:{
+            case 38:
 
                 // *******
                 // * PLP *
@@ -840,7 +837,7 @@ class JSNES_CPU {
                 this.F_NOTUSED = 1;
                 break;
 
-            }case 39:{
+            case 39:
 
                 // *******
                 // * ROL *
@@ -868,7 +865,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp;
                 break;
 
-            }case 40:{
+            case 40:
 
                 // *******
                 // * ROR *
@@ -895,7 +892,7 @@ class JSNES_CPU {
                 this.F_ZERO = temp;
                 break;
 
-            }case 41:{
+            case 41:
 
                 // *******
                 // * RTI *
@@ -922,7 +919,7 @@ class JSNES_CPU {
                 this.F_NOTUSED = 1;
                 break;
 
-            }case 42:{
+            case 42:
 
                 // *******
                 // * RTS *
@@ -938,7 +935,7 @@ class JSNES_CPU {
                 }
                 break;
 
-            }case 43:{
+            case 43:
 
                 // *******
                 // * SBC *
@@ -953,7 +950,7 @@ class JSNES_CPU {
                 if(addrMode!=11)cycleCount+=cycleAdd; // PostIdxInd = 11
                 break;
 
-            }case 44:{
+            case 44:
 
                 // *******
                 // * SEC *
@@ -963,7 +960,7 @@ class JSNES_CPU {
                 this.F_CARRY = 1;
                 break;
 
-            }case 45:{
+            case 45:
 
                 // *******
                 // * SED *
@@ -973,7 +970,7 @@ class JSNES_CPU {
                 this.F_DECIMAL = 1;
                 break;
 
-            }case 46:{
+            case 46:
 
                 // *******
                 // * SEI *
@@ -983,7 +980,7 @@ class JSNES_CPU {
                 this.F_INTERRUPT = 1;
                 break;
 
-            }case 47:{
+            case 47:
 
                 // *******
                 // * STA *
@@ -993,7 +990,7 @@ class JSNES_CPU {
                 this.write(addr, this.REG_ACC);
                 break;
 
-            }case 48:{
+            case 48:
 
                 // *******
                 // * STX *
@@ -1003,7 +1000,7 @@ class JSNES_CPU {
                 this.write(addr, this.REG_X);
                 break;
 
-            }case 49:{
+            case 49:
 
                 // *******
                 // * STY *
@@ -1013,7 +1010,7 @@ class JSNES_CPU {
                 this.write(addr, this.REG_Y);
                 break;
 
-            }case 50:{
+            case 50:
 
                 // *******
                 // * TAX *
@@ -1025,7 +1022,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_ACC;
                 break;
 
-            }case 51:{
+            case 51:
 
                 // *******
                 // * TAY *
@@ -1037,7 +1034,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_ACC;
                 break;
 
-            }case 52:{
+            case 52:
 
                 // *******
                 // * TSX *
@@ -1049,7 +1046,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_X;
                 break;
 
-            }case 53:{
+            case 53:
 
                 // *******
                 // * TXA *
@@ -1061,7 +1058,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_X;
                 break;
 
-            }case 54:{
+            case 54:
 
                 // *******
                 // * TXS *
@@ -1072,7 +1069,7 @@ class JSNES_CPU {
                 this.stackWrap();
                 break;
 
-            }case 55:{
+            case 55:
 
                 // *******
                 // * TYA *
@@ -1084,7 +1081,7 @@ class JSNES_CPU {
                 this.F_ZERO = this.REG_Y;
                 break;
 
-            }default:{
+            default:
 
                 // *******
                 // * ??? *
@@ -1093,8 +1090,6 @@ class JSNES_CPU {
                 this.nes.stop();
 //                this.nes.crashMessage = "Game crashed, invalid opcode at address $"+opaddr.toString(16);
                 break;
-
-            }
 
         }// end of switch
 

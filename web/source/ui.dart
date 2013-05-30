@@ -212,20 +212,17 @@ class JSNES_UI {
                   return this.dynamicaudio.writeInt(samples);
                 }
             
-                void writeFrame(List<int> buffer, List<int> prevBuffer) {
+                void writeFrame(Int32List buffer) {
                     List<int> imageData = this.canvasImageData.data;
                     int pixel, i, j;
 
                     for (i=0; i<256*240; i++) {
                         pixel = buffer[i];
 
-                        if (pixel != prevBuffer[i]) {
-                            j = i*4;
-                            imageData[j] = pixel & 0xFF;
-                            imageData[j+1] = (pixel >> 8) & 0xFF;
-                            imageData[j+2] = (pixel >> 16) & 0xFF;
-                            prevBuffer[i] = pixel;
-                        }
+                        j = i*4;
+                        imageData[j] = pixel & 0xFF;
+                        imageData[j+1] = (pixel >> 8) & 0xFF;
+                        imageData[j+2] = (pixel >> 16) & 0xFF;
                     }
 
                     this.canvasContext.putImageData(this.canvasImageData, 0, 0);

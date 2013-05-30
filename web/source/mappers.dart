@@ -221,6 +221,7 @@ class JSNES_MapperDefault {
                         else {
                             return this.joy2Read();
                         }
+                        break;
                     
                 }
                 break;
