@@ -59,7 +59,7 @@ class JSNES_CPU {
     int F_NOTUSED_NEW = 0;
     int F_BRK = 0;
     int F_BRK_NEW = 0;
-    Int32List opdata = null;
+    List<Int32List> opdata = null;
     int cyclesToHalt = 0;
     bool crash = false;
     bool irqRequested = false;
@@ -118,7 +118,7 @@ class JSNES_CPU {
         this.F_BRK = 1;
         this.F_BRK_NEW = 1;
         
-        this.opdata = new JSNES_CPU_OpData().opdata;
+        this.opdata = JSNES_CPU_OpData.createOpData();
         this.cyclesToHalt = 0;
         
         // Reset crash flag:
@@ -134,7 +134,7 @@ class JSNES_CPU {
     int emulate() {
         int temp = 0;
         int add = 0;
-        
+      
         // Check interrupts:
         if(this.irqRequested){
             temp =
@@ -176,16 +176,16 @@ class JSNES_CPU {
             this.irqRequested = false;
         }
 
-        final int opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
-        int cycleCount = (opinf>>24);
+        final Int32List opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
+        int cycleCount = opinf[3];
         int cycleAdd = 0;
 
         // Find address mode:
-        final int addrMode = (opinf >> 8) & 0xFF;
+        final int addrMode = opinf[1];
 
         // Increment PC by number of op bytes:
         final int opaddr = this.REG_PC;
-        this.REG_PC += ((opinf >> 16) & 0xFF);
+        this.REG_PC += (opinf[2]);
         
         int addr = 0;
         switch(addrMode){
@@ -297,7 +297,7 @@ class JSNES_CPU {
         // ----------------------------------------------------------------------------------------------------
 
         // This should be compiled to a jump table.
-        switch(opinf&0xFF){
+        switch(opinf[0]){
             case 0:
                 // *******
                 // * ADC *
@@ -1178,7 +1178,6 @@ class JSNES_CPU {
         assert(status is int);
         
         if((this.nes.mmap.load(0x2000) & 128) != 0) { // Check whether VBlank Interrupts are enabled
-
             this.REG_PC_NEW++;
             this.push((this.REG_PC_NEW>>8)&0xFF);
             this.push(this.REG_PC_NEW&0xFF);
@@ -1246,480 +1245,364 @@ class JSNES_CPU {
 
   // Generates and provides an array of details about instructions
 class JSNES_CPU_OpData {
-  const int INS_ADC = 0;
-  const int INS_AND = 1;
-  const int INS_ASL = 2;
+  static const int INS_ADC = 0;
+  static const int INS_AND = 1;
+  static const int INS_ASL = 2;
   
-  const int INS_BCC = 3;
-  const int INS_BCS = 4;
-  const int INS_BEQ = 5;
-  const int INS_BIT = 6;
-  const int INS_BMI = 7;
-  const int INS_BNE = 8;
-  const int INS_BPL = 9;
-  const int INS_BRK = 10;
-  const int INS_BVC = 11;
-  const int INS_BVS = 12;
+  static const int INS_BCC = 3;
+  static const int INS_BCS = 4;
+  static const int INS_BEQ = 5;
+  static const int INS_BIT = 6;
+  static const int INS_BMI = 7;
+  static const int INS_BNE = 8;
+  static const int INS_BPL = 9;
+  static const int INS_BRK = 10;
+  static const int INS_BVC = 11;
+  static const int INS_BVS = 12;
   
-  const int INS_CLC = 13;
-  const int INS_CLD = 14;
-  const int INS_CLI = 15;
-  const int INS_CLV = 16;
-  const int INS_CMP = 17;
-  const int INS_CPX = 18;
-  const int INS_CPY = 19;
+  static const int INS_CLC = 13;
+  static const int INS_CLD = 14;
+  static const int INS_CLI = 15;
+  static const int INS_CLV = 16;
+  static const int INS_CMP = 17;
+  static const int INS_CPX = 18;
+  static const int INS_CPY = 19;
   
-  const int INS_DEC = 20;
-  const int INS_DEX = 21;
-  const int INS_DEY = 22;
+  static const int INS_DEC = 20;
+  static const int INS_DEX = 21;
+  static const int INS_DEY = 22;
   
-  const int INS_EOR = 23;
+  static const int INS_EOR = 23;
   
-  const int INS_INC = 24;
-  const int INS_INX = 25;
-  const int INS_INY = 26;
+  static const int INS_INC = 24;
+  static const int INS_INX = 25;
+  static const int INS_INY = 26;
   
-  const int INS_JMP = 27;
-  const int INS_JSR = 28;
+  static const int INS_JMP = 27;
+  static const int INS_JSR = 28;
   
-  const int INS_LDA = 29;
-  const int INS_LDX = 30;
-  const int INS_LDY = 31;
-  const int INS_LSR = 32;
+  static const int INS_LDA = 29;
+  static const int INS_LDX = 30;
+  static const int INS_LDY = 31;
+  static const int INS_LSR = 32;
   
-  const int INS_NOP = 33;
+  static const int INS_NOP = 33;
   
-  const int INS_ORA = 34;
+  static const int INS_ORA = 34;
   
-  const int INS_PHA = 35;
-  const int INS_PHP = 36;
-  const int INS_PLA = 37;
-  const int INS_PLP = 38;
+  static const int INS_PHA = 35;
+  static const int INS_PHP = 36;
+  static const int INS_PLA = 37;
+  static const int INS_PLP = 38;
   
-  const int INS_ROL = 39;
-  const int INS_ROR = 40;
-  const int INS_RTI = 41;
-  const int INS_RTS = 42;
+  static const int INS_ROL = 39;
+  static const int INS_ROR = 40;
+  static const int INS_RTI = 41;
+  static const int INS_RTS = 42;
   
-  const int INS_SBC = 43;
-  const int INS_SEC = 44;
-  const int INS_SED = 45;
-  const int INS_SEI = 46;
-  const int INS_STA = 47;
-  const int INS_STX = 48;
-  const int INS_STY = 49;
+  static const int INS_SBC = 43;
+  static const int INS_SEC = 44;
+  static const int INS_SED = 45;
+  static const int INS_SEI = 46;
+  static const int INS_STA = 47;
+  static const int INS_STX = 48;
+  static const int INS_STY = 49;
   
-  const int INS_TAX = 50;
-  const int INS_TAY = 51;
-  const int INS_TSX = 52;
-  const int INS_TXA = 53;
-  const int INS_TXS = 54;
-  const int INS_TYA = 55;
+  static const int INS_TAX = 50;
+  static const int INS_TAY = 51;
+  static const int INS_TSX = 52;
+  static const int INS_TXA = 53;
+  static const int INS_TXS = 54;
+  static const int INS_TYA = 55;
   
-  const int INS_DUMMY = 56; // dummy instruction used for 'halting' the processor some cycles
+  static const int INS_DUMMY = 56; // dummy instruction used for 'halting' the processor some cycles
   
   // -------------------------------- //
   
   // Addressing modes:
-  const int ADDR_ZP        = 0;
-  const int ADDR_REL       = 1;
-  const int ADDR_IMP       = 2;
-  const int ADDR_ABS       = 3;
-  const int ADDR_ACC       = 4;
-  const int ADDR_IMM       = 5;
-  const int ADDR_ZPX       = 6;
-  const int ADDR_ZPY       = 7;
-  const int ADDR_ABSX      = 8;
-  const int ADDR_ABSY      = 9;
-  const int ADDR_PREIDXIND = 10;
-  const int ADDR_POSTIDXIND= 11;
-  const int ADDR_INDABS    = 12;
+  static const int ADDR_ZP        = 0;
+  static const int ADDR_REL       = 1;
+  static const int ADDR_IMP       = 2;
+  static const int ADDR_ABS       = 3;
+  static const int ADDR_ACC       = 4;
+  static const int ADDR_IMM       = 5;
+  static const int ADDR_ZPX       = 6;
+  static const int ADDR_ZPY       = 7;
+  static const int ADDR_ABSX      = 8;
+  static const int ADDR_ABSY      = 9;
+  static const int ADDR_PREIDXIND = 10;
+  static const int ADDR_POSTIDXIND= 11;
+  static const int ADDR_INDABS    = 12;
   
-  List<String> instname = null;
-  List<String> addrDesc = null;
-  Int32List opdata = null;
-  Int32List cycTable = null;
-  
-  void setOp(int inst, int op, int addr, int size, int cycles){
-    assert(inst is int);
-    assert(op is int);
-    assert(addr is int);
-    assert(size is int);
-    assert(cycles is int);
-    
-    this.opdata[op] = 
-        ((inst  &0xFF)    )| 
-        ((addr  &0xFF)<< 8)| 
-        ((size  &0xFF)<<16)| 
-        ((cycles&0xFF)<<24);
-  }
-
-  JSNES_CPU_OpData() {
-      this.opdata = new Int32List(256);
-      
-      // Set all to invalid instruction (to detect crashes):
-      for(int i=0;i<256;i++) this.opdata[i]=0xFF;
+  static List<Int32List> createOpData() {
+    List<Int32List> opdata = new List<Int32List>(256);
       
       // Now fill in all valid opcodes:
       
       // ADC:
-      this.setOp(this.INS_ADC,0x69,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_ADC,0x65,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_ADC,0x75,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_ADC,0x6D,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_ADC,0x7D,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_ADC,0x79,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_ADC,0x61,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_ADC,0x71,this.ADDR_POSTIDXIND,2,5);
+      opdata[0x69] = new Int32List.fromList([INS_ADC, ADDR_IMM, 2, 2]);
+      opdata[0x65] = new Int32List.fromList([INS_ADC, ADDR_ZP, 2, 3]);
+      opdata[0x75] = new Int32List.fromList([INS_ADC, ADDR_ZPX, 2, 4]);
+      opdata[0x6D] = new Int32List.fromList([INS_ADC, ADDR_ABS, 3, 4]);
+      opdata[0x7D] = new Int32List.fromList([INS_ADC, ADDR_ABSX, 3, 4]);
+      opdata[0x79] = new Int32List.fromList([INS_ADC, ADDR_ABSY, 3, 4]);
+      opdata[0x61] = new Int32List.fromList([INS_ADC, ADDR_PREIDXIND, 2, 6]);
+      opdata[0x71] = new Int32List.fromList([INS_ADC, ADDR_POSTIDXIND, 2, 5]);
       
       // AND:
-      this.setOp(this.INS_AND,0x29,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_AND,0x25,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_AND,0x35,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_AND,0x2D,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_AND,0x3D,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_AND,0x39,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_AND,0x21,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_AND,0x31,this.ADDR_POSTIDXIND,2,5);
+      opdata[0x29] = new Int32List.fromList([INS_AND, ADDR_IMM, 2, 2]);
+      opdata[0x25] = new Int32List.fromList([INS_AND, ADDR_ZP, 2, 3]);
+      opdata[0x35] = new Int32List.fromList([INS_AND, ADDR_ZPX, 2, 4]);
+      opdata[0x2D] = new Int32List.fromList([INS_AND, ADDR_ABS, 3, 4]);
+      opdata[0x3D] = new Int32List.fromList([INS_AND, ADDR_ABSX, 3, 4]);
+      opdata[0x39] = new Int32List.fromList([INS_AND, ADDR_ABSY, 3, 4]);
+      opdata[0x21] = new Int32List.fromList([INS_AND, ADDR_PREIDXIND, 2, 6]);
+      opdata[0x31] = new Int32List.fromList([INS_AND, ADDR_POSTIDXIND, 2, 5]);
       
       // ASL:
-      this.setOp(this.INS_ASL,0x0A,this.ADDR_ACC,1,2);
-      this.setOp(this.INS_ASL,0x06,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_ASL,0x16,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_ASL,0x0E,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_ASL,0x1E,this.ADDR_ABSX,3,7);
+      opdata[0x0A] = new Int32List.fromList([INS_ASL, ADDR_ACC, 1, 2]);
+      opdata[0x06] = new Int32List.fromList([INS_ASL, ADDR_ZP, 2, 5]);
+      opdata[0x16] = new Int32List.fromList([INS_ASL, ADDR_ZPX, 2, 6]);
+      opdata[0x0E] = new Int32List.fromList([INS_ASL, ADDR_ABS, 3, 6]);
+      opdata[0x1E] = new Int32List.fromList([INS_ASL, ADDR_ABSX, 3, 7]);
       
       // BCC:
-      this.setOp(this.INS_BCC,0x90,this.ADDR_REL,2,2);
+      opdata[0x90] = new Int32List.fromList([INS_BCC, ADDR_REL, 2, 2]);
       
       // BCS:
-      this.setOp(this.INS_BCS,0xB0,this.ADDR_REL,2,2);
+      opdata[0xB0] = new Int32List.fromList([INS_BCS, ADDR_REL, 2, 2]);
       
       // BEQ:
-      this.setOp(this.INS_BEQ,0xF0,this.ADDR_REL,2,2);
+      opdata[0xF0] = new Int32List.fromList([INS_BEQ, ADDR_REL, 2, 2]);
       
       // BIT:
-      this.setOp(this.INS_BIT,0x24,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_BIT,0x2C,this.ADDR_ABS,3,4);
+      opdata[0x24] = new Int32List.fromList([INS_BIT, ADDR_ZP, 2, 3]);
+      opdata[0x2C] = new Int32List.fromList([INS_BIT, ADDR_ABS, 3, 4]);
       
       // BMI:
-      this.setOp(this.INS_BMI,0x30,this.ADDR_REL,2,2);
+      opdata[0x30] = new Int32List.fromList([INS_BMI, ADDR_REL, 2, 2]);
       
       // BNE:
-      this.setOp(this.INS_BNE,0xD0,this.ADDR_REL,2,2);
+      opdata[0xD0] = new Int32List.fromList([INS_BNE, ADDR_REL, 2, 2]);
       
       // BPL:
-      this.setOp(this.INS_BPL,0x10,this.ADDR_REL,2,2);
+      opdata[0x10] = new Int32List.fromList([INS_BPL, ADDR_REL, 2, 2]);
       
       // BRK:
-      this.setOp(this.INS_BRK,0x00,this.ADDR_IMP,1,7);
+      opdata[0x00] = new Int32List.fromList([INS_BRK, ADDR_IMP, 1, 7]);
       
       // BVC:
-      this.setOp(this.INS_BVC,0x50,this.ADDR_REL,2,2);
+      opdata[0x50] = new Int32List.fromList([INS_BVC, ADDR_REL, 2, 2]);
       
       // BVS:
-      this.setOp(this.INS_BVS,0x70,this.ADDR_REL,2,2);
+      opdata[0x70] = new Int32List.fromList([INS_BVS, ADDR_REL, 2, 2]);
       
       // CLC:
-      this.setOp(this.INS_CLC,0x18,this.ADDR_IMP,1,2);
+      opdata[0x18] = new Int32List.fromList([INS_CLC, ADDR_IMP, 1, 2]);
       
       // CLD:
-      this.setOp(this.INS_CLD,0xD8,this.ADDR_IMP,1,2);
+      opdata[0xD8] = new Int32List.fromList([INS_CLD, ADDR_IMP, 1, 2]);
       
       // CLI:
-      this.setOp(this.INS_CLI,0x58,this.ADDR_IMP,1,2);
+      opdata[0x58] = new Int32List.fromList([INS_CLI, ADDR_IMP, 1, 2]);
       
       // CLV:
-      this.setOp(this.INS_CLV,0xB8,this.ADDR_IMP,1,2);
+      opdata[0xB8] = new Int32List.fromList([INS_CLV, ADDR_IMP, 1, 2]);
       
       // CMP:
-      this.setOp(this.INS_CMP,0xC9,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_CMP,0xC5,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_CMP,0xD5,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_CMP,0xCD,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_CMP,0xDD,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_CMP,0xD9,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_CMP,0xC1,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_CMP,0xD1,this.ADDR_POSTIDXIND,2,5);
+      opdata[0xC9] = new Int32List.fromList([INS_CMP, ADDR_IMM, 2, 2]);
+      opdata[0xC5] = new Int32List.fromList([INS_CMP, ADDR_ZP, 2, 3]);
+      opdata[0xD5] = new Int32List.fromList([INS_CMP, ADDR_ZPX, 2, 4]);
+      opdata[0xCD] = new Int32List.fromList([INS_CMP, ADDR_ABS, 3, 4]);
+      opdata[0xDD] = new Int32List.fromList([INS_CMP, ADDR_ABSX, 3, 4]);
+      opdata[0xD9] = new Int32List.fromList([INS_CMP, ADDR_ABSY, 3, 4]);
+      opdata[0xC1] = new Int32List.fromList([INS_CMP, ADDR_PREIDXIND, 2, 6]);
+      opdata[0xD1] = new Int32List.fromList([INS_CMP, ADDR_POSTIDXIND, 2, 5]);
       
       // CPX:
-      this.setOp(this.INS_CPX,0xE0,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_CPX,0xE4,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_CPX,0xEC,this.ADDR_ABS,3,4);
+      opdata[0xE0] = new Int32List.fromList([INS_CPX, ADDR_IMM, 2, 2]);
+      opdata[0xE4] = new Int32List.fromList([INS_CPX, ADDR_ZP, 2, 3]);
+      opdata[0xEC] = new Int32List.fromList([INS_CPX, ADDR_ABS, 3, 4]);
       
       // CPY:
-      this.setOp(this.INS_CPY,0xC0,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_CPY,0xC4,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_CPY,0xCC,this.ADDR_ABS,3,4);
+      opdata[0xC0] = new Int32List.fromList([INS_CPY, ADDR_IMM, 2, 2]);
+      opdata[0xC4] = new Int32List.fromList([INS_CPY, ADDR_ZP, 2, 3]);
+      opdata[0xCC] = new Int32List.fromList([INS_CPY, ADDR_ABS, 3, 4]);
       
       // DEC:
-      this.setOp(this.INS_DEC,0xC6,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_DEC,0xD6,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_DEC,0xCE,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_DEC,0xDE,this.ADDR_ABSX,3,7);
+      opdata[0xC6] = new Int32List.fromList([INS_DEC, ADDR_ZP, 2, 5]);
+      opdata[0xD6] = new Int32List.fromList([INS_DEC, ADDR_ZPX, 2, 6]);
+      opdata[0xCE] = new Int32List.fromList([INS_DEC, ADDR_ABS, 3, 6]);
+      opdata[0xDE] = new Int32List.fromList([INS_DEC, ADDR_ABSX, 3, 7]);
       
       // DEX:
-      this.setOp(this.INS_DEX,0xCA,this.ADDR_IMP,1,2);
+      opdata[0xCA] = new Int32List.fromList([INS_DEX, ADDR_IMP, 1, 2]);
       
       // DEY:
-      this.setOp(this.INS_DEY,0x88,this.ADDR_IMP,1,2);
+      opdata[0x88] = new Int32List.fromList([INS_DEY, ADDR_IMP, 1, 2]);
       
       // EOR:
-      this.setOp(this.INS_EOR,0x49,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_EOR,0x45,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_EOR,0x55,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_EOR,0x4D,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_EOR,0x5D,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_EOR,0x59,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_EOR,0x41,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_EOR,0x51,this.ADDR_POSTIDXIND,2,5);
+      opdata[0x49] = new Int32List.fromList([INS_EOR, ADDR_IMM, 2, 2]);
+      opdata[0x45] = new Int32List.fromList([INS_EOR, ADDR_ZP, 2, 3]);
+      opdata[0x55] = new Int32List.fromList([INS_EOR, ADDR_ZPX, 2, 4]);
+      opdata[0x4D] = new Int32List.fromList([INS_EOR, ADDR_ABS, 3, 4]);
+      opdata[0x5D] = new Int32List.fromList([INS_EOR, ADDR_ABSX, 3, 4]);
+      opdata[0x59] = new Int32List.fromList([INS_EOR, ADDR_ABSY, 3, 4]);
+      opdata[0x41] = new Int32List.fromList([INS_EOR, ADDR_PREIDXIND, 2, 6]);
+      opdata[0x51] = new Int32List.fromList([INS_EOR, ADDR_POSTIDXIND, 2, 5]);
       
       // INC:
-      this.setOp(this.INS_INC,0xE6,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_INC,0xF6,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_INC,0xEE,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_INC,0xFE,this.ADDR_ABSX,3,7);
+      opdata[0xE6] = new Int32List.fromList([INS_INC, ADDR_ZP, 2, 5]);
+      opdata[0xF6] = new Int32List.fromList([INS_INC, ADDR_ZPX, 2, 6]);
+      opdata[0xEE] = new Int32List.fromList([INS_INC, ADDR_ABS, 3, 6]);
+      opdata[0xFE] = new Int32List.fromList([INS_INC, ADDR_ABSX, 3, 7]);
       
       // INX:
-      this.setOp(this.INS_INX,0xE8,this.ADDR_IMP,1,2);
+      opdata[0xE8] = new Int32List.fromList([INS_INX, ADDR_IMP, 1, 2]);
       
       // INY:
-      this.setOp(this.INS_INY,0xC8,this.ADDR_IMP,1,2);
+      opdata[0xC8] = new Int32List.fromList([INS_INY, ADDR_IMP, 1, 2]);
       
       // JMP:
-      this.setOp(this.INS_JMP,0x4C,this.ADDR_ABS,3,3);
-      this.setOp(this.INS_JMP,0x6C,this.ADDR_INDABS,3,5);
+      opdata[0x4C] = new Int32List.fromList([INS_JMP, ADDR_ABS, 3, 3]);
+      opdata[0x6C] = new Int32List.fromList([INS_JMP, ADDR_INDABS, 3, 5]);
       
       // JSR:
-      this.setOp(this.INS_JSR,0x20,this.ADDR_ABS,3,6);
+      opdata[0x20] = new Int32List.fromList([INS_JSR, ADDR_ABS, 3, 6]);
       
       // LDA:
-      this.setOp(this.INS_LDA,0xA9,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_LDA,0xA5,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_LDA,0xB5,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_LDA,0xAD,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_LDA,0xBD,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_LDA,0xB9,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_LDA,0xA1,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_LDA,0xB1,this.ADDR_POSTIDXIND,2,5);
+      opdata[0xA9] = new Int32List.fromList([INS_LDA, ADDR_IMM, 2, 2]);
+      opdata[0xA5] = new Int32List.fromList([INS_LDA, ADDR_ZP, 2, 3]);
+      opdata[0xB5] = new Int32List.fromList([INS_LDA, ADDR_ZPX, 2, 4]);
+      opdata[0xAD] = new Int32List.fromList([INS_LDA, ADDR_ABS, 3, 4]);
+      opdata[0xBD] = new Int32List.fromList([INS_LDA, ADDR_ABSX, 3, 4]);
+      opdata[0xB9] = new Int32List.fromList([INS_LDA, ADDR_ABSY, 3, 4]);
+      opdata[0xA1] = new Int32List.fromList([INS_LDA, ADDR_PREIDXIND, 2, 6]);
+      opdata[0xB1] = new Int32List.fromList([INS_LDA, ADDR_POSTIDXIND, 2, 5]);
       
       
       // LDX:
-      this.setOp(this.INS_LDX,0xA2,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_LDX,0xA6,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_LDX,0xB6,this.ADDR_ZPY,2,4);
-      this.setOp(this.INS_LDX,0xAE,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_LDX,0xBE,this.ADDR_ABSY,3,4);
+      opdata[0xA2] = new Int32List.fromList([INS_LDX, ADDR_IMM, 2, 2]);
+      opdata[0xA6] = new Int32List.fromList([INS_LDX, ADDR_ZP, 2, 3]);
+      opdata[0xB6] = new Int32List.fromList([INS_LDX, ADDR_ZPY, 2, 4]);
+      opdata[0xAE] = new Int32List.fromList([INS_LDX, ADDR_ABS, 3, 4]);
+      opdata[0xBE] = new Int32List.fromList([INS_LDX, ADDR_ABSY, 3, 4]);
       
       // LDY:
-      this.setOp(this.INS_LDY,0xA0,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_LDY,0xA4,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_LDY,0xB4,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_LDY,0xAC,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_LDY,0xBC,this.ADDR_ABSX,3,4);
+      opdata[0xA0] = new Int32List.fromList([INS_LDY, ADDR_IMM, 2, 2]);
+      opdata[0xA4] = new Int32List.fromList([INS_LDY, ADDR_ZP, 2, 3]);
+      opdata[0xB4] = new Int32List.fromList([INS_LDY, ADDR_ZPX, 2, 4]);
+      opdata[0xAC] = new Int32List.fromList([INS_LDY, ADDR_ABS, 3, 4]);
+      opdata[0xBC] = new Int32List.fromList([INS_LDY, ADDR_ABSX, 3, 4]);
       
       // LSR:
-      this.setOp(this.INS_LSR,0x4A,this.ADDR_ACC,1,2);
-      this.setOp(this.INS_LSR,0x46,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_LSR,0x56,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_LSR,0x4E,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_LSR,0x5E,this.ADDR_ABSX,3,7);
+      opdata[0x4A] = new Int32List.fromList([INS_LSR, ADDR_ACC, 1, 2]);
+      opdata[0x46] = new Int32List.fromList([INS_LSR, ADDR_ZP, 2, 5]);
+      opdata[0x56] = new Int32List.fromList([INS_LSR, ADDR_ZPX, 2, 6]);
+      opdata[0x4E] = new Int32List.fromList([INS_LSR, ADDR_ABS, 3, 6]);
+      opdata[0x5E] = new Int32List.fromList([INS_LSR, ADDR_ABSX, 3, 7]);
       
       // NOP:
-      this.setOp(this.INS_NOP,0xEA,this.ADDR_IMP,1,2);
+      opdata[0xEA] = new Int32List.fromList([INS_NOP, ADDR_IMP, 1, 2]);
       
       // ORA:
-      this.setOp(this.INS_ORA,0x09,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_ORA,0x05,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_ORA,0x15,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_ORA,0x0D,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_ORA,0x1D,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_ORA,0x19,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_ORA,0x01,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_ORA,0x11,this.ADDR_POSTIDXIND,2,5);
+      opdata[0x09] = new Int32List.fromList([INS_ORA, ADDR_IMM, 2, 2]);
+      opdata[0x05] = new Int32List.fromList([INS_ORA, ADDR_ZP, 2, 3]);
+      opdata[0x15] = new Int32List.fromList([INS_ORA, ADDR_ZPX, 2, 4]);
+      opdata[0x0D] = new Int32List.fromList([INS_ORA, ADDR_ABS, 3, 4]);
+      opdata[0x1D] = new Int32List.fromList([INS_ORA, ADDR_ABSX, 3, 4]);
+      opdata[0x19] = new Int32List.fromList([INS_ORA, ADDR_ABSY, 3, 4]);
+      opdata[0x01] = new Int32List.fromList([INS_ORA, ADDR_PREIDXIND, 2, 6]);
+      opdata[0x11] = new Int32List.fromList([INS_ORA, ADDR_POSTIDXIND, 2, 5]);
       
       // PHA:
-      this.setOp(this.INS_PHA,0x48,this.ADDR_IMP,1,3);
+      opdata[0x48] = new Int32List.fromList([INS_PHA, ADDR_IMP, 1, 3]);
       
       // PHP:
-      this.setOp(this.INS_PHP,0x08,this.ADDR_IMP,1,3);
+      opdata[0x08] = new Int32List.fromList([INS_PHP, ADDR_IMP, 1, 3]);
       
       // PLA:
-      this.setOp(this.INS_PLA,0x68,this.ADDR_IMP,1,4);
+      opdata[0x68] = new Int32List.fromList([INS_PLA, ADDR_IMP, 1, 4]);
       
       // PLP:
-      this.setOp(this.INS_PLP,0x28,this.ADDR_IMP,1,4);
+      opdata[0x28] = new Int32List.fromList([INS_PLP, ADDR_IMP, 1, 4]);
       
       // ROL:
-      this.setOp(this.INS_ROL,0x2A,this.ADDR_ACC,1,2);
-      this.setOp(this.INS_ROL,0x26,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_ROL,0x36,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_ROL,0x2E,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_ROL,0x3E,this.ADDR_ABSX,3,7);
+      opdata[0x2A] = new Int32List.fromList([INS_ROL, ADDR_ACC, 1, 2]);
+      opdata[0x26] = new Int32List.fromList([INS_ROL, ADDR_ZP, 2, 5]);
+      opdata[0x36] = new Int32List.fromList([INS_ROL, ADDR_ZPX, 2, 6]);
+      opdata[0x2E] = new Int32List.fromList([INS_ROL, ADDR_ABS, 3, 6]);
+      opdata[0x3E] = new Int32List.fromList([INS_ROL, ADDR_ABSX, 3, 7]);
       
       // ROR:
-      this.setOp(this.INS_ROR,0x6A,this.ADDR_ACC,1,2);
-      this.setOp(this.INS_ROR,0x66,this.ADDR_ZP,2,5);
-      this.setOp(this.INS_ROR,0x76,this.ADDR_ZPX,2,6);
-      this.setOp(this.INS_ROR,0x6E,this.ADDR_ABS,3,6);
-      this.setOp(this.INS_ROR,0x7E,this.ADDR_ABSX,3,7);
+      opdata[0x6A] = new Int32List.fromList([INS_ROR, ADDR_ACC, 1, 2]);
+      opdata[0x66] = new Int32List.fromList([INS_ROR, ADDR_ZP, 2, 5]);
+      opdata[0x76] = new Int32List.fromList([INS_ROR, ADDR_ZPX, 2, 6]);
+      opdata[0x6E] = new Int32List.fromList([INS_ROR, ADDR_ABS, 3, 6]);
+      opdata[0x7E] = new Int32List.fromList([INS_ROR, ADDR_ABSX, 3, 7]);
       
       // RTI:
-      this.setOp(this.INS_RTI,0x40,this.ADDR_IMP,1,6);
+      opdata[0x40] = new Int32List.fromList([INS_RTI, ADDR_IMP, 1, 6]);
       
       // RTS:
-      this.setOp(this.INS_RTS,0x60,this.ADDR_IMP,1,6);
+      opdata[0x60] = new Int32List.fromList([INS_RTS, ADDR_IMP, 1, 6]);
       
       // SBC:
-      this.setOp(this.INS_SBC,0xE9,this.ADDR_IMM,2,2);
-      this.setOp(this.INS_SBC,0xE5,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_SBC,0xF5,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_SBC,0xED,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_SBC,0xFD,this.ADDR_ABSX,3,4);
-      this.setOp(this.INS_SBC,0xF9,this.ADDR_ABSY,3,4);
-      this.setOp(this.INS_SBC,0xE1,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_SBC,0xF1,this.ADDR_POSTIDXIND,2,5);
+      opdata[0xE9] = new Int32List.fromList([INS_SBC, ADDR_IMM, 2, 2]);
+      opdata[0xE5] = new Int32List.fromList([INS_SBC, ADDR_ZP, 2, 3]);
+      opdata[0xF5] = new Int32List.fromList([INS_SBC, ADDR_ZPX, 2, 4]);
+      opdata[0xED] = new Int32List.fromList([INS_SBC, ADDR_ABS, 3, 4]);
+      opdata[0xFD] = new Int32List.fromList([INS_SBC, ADDR_ABSX, 3, 4]);
+      opdata[0xF9] = new Int32List.fromList([INS_SBC, ADDR_ABSY, 3, 4]);
+      opdata[0xE1] = new Int32List.fromList([INS_SBC, ADDR_PREIDXIND, 2, 6]);
+      opdata[0xF1] = new Int32List.fromList([INS_SBC, ADDR_POSTIDXIND, 2, 5]);
       
       // SEC:
-      this.setOp(this.INS_SEC,0x38,this.ADDR_IMP,1,2);
+      opdata[0x38] = new Int32List.fromList([INS_SEC, ADDR_IMP, 1, 2]);
       
       // SED:
-      this.setOp(this.INS_SED,0xF8,this.ADDR_IMP,1,2);
+      opdata[0xF8] = new Int32List.fromList([INS_SED, ADDR_IMP, 1, 2]);
       
       // SEI:
-      this.setOp(this.INS_SEI,0x78,this.ADDR_IMP,1,2);
+      opdata[0x78] = new Int32List.fromList([INS_SEI, ADDR_IMP, 1, 2]);
       
       // STA:
-      this.setOp(this.INS_STA,0x85,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_STA,0x95,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_STA,0x8D,this.ADDR_ABS,3,4);
-      this.setOp(this.INS_STA,0x9D,this.ADDR_ABSX,3,5);
-      this.setOp(this.INS_STA,0x99,this.ADDR_ABSY,3,5);
-      this.setOp(this.INS_STA,0x81,this.ADDR_PREIDXIND,2,6);
-      this.setOp(this.INS_STA,0x91,this.ADDR_POSTIDXIND,2,6);
+      opdata[0x85] = new Int32List.fromList([INS_STA, ADDR_ZP, 2, 3]);
+      opdata[0x95] = new Int32List.fromList([INS_STA, ADDR_ZPX, 2, 4]);
+      opdata[0x8D] = new Int32List.fromList([INS_STA, ADDR_ABS, 3, 4]);
+      opdata[0x9D] = new Int32List.fromList([INS_STA, ADDR_ABSX, 3, 5]);
+      opdata[0x99] = new Int32List.fromList([INS_STA, ADDR_ABSY, 3, 5]);
+      opdata[0x81] = new Int32List.fromList([INS_STA, ADDR_PREIDXIND, 2, 6]);
+      opdata[0x91] = new Int32List.fromList([INS_STA, ADDR_POSTIDXIND, 2, 6]);
       
       // STX:
-      this.setOp(this.INS_STX,0x86,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_STX,0x96,this.ADDR_ZPY,2,4);
-      this.setOp(this.INS_STX,0x8E,this.ADDR_ABS,3,4);
+      opdata[0x86] = new Int32List.fromList([INS_STX, ADDR_ZP, 2, 3]);
+      opdata[0x96] = new Int32List.fromList([INS_STX, ADDR_ZPY, 2, 4]);
+      opdata[0x8E] = new Int32List.fromList([INS_STX, ADDR_ABS, 3, 4]);
       
       // STY:
-      this.setOp(this.INS_STY,0x84,this.ADDR_ZP,2,3);
-      this.setOp(this.INS_STY,0x94,this.ADDR_ZPX,2,4);
-      this.setOp(this.INS_STY,0x8C,this.ADDR_ABS,3,4);
+      opdata[0x84] = new Int32List.fromList([INS_STY, ADDR_ZP, 2, 3]);
+      opdata[0x94] = new Int32List.fromList([INS_STY, ADDR_ZPX, 2, 4]);
+      opdata[0x8C] = new Int32List.fromList([INS_STY, ADDR_ABS, 3, 4]);
       
       // TAX:
-      this.setOp(this.INS_TAX,0xAA,this.ADDR_IMP,1,2);
+      opdata[0xAA] = new Int32List.fromList([INS_TAX, ADDR_IMP, 1, 2]);
       
       // TAY:
-      this.setOp(this.INS_TAY,0xA8,this.ADDR_IMP,1,2);
+      opdata[0xA8] = new Int32List.fromList([INS_TAY, ADDR_IMP, 1, 2]);
       
       // TSX:
-      this.setOp(this.INS_TSX,0xBA,this.ADDR_IMP,1,2);
+      opdata[0xBA] = new Int32List.fromList([INS_TSX, ADDR_IMP, 1, 2]);
       
       // TXA:
-      this.setOp(this.INS_TXA,0x8A,this.ADDR_IMP,1,2);
+      opdata[0x8A] = new Int32List.fromList([INS_TXA, ADDR_IMP, 1, 2]);
       
       // TXS:
-      this.setOp(this.INS_TXS,0x9A,this.ADDR_IMP,1,2);
+      opdata[0x9A] = new Int32List.fromList([INS_TXS, ADDR_IMP, 1, 2]);
       
       // TYA:
-      this.setOp(this.INS_TYA,0x98,this.ADDR_IMP,1,2);
+      opdata[0x98] = new Int32List.fromList([INS_TYA, ADDR_IMP, 1, 2]);
       
-      this.cycTable = new Int32List.fromList([
-      /*0x00*/ 7,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6,
-      /*0x10*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-      /*0x20*/ 6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6,
-      /*0x30*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-      /*0x40*/ 6,6,2,8,3,3,5,5,3,2,2,2,3,4,6,6,
-      /*0x50*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-      /*0x60*/ 6,6,2,8,3,3,5,5,4,2,2,2,5,4,6,6,
-      /*0x70*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-      /*0x80*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
-      /*0x90*/ 2,6,2,6,4,4,4,4,2,5,2,5,5,5,5,5,
-      /*0xA0*/ 2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4,
-      /*0xB0*/ 2,5,2,5,4,4,4,4,2,4,2,4,4,4,4,4,
-      /*0xC0*/ 2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6,
-      /*0xD0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7,
-      /*0xE0*/ 2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6,
-      /*0xF0*/ 2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7
-      ]);
-      
-      
-      this.instname = new List<String>(56);
-      
-      // Instruction Names:
-      this.instname[ 0] = "ADC";
-      this.instname[ 1] = "AND";
-      this.instname[ 2] = "ASL";
-      this.instname[ 3] = "BCC";
-      this.instname[ 4] = "BCS";
-      this.instname[ 5] = "BEQ";
-      this.instname[ 6] = "BIT";
-      this.instname[ 7] = "BMI";
-      this.instname[ 8] = "BNE";
-      this.instname[ 9] = "BPL";
-      this.instname[10] = "BRK";
-      this.instname[11] = "BVC";
-      this.instname[12] = "BVS";
-      this.instname[13] = "CLC";
-      this.instname[14] = "CLD";
-      this.instname[15] = "CLI";
-      this.instname[16] = "CLV";
-      this.instname[17] = "CMP";
-      this.instname[18] = "CPX";
-      this.instname[19] = "CPY";
-      this.instname[20] = "DEC";
-      this.instname[21] = "DEX";
-      this.instname[22] = "DEY";
-      this.instname[23] = "EOR";
-      this.instname[24] = "INC";
-      this.instname[25] = "INX";
-      this.instname[26] = "INY";
-      this.instname[27] = "JMP";
-      this.instname[28] = "JSR";
-      this.instname[29] = "LDA";
-      this.instname[30] = "LDX";
-      this.instname[31] = "LDY";
-      this.instname[32] = "LSR";
-      this.instname[33] = "NOP";
-      this.instname[34] = "ORA";
-      this.instname[35] = "PHA";
-      this.instname[36] = "PHP";
-      this.instname[37] = "PLA";
-      this.instname[38] = "PLP";
-      this.instname[39] = "ROL";
-      this.instname[40] = "ROR";
-      this.instname[41] = "RTI";
-      this.instname[42] = "RTS";
-      this.instname[43] = "SBC";
-      this.instname[44] = "SEC";
-      this.instname[45] = "SED";
-      this.instname[46] = "SEI";
-      this.instname[47] = "STA";
-      this.instname[48] = "STX";
-      this.instname[49] = "STY";
-      this.instname[50] = "TAX";
-      this.instname[51] = "TAY";
-      this.instname[52] = "TSX";
-      this.instname[53] = "TXA";
-      this.instname[54] = "TXS";
-      this.instname[55] = "TYA";
-      
-      this.addrDesc = [
-          "Zero Page           ",
-          "Relative            ",
-          "Implied             ",
-          "Absolute            ",
-          "Accumulator         ",
-          "Immediate           ",
-          "Zero Page,X         ",
-          "Zero Page,Y         ",
-          "Absolute,X          ",
-          "Absolute,Y          ",
-          "Preindexed Indirect ",
-          "Postindexed Indirect",
-          "Indirect Absolute   "
-      ];
+      return opdata;
   }
 }

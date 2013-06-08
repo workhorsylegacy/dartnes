@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'cpu.dart';
 import 'keyboard.dart';
@@ -28,8 +29,6 @@ import 'ppu.dart';
 import 'rom.dart';
 import 'ui.dart';
 import 'utils.dart';
-
-
 
 
 void main() {
