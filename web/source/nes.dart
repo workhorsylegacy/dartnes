@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes;
 import 'dart:async';
 import 'dart:core';
+import 'dart:typed_data';
 
 import 'ui.dart';
 import 'cpu.dart';
@@ -35,12 +36,15 @@ class JSNES_NES {
     double frameTime = 0.0;
     String crashMessage = null;
     
-    JSNES_UI ui = null;
     JSNES_CPU cpu = null;
     JSNES_PPU ppu = null;
     JSNES_PAPU papu = null;
     JSNES_MapperDefault mmap = null;
     JSNES_Keyboard keyboard = null;
+    
+    var status_cb = null;
+    var frame_cb = null;
+    var audio_cb = null;
     
     bool isRunning = false;
     int fpsFrameCount = 0;
@@ -51,8 +55,10 @@ class JSNES_NES {
     Timer frameInterval = null;
     Timer fpsInterval = null;
     
-    JSNES_NES(Map opts) {
-      assert(opts is Map);
+    JSNES_NES(void status_cb(String m), void frame_cb(Int32List bytes), void audio_cb(Int32List samples)) {
+      this.status_cb = status_cb;
+      this.frame_cb = frame_cb;
+      this.audio_cb = audio_cb;
       
       this.opts = {
           'swfPath': 'lib/',
@@ -67,24 +73,16 @@ class JSNES_NES {
           'CPU_FREQ_NTSC': 1789772.5, //1789772.72727272d;
           'CPU_FREQ_PAL': 1773447.4
       };
-      if (opts != null) {
-          this.opts.forEach((key, val) {
-              if (opts[key] != null) {
-                  this.opts[key] = opts[key];
-              }
-          });
-      }
       
       this.frameTime = 1000 / this.opts['preferredFrameRate'];
       
-      this.ui = new JSNES_UI(this);
       this.cpu = new JSNES_CPU(this);
       this.ppu = new JSNES_PPU(this);
       this.papu = new JSNES_PAPU(this);
       this.mmap = null; // set in loadRom()
       this.keyboard = new JSNES_Keyboard();
       
-      this.ui.updateStatus("Ready to load a ROM.");
+      this.status_cb("Ready to load a ROM.");
     }
 
     // Resets the system
@@ -116,7 +114,7 @@ class JSNES_NES {
             }
         }
         else {
-            this.ui.updateStatus("There is no ROM loaded, or it is invalid.");
+            this.status_cb("There is no ROM loaded, or it is invalid.");
         }
     }
     
@@ -189,7 +187,7 @@ class JSNES_NES {
                 this.fpsFrameCount / ((now - this.lastFpsTime) / 1000)
             ).toStringAsFixed(1) + ' FPS';
         }
-        this.ui.updateStatus(s);
+        this.status_cb(s);
         this.fpsFrameCount = 0;
         this.lastFpsTime = now;
     }
@@ -215,7 +213,7 @@ class JSNES_NES {
             this.stop();
         }
         
-        this.ui.updateStatus("Loading ROM...");
+        this.status_cb("Loading ROM...");
         
         // Load ROM file:
         this.rom = new JSNES_ROM(this);
@@ -231,10 +229,10 @@ class JSNES_NES {
             this.ppu.setMirroring(this.rom.getMirroringType());
             this.romData = data;
             
-            this.ui.updateStatus("Successfully loaded. Ready to be started.");
+            this.status_cb("Successfully loaded. Ready to be started.");
         }
         else {
-            this.ui.updateStatus("Invalid ROM!");
+            this.status_cb("Invalid ROM!");
         }
         return this.rom.valid;
     }
@@ -269,3 +267,5 @@ class JSNES_NES {
     }
 */
 }
+
+

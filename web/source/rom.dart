@@ -105,7 +105,7 @@ class JSNES_ROM {
         int i, j, v;
         
         if (data.indexOf("NES\x1a") == -1) {
-            this.nes.ui.updateStatus("Not a valid NES ROM.");
+            this.nes.status_cb("Not a valid NES ROM.");
             return;
         }
         this.header = new Int32List(16);
@@ -225,7 +225,7 @@ class JSNES_ROM {
             }
         }
         else {
-            this.nes.ui.updateStatus("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType.toString()+")");
+            this.nes.status_cb("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType.toString()+")");
             return null;
         }
     }

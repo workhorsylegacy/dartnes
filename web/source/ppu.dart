@@ -611,7 +611,7 @@ class JSNES_PPU {
         }
         
         if (this.nes.opts['showDisplay']) {
-            this.nes.ui.writeFrame(buffer);
+            this.nes.frame_cb(buffer);
         }
     }
     

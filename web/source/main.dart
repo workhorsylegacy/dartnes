@@ -31,6 +31,7 @@ import 'ui.dart';
 import 'utils.dart';
 
 
+
 void main() {
-  JSNES_NES nes = new JSNES_NES({});
+  JSNES_UI jsnes = new JSNES_UI();
 }

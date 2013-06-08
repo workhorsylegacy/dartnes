@@ -24,19 +24,6 @@ import 'dart:typed_data';
 
 import 'nes.dart';
 
-class JSNES_DummyUI {
-  JSNES_NES nes = null;
-  
-  JSNES_DummyUI(JSNES_NES nes) {
-    this.nes = nes;
-  }
- 
-  void enable() {}
-  void updateStatus(String s) {}
-  void writeAudio(samples) {}
-  void writeFrame(List<int> buffer, List<int> prevBuffer) {}
-}
-
 class JSNES_UI {
   JSNES_NES nes = null;
   Element status = null;
@@ -49,12 +36,14 @@ class JSNES_UI {
   bool zoomed = false;
   var dynamicaudio = null;
   
-  JSNES_UI(JSNES_NES nes) {
-      assert(nes is JSNES_NES);
-                this.nes = nes;
-
+  JSNES_UI() {
                 this.status = query('#status');
                 this.parent = query('#emulator');
+    
+                void status_cb(String m) => updateStatus(m);
+                void frame_cb(Int32List bytes) => writeFrame(bytes);
+                void audio_cb(Int32List samples) => writeAudio(samples);
+                this.nes = new JSNES_NES(status_cb, frame_cb, audio_cb);
                 
                 /*
                  * Screen
@@ -208,7 +197,7 @@ class JSNES_UI {
                     this.status.text = s;
                 }
                 
-                void writeAudio(samples) {
+                void writeAudio(Int32List samples) {
                   return this.dynamicaudio.writeInt(samples);
                 }
             
