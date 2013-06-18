@@ -25,9 +25,9 @@ import 'utils.dart';
 
 class JSNES_CPU {
     // IRQ Types
-    const int IRQ_NORMAL = 0;
-    const int IRQ_NMI = 1;
-    const int IRQ_RESET = 2;
+    static const int IRQ_NORMAL = 0;
+    static const int IRQ_NMI = 1;
+    static const int IRQ_RESET = 2;
     
     final List<String> JSON_PROPERTIES = [
         'mem', 'cyclesToHalt', 'irqRequested', 'irqType',
@@ -1134,7 +1134,7 @@ class JSNES_CPU {
         assert(type is int);
         
         if(this.irqRequested){
-            if(type == this.IRQ_NORMAL){
+            if(type == JSNES_CPU.IRQ_NORMAL){
                 return;
             }
             ////System.out.println("too fast irqs. type="+type);

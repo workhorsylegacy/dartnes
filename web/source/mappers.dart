@@ -26,6 +26,7 @@ import 'nes.dart';
 import 'utils.dart';
 import 'rom.dart';
 import 'ppu.dart';
+import 'cpu.dart';
 
 class JSNES_MapperDefault {
   JSNES_NES nes = null;
@@ -406,7 +407,7 @@ class JSNES_MapperDefault {
     
         // Reset IRQ:
         //nes.getCpu().doResetInterrupt();
-        this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+        this.nes.cpu.requestIrq(JSNES_CPU.IRQ_RESET);
     }
 
     void loadPRGROM() {
@@ -684,16 +685,16 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                 if ((this.mirroring & 2) == 0) {
                     // SingleScreen mirroring overrides the other setting:
                     this.nes.ppu.setMirroring(
-                        this.nes.rom.SINGLESCREEN_MIRRORING);
+                        JSNES_ROM.SINGLESCREEN_MIRRORING);
                 }
                 // Not overridden by SingleScreen mirroring.
                 else if ((this.mirroring & 1) != 0) {
                     this.nes.ppu.setMirroring(
-                        this.nes.rom.HORIZONTAL_MIRRORING
+                        JSNES_ROM.HORIZONTAL_MIRRORING
                     );
                 }
                 else {
-                    this.nes.ppu.setMirroring(this.nes.rom.VERTICAL_MIRRORING);
+                    this.nes.ppu.setMirroring(JSNES_ROM.VERTICAL_MIRRORING);
                 }
             }
     
@@ -851,7 +852,7 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
     this.loadBatteryRam();
 
     // Do Reset-Interrupt:
-    this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+    this.nes.cpu.requestIrq(JSNES_CPU.IRQ_RESET);
   }
 
   void switchLowHighPrgRom(int oldSetting) {
@@ -934,7 +935,7 @@ class JSNES_Mapper_2 extends JSNES_MapperDefault {
       this.loadCHRROM();
   
       // Do Reset-Interrupt:
-      this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+      this.nes.cpu.requestIrq(JSNES_CPU.IRQ_RESET);
   }
 }
 
@@ -991,11 +992,11 @@ JSNES.Mappers[4].prototype.write = function(address, value) {
             // Mirroring select
             if ((value & 1) !== 0) {
                 this.nes.ppu.setMirroring(
-                    this.nes.rom.HORIZONTAL_MIRRORING
+                    JSNES_ROM.HORIZONTAL_MIRRORING
                 );
             }
             else {
-                this.nes.ppu.setMirroring(this.nes.rom.VERTICAL_MIRRORING);
+                this.nes.ppu.setMirroring(JSNES_ROM.VERTICAL_MIRRORING);
             }
             break;
         
@@ -1172,7 +1173,7 @@ JSNES.Mappers[4].prototype.loadROM = function(rom) {
     this.loadBatteryRam();
 
     // Do Reset-Interrupt:
-    this.nes.cpu.requestIrq(this.nes.cpu.IRQ_RESET);
+    this.nes.cpu.requestIrq(JSNES_CPU.IRQ_RESET);
 };
 
 JSNES.Mappers[4].prototype.clockIrqCounter = function() {
@@ -1181,7 +1182,7 @@ JSNES.Mappers[4].prototype.clockIrqCounter = function() {
         if (this.irqCounter < 0) {
             // Trigger IRQ:
             //nes.getCpu().doIrq();
-            this.nes.cpu.requestIrq(this.nes.cpu.IRQ_NORMAL);
+            this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NORMAL);
             this.irqCounter = this.irqLatchValue;
         }
     }

@@ -23,6 +23,8 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'nes.dart';
+import 'rom.dart';
+import 'cpu.dart';
 
 class JSNES_PPU {
   List<String> JSON_PROPERTIES = [
@@ -58,10 +60,10 @@ class JSNES_PPU {
   ];
   
   // Status flags:
-  const int STATUS_VRAMWRITE = 4;
-  const int STATUS_SLSPRITECOUNT = 5;
-  const int STATUS_SPRITE0HIT = 6;
-  const int STATUS_VBLANK = 7;
+  static const int STATUS_VRAMWRITE = 4;
+  static const int STATUS_SLSPRITECOUNT = 5;
+  static const int STATUS_SPRITE0HIT = 6;
+  static const int STATUS_VBLANK = 7;
   
   JSNES_NES nes = null;
   Int32List vramMem = null;
@@ -298,7 +300,7 @@ class JSNES_PPU {
         this.defineMirrorRegion(0x3000,0x2000,0xf00);
         this.defineMirrorRegion(0x4000,0x0000,0x4000);
     
-        if (mirroring == this.nes.rom.HORIZONTAL_MIRRORING) {
+        if (mirroring == JSNES_ROM.HORIZONTAL_MIRRORING) {
             // Horizontal mirroring.
             
             this.ntable1[0] = 0;
@@ -309,7 +311,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2400,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2800,0x400);
             
-        }else if (mirroring == this.nes.rom.VERTICAL_MIRRORING) {
+        }else if (mirroring == JSNES_ROM.VERTICAL_MIRRORING) {
             // Vertical mirroring.
             
             this.ntable1[0] = 0;
@@ -320,7 +322,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2800,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2400,0x400);
             
-        }else if (mirroring == this.nes.rom.SINGLESCREEN_MIRRORING) {
+        }else if (mirroring == JSNES_ROM.SINGLESCREEN_MIRRORING) {
             
             // Single Screen mirroring
             
@@ -333,7 +335,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2800,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2000,0x400);
             
-        }else if (mirroring == this.nes.rom.SINGLESCREEN_MIRRORING2) {
+        }else if (mirroring == JSNES_ROM.SINGLESCREEN_MIRRORING2) {
             
             
             this.ntable1[0] = 1;
@@ -375,7 +377,7 @@ class JSNES_PPU {
     void startVBlank(){
         
         // Do NMI:
-        this.nes.cpu.requestIrq(this.nes.cpu.IRQ_NMI);
+        this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NMI);
         
         // Make sure everything is rendered:
         if (this.lastRenderedScanline < 239) {
@@ -408,10 +410,10 @@ class JSNES_PPU {
                 
             case 20:
                 // Clear VBlank flag:
-                this.setStatusFlag(this.STATUS_VBLANK,false);
+                this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,false);
 
                 // Clear Sprite #0 hit flag:
-                this.setStatusFlag(this.STATUS_SPRITE0HIT,false);
+                this.setStatusFlag(JSNES_PPU.STATUS_SPRITE0HIT,false);
                 this.hitSpr0 = false;
                 this.spr0HitX = -1;
                 this.spr0HitY = -1;
@@ -448,7 +450,7 @@ class JSNES_PPU {
             case 261:
                 // Dead scanline, no rendering.
                 // Set VINT:
-                this.setStatusFlag(this.STATUS_VBLANK,true);
+                this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,true);
                 this.requestEndFrame = true;
                 this.nmiCounter = 9;
             
@@ -670,7 +672,7 @@ class JSNES_PPU {
         this.firstWrite = true;
         
         // Clear VBlank flag:
-        this.setStatusFlag(this.STATUS_VBLANK,false);
+        this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,false);
         
         // Fetch status data:
         return tmp;
@@ -1564,9 +1566,9 @@ class JSNES_PPU {
     
     void doNMI() {
         // Set VBlank flag:
-        this.setStatusFlag(this.STATUS_VBLANK,true);
+        this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,true);
         //nes.getCpu().doNonMaskableInterrupt();
-        this.nes.cpu.requestIrq(this.nes.cpu.IRQ_NMI);
+        this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NMI);
     }
 /*
     void toJSON() {

@@ -156,7 +156,7 @@ class JSNES_NES {
                         ppu.f_spVisibility == 1 &&
                         ppu.scanline - 21 == ppu.spr0HitY) {
                     // Set sprite 0 hit flag:
-                    ppu.setStatusFlag(ppu.STATUS_SPRITE0HIT, true);
+                    ppu.setStatusFlag(JSNES_PPU.STATUS_SPRITE0HIT, true);
                 }
 
                 if (ppu.requestEndFrame) {

@@ -26,14 +26,14 @@ import 'ppu.dart';
 
 class JSNES_ROM {
   // Mirroring types:
-  const int VERTICAL_MIRRORING = 0;
-  const int HORIZONTAL_MIRRORING = 1;
-  const int FOURSCREEN_MIRRORING = 2;
-  const int SINGLESCREEN_MIRRORING = 3;
-  const int SINGLESCREEN_MIRRORING2 = 4;
-  const int SINGLESCREEN_MIRRORING3 = 5;
-  const int SINGLESCREEN_MIRRORING4 = 6;
-  const int CHRROM_MIRRORING = 7;
+  static const int VERTICAL_MIRRORING = 0;
+  static const int HORIZONTAL_MIRRORING = 1;
+  static const int FOURSCREEN_MIRRORING = 2;
+  static const int SINGLESCREEN_MIRRORING = 3;
+  static const int SINGLESCREEN_MIRRORING2 = 4;
+  static const int SINGLESCREEN_MIRRORING3 = 5;
+  static const int SINGLESCREEN_MIRRORING4 = 6;
+  static const int CHRROM_MIRRORING = 7;
   
   JSNES_NES nes = null;
   List<String> mapperName = null;
@@ -197,12 +197,12 @@ class JSNES_ROM {
     
     int getMirroringType() {
         if (this.fourScreen) {
-            return this.FOURSCREEN_MIRRORING;
+            return JSNES_ROM.FOURSCREEN_MIRRORING;
         }
         if (this.mirroring == 0) {
-            return this.HORIZONTAL_MIRRORING;
+            return JSNES_ROM.HORIZONTAL_MIRRORING;
         }
-        return this.VERTICAL_MIRRORING;
+        return JSNES_ROM.VERTICAL_MIRRORING;
     }
     
     String getMapperName() {

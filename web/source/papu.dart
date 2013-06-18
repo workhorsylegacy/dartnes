@@ -21,6 +21,7 @@ library dartnes;
 import 'dart:typed_data';
 
 import 'nes.dart';
+import 'cpu.dart';
 
 class JSNES_PAPU {
   JSNES_NES nes = null;
@@ -523,7 +524,7 @@ class JSNES_PAPU {
 
         // Frame IRQ handling:
         if (this.frameIrqEnabled && this.frameIrqActive){
-            this.nes.cpu.requestIrq(this.nes.cpu.IRQ_NORMAL);
+            this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NORMAL);
         }
 
         // Clock frame counter at double CPU speed:
@@ -913,9 +914,9 @@ class JSNES_PAPU {
 
 
 class JSNES_PAPU_ChannelDM {
-  const int MODE_NORMAL = 0;
-  const int MODE_LOOP = 1;
-  const int MODE_IRQ = 2;
+  static const int MODE_NORMAL = 0;
+  static const int MODE_LOOP = 1;
+  static const int MODE_IRQ = 2;
   
   JSNES_PAPU papu = null;
   
@@ -984,13 +985,13 @@ class JSNES_PAPU_ChannelDM {
         }
     
         if (this.irqGenerated) {
-            this.papu.nes.cpu.requestIrq(this.papu.nes.cpu.IRQ_NORMAL);
+            this.papu.nes.cpu.requestIrq(JSNES_CPU.IRQ_NORMAL);
         }
     
     }
 
     void endOfSample() {
-        if (this.playLengthCounter == 0 && this.playMode == this.MODE_LOOP) {
+        if (this.playLengthCounter == 0 && this.playMode == JSNES_PAPU_ChannelDM.MODE_LOOP) {
         
             // Start from beginning of sample:
             this.playAddress = this.playStartAddress;
@@ -1006,7 +1007,7 @@ class JSNES_PAPU_ChannelDM {
             if (this.playLengthCounter == 0) {
         
                 // Last byte of sample fetched, generate IRQ:
-                if (this.playMode == this.MODE_IRQ) {
+                if (this.playMode == JSNES_PAPU_ChannelDM.MODE_IRQ) {
                 
                     // Generate IRQ:
                     this.irqGenerated = true;
@@ -1041,13 +1042,13 @@ class JSNES_PAPU_ChannelDM {
         
             // Play mode, DMA Frequency
             if ((value >> 6) == 0) {
-                this.playMode = this.MODE_NORMAL;
+                this.playMode = JSNES_PAPU_ChannelDM.MODE_NORMAL;
             }
             else if (((value >> 6) & 1) == 1) {
-                this.playMode = this.MODE_LOOP;
+                this.playMode = JSNES_PAPU_ChannelDM.MODE_LOOP;
             }
             else if ((value >> 6) == 2) {
-                this.playMode = this.MODE_IRQ;
+                this.playMode = JSNES_PAPU_ChannelDM.MODE_IRQ;
             }
         
             if ((value & 0x80) == 0) {
@@ -1117,7 +1118,7 @@ class JSNES_PAPU_ChannelDM {
     void reset(){
         this.isEnabled = false;
         this.irqGenerated = false;
-        this.playMode = this.MODE_NORMAL;
+        this.playMode = JSNES_PAPU_ChannelDM.MODE_NORMAL;
         this.dmaFrequency = 0;
         this.dmaCounter = 0;
         this.deltaCounter = 0;
