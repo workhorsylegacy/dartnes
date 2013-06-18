@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-library dartnes;
+library dartnes_ppu;
 import 'dart:math';
 import 'dart:html';
 import 'dart:typed_data';
@@ -991,7 +991,7 @@ class JSNES_PPU {
                 this.writeMem(this.vramMirrorTable[address],value);
             }else {
                 // FIXME
-                window.alert("Invalid VRAM address: "+address.toString(16));
+                window.alert("Invalid VRAM address: " + address.toRadixString(16));
             }
             
         }

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-library dartnes;
+library dartnes_ui;
 import 'dart:html';
 import 'dart:web_audio';
 import 'dart:typed_data';

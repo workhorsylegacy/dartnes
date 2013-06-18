@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-library dartnes;
+library dartnes_rom;
 import 'dart:typed_data';
 
 import 'mappers.dart';
@@ -209,7 +209,7 @@ class JSNES_ROM {
         if (this.mapperType >= 0 && this.mapperType < this.mapperName.length) {
             return this.mapperName[this.mapperType];
         }
-        return "Unknown Mapper, "+this.mapperType;
+        return "Unknown Mapper, " + this.mapperType.toString();
     }
     
     bool mapperSupported() {
