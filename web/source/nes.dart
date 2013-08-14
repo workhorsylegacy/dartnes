@@ -20,9 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes_nes;
 import 'dart:async';
 import 'dart:core';
-import 'dart:typed_data';
 
-import 'ui.dart';
 import 'cpu.dart';
 import 'ppu.dart';
 import 'papu.dart';
@@ -55,7 +53,7 @@ class JSNES_NES {
     Timer frameInterval = null;
     Timer fpsInterval = null;
     
-    JSNES_NES(void status_cb(String m), void frame_cb(Int32List bytes), void audio_cb(Int32List samples)) {
+    JSNES_NES(void status_cb(String m), void frame_cb(List<int> bytes), void audio_cb(List<int> samples)) {
       this.status_cb = status_cb;
       this.frame_cb = frame_cb;
       this.audio_cb = audio_cb;

@@ -19,8 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 library dartnes_ui;
 import 'dart:html';
-import 'dart:web_audio';
-import 'dart:typed_data';
+//import 'dart:web_audio';
 
 import 'nes.dart';
 
@@ -41,8 +40,8 @@ class JSNES_UI {
                 this.parent = query('#emulator');
     
                 void status_cb(String m) => updateStatus(m);
-                void frame_cb(Int32List bytes) => writeFrame(bytes);
-                void audio_cb(Int32List samples) => writeAudio(samples);
+                void frame_cb(List<int> bytes) => writeFrame(bytes);
+                void audio_cb(List<int> samples) => writeAudio(samples);
                 this.nes = new JSNES_NES(status_cb, frame_cb, audio_cb);
                 
                 /*
@@ -197,11 +196,11 @@ class JSNES_UI {
                     this.status.text = s;
                 }
                 
-                void writeAudio(Int32List samples) {
+                void writeAudio(List<int> samples) {
                   return this.dynamicaudio.writeInt(samples);
                 }
             
-                void writeFrame(Int32List buffer) {
+                void writeFrame(List<int> buffer) {
                     List<int> imageData = this.canvasImageData.data;
                     int pixel, i, j;
 

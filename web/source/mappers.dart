@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes_mappers;
 import 'dart:math';
 import 'dart:html';
-import 'dart:typed_data';
 
 import 'nes.dart';
 import 'utils.dart';
@@ -442,7 +441,7 @@ class JSNES_MapperDefault {
 
     void loadBatteryRam() {
       if (this.nes.rom.batteryRam) {
-            Int32List ram = this.nes.rom.saveRam;
+          List<int> ram = this.nes.rom.saveRam;
             if (ram != null && ram.length == 0x2000) {
                 // Load Battery RAM into memory:
                 JSNES_Utils.copyArrayElements(ram, 0, this.nes.cpu.mem, 0x6000, 0x2000);

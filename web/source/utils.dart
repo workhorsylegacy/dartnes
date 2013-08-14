@@ -18,15 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes_utils;
-import 'dart:typed_data';
 
 import 'ppu.dart';
 
 class JSNES_Utils {    
-    static void copyArrayElements(Int32List src, int srcPos, Int32List dest, int destPos, int length) {
-        assert(src is Int32List);
+    static void copyArrayElements(List<int> src, int srcPos, List<int> dest, int destPos, int length) {
+        assert(src is List<int>);
         assert(srcPos is int);
-        assert(dest is Int32List);
+        assert(dest is List<int>);
         assert(destPos is int);
         assert(length is int);
         

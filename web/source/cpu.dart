@@ -18,10 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 library dartnes_cpu;
-import 'dart:typed_data';
 
 import 'nes.dart';
-import 'utils.dart';
 
 class JSNES_CPU {
     // IRQ Types
@@ -40,7 +38,7 @@ class JSNES_CPU {
     ];
   
     JSNES_NES nes = null;
-    Int32List mem = null;
+    List<int> mem = null;
     int REG_ACC = 0;
     int REG_X = 0;
     int REG_Y = 0;
@@ -59,7 +57,7 @@ class JSNES_CPU {
     int F_NOTUSED_NEW = 0;
     int F_BRK = 0;
     int F_BRK_NEW = 0;
-    List<Int32List> opdata = null;
+    List<List<int>> opdata = null;
     int cyclesToHalt = 0;
     bool crash = false;
     bool irqRequested = false;
@@ -74,7 +72,7 @@ class JSNES_CPU {
     
     void reset() {
         // Main memory 
-        this.mem = new Int32List(0x10000);
+        this.mem = new List<int>.filled(0x10000, 0);
         
         for (int i=0; i < 0x2000; i++) {
             this.mem[i] = 0xFF;
@@ -176,7 +174,7 @@ class JSNES_CPU {
             this.irqRequested = false;
         }
 
-        final Int32List opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
+        final List<int> opinf = this.opdata[this.nes.mmap.load(this.REG_PC+1)];
         int cycleCount = opinf[3];
         int cycleAdd = 0;
 
@@ -1334,274 +1332,274 @@ class JSNES_CPU_OpData {
   static const int ADDR_POSTIDXIND= 11;
   static const int ADDR_INDABS    = 12;
   
-  static List<Int32List> createOpData() {
-    List<Int32List> opdata = new List<Int32List>(256);
+  static List<List<int>> createOpData() {
+    List<List<int>> opdata = new List<List<int>>(256);
       
       // Now fill in all valid opcodes:
       
       // ADC:
-      opdata[0x69] = new Int32List.fromList([INS_ADC, ADDR_IMM, 2, 2]);
-      opdata[0x65] = new Int32List.fromList([INS_ADC, ADDR_ZP, 2, 3]);
-      opdata[0x75] = new Int32List.fromList([INS_ADC, ADDR_ZPX, 2, 4]);
-      opdata[0x6D] = new Int32List.fromList([INS_ADC, ADDR_ABS, 3, 4]);
-      opdata[0x7D] = new Int32List.fromList([INS_ADC, ADDR_ABSX, 3, 4]);
-      opdata[0x79] = new Int32List.fromList([INS_ADC, ADDR_ABSY, 3, 4]);
-      opdata[0x61] = new Int32List.fromList([INS_ADC, ADDR_PREIDXIND, 2, 6]);
-      opdata[0x71] = new Int32List.fromList([INS_ADC, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0x69] = [INS_ADC, ADDR_IMM, 2, 2];
+      opdata[0x65] = [INS_ADC, ADDR_ZP, 2, 3];
+      opdata[0x75] = [INS_ADC, ADDR_ZPX, 2, 4];
+      opdata[0x6D] = [INS_ADC, ADDR_ABS, 3, 4];
+      opdata[0x7D] = [INS_ADC, ADDR_ABSX, 3, 4];
+      opdata[0x79] = [INS_ADC, ADDR_ABSY, 3, 4];
+      opdata[0x61] = [INS_ADC, ADDR_PREIDXIND, 2, 6];
+      opdata[0x71] = [INS_ADC, ADDR_POSTIDXIND, 2, 5];
       
       // AND:
-      opdata[0x29] = new Int32List.fromList([INS_AND, ADDR_IMM, 2, 2]);
-      opdata[0x25] = new Int32List.fromList([INS_AND, ADDR_ZP, 2, 3]);
-      opdata[0x35] = new Int32List.fromList([INS_AND, ADDR_ZPX, 2, 4]);
-      opdata[0x2D] = new Int32List.fromList([INS_AND, ADDR_ABS, 3, 4]);
-      opdata[0x3D] = new Int32List.fromList([INS_AND, ADDR_ABSX, 3, 4]);
-      opdata[0x39] = new Int32List.fromList([INS_AND, ADDR_ABSY, 3, 4]);
-      opdata[0x21] = new Int32List.fromList([INS_AND, ADDR_PREIDXIND, 2, 6]);
-      opdata[0x31] = new Int32List.fromList([INS_AND, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0x29] = [INS_AND, ADDR_IMM, 2, 2];
+      opdata[0x25] = [INS_AND, ADDR_ZP, 2, 3];
+      opdata[0x35] = [INS_AND, ADDR_ZPX, 2, 4];
+      opdata[0x2D] = [INS_AND, ADDR_ABS, 3, 4];
+      opdata[0x3D] = [INS_AND, ADDR_ABSX, 3, 4];
+      opdata[0x39] = [INS_AND, ADDR_ABSY, 3, 4];
+      opdata[0x21] = [INS_AND, ADDR_PREIDXIND, 2, 6];
+      opdata[0x31] = [INS_AND, ADDR_POSTIDXIND, 2, 5];
       
       // ASL:
-      opdata[0x0A] = new Int32List.fromList([INS_ASL, ADDR_ACC, 1, 2]);
-      opdata[0x06] = new Int32List.fromList([INS_ASL, ADDR_ZP, 2, 5]);
-      opdata[0x16] = new Int32List.fromList([INS_ASL, ADDR_ZPX, 2, 6]);
-      opdata[0x0E] = new Int32List.fromList([INS_ASL, ADDR_ABS, 3, 6]);
-      opdata[0x1E] = new Int32List.fromList([INS_ASL, ADDR_ABSX, 3, 7]);
+      opdata[0x0A] = [INS_ASL, ADDR_ACC, 1, 2];
+      opdata[0x06] = [INS_ASL, ADDR_ZP, 2, 5];
+      opdata[0x16] = [INS_ASL, ADDR_ZPX, 2, 6];
+      opdata[0x0E] = [INS_ASL, ADDR_ABS, 3, 6];
+      opdata[0x1E] = [INS_ASL, ADDR_ABSX, 3, 7];
       
       // BCC:
-      opdata[0x90] = new Int32List.fromList([INS_BCC, ADDR_REL, 2, 2]);
+      opdata[0x90] = [INS_BCC, ADDR_REL, 2, 2];
       
       // BCS:
-      opdata[0xB0] = new Int32List.fromList([INS_BCS, ADDR_REL, 2, 2]);
+      opdata[0xB0] = [INS_BCS, ADDR_REL, 2, 2];
       
       // BEQ:
-      opdata[0xF0] = new Int32List.fromList([INS_BEQ, ADDR_REL, 2, 2]);
+      opdata[0xF0] = [INS_BEQ, ADDR_REL, 2, 2];
       
       // BIT:
-      opdata[0x24] = new Int32List.fromList([INS_BIT, ADDR_ZP, 2, 3]);
-      opdata[0x2C] = new Int32List.fromList([INS_BIT, ADDR_ABS, 3, 4]);
+      opdata[0x24] = [INS_BIT, ADDR_ZP, 2, 3];
+      opdata[0x2C] = [INS_BIT, ADDR_ABS, 3, 4];
       
       // BMI:
-      opdata[0x30] = new Int32List.fromList([INS_BMI, ADDR_REL, 2, 2]);
+      opdata[0x30] = [INS_BMI, ADDR_REL, 2, 2];
       
       // BNE:
-      opdata[0xD0] = new Int32List.fromList([INS_BNE, ADDR_REL, 2, 2]);
+      opdata[0xD0] = [INS_BNE, ADDR_REL, 2, 2];
       
       // BPL:
-      opdata[0x10] = new Int32List.fromList([INS_BPL, ADDR_REL, 2, 2]);
+      opdata[0x10] = [INS_BPL, ADDR_REL, 2, 2];
       
       // BRK:
-      opdata[0x00] = new Int32List.fromList([INS_BRK, ADDR_IMP, 1, 7]);
+      opdata[0x00] = [INS_BRK, ADDR_IMP, 1, 7];
       
       // BVC:
-      opdata[0x50] = new Int32List.fromList([INS_BVC, ADDR_REL, 2, 2]);
+      opdata[0x50] = [INS_BVC, ADDR_REL, 2, 2];
       
       // BVS:
-      opdata[0x70] = new Int32List.fromList([INS_BVS, ADDR_REL, 2, 2]);
+      opdata[0x70] = [INS_BVS, ADDR_REL, 2, 2];
       
       // CLC:
-      opdata[0x18] = new Int32List.fromList([INS_CLC, ADDR_IMP, 1, 2]);
+      opdata[0x18] = [INS_CLC, ADDR_IMP, 1, 2];
       
       // CLD:
-      opdata[0xD8] = new Int32List.fromList([INS_CLD, ADDR_IMP, 1, 2]);
+      opdata[0xD8] = [INS_CLD, ADDR_IMP, 1, 2];
       
       // CLI:
-      opdata[0x58] = new Int32List.fromList([INS_CLI, ADDR_IMP, 1, 2]);
+      opdata[0x58] = [INS_CLI, ADDR_IMP, 1, 2];
       
       // CLV:
-      opdata[0xB8] = new Int32List.fromList([INS_CLV, ADDR_IMP, 1, 2]);
+      opdata[0xB8] = [INS_CLV, ADDR_IMP, 1, 2];
       
       // CMP:
-      opdata[0xC9] = new Int32List.fromList([INS_CMP, ADDR_IMM, 2, 2]);
-      opdata[0xC5] = new Int32List.fromList([INS_CMP, ADDR_ZP, 2, 3]);
-      opdata[0xD5] = new Int32List.fromList([INS_CMP, ADDR_ZPX, 2, 4]);
-      opdata[0xCD] = new Int32List.fromList([INS_CMP, ADDR_ABS, 3, 4]);
-      opdata[0xDD] = new Int32List.fromList([INS_CMP, ADDR_ABSX, 3, 4]);
-      opdata[0xD9] = new Int32List.fromList([INS_CMP, ADDR_ABSY, 3, 4]);
-      opdata[0xC1] = new Int32List.fromList([INS_CMP, ADDR_PREIDXIND, 2, 6]);
-      opdata[0xD1] = new Int32List.fromList([INS_CMP, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0xC9] = [INS_CMP, ADDR_IMM, 2, 2];
+      opdata[0xC5] = [INS_CMP, ADDR_ZP, 2, 3];
+      opdata[0xD5] = [INS_CMP, ADDR_ZPX, 2, 4];
+      opdata[0xCD] = [INS_CMP, ADDR_ABS, 3, 4];
+      opdata[0xDD] = [INS_CMP, ADDR_ABSX, 3, 4];
+      opdata[0xD9] = [INS_CMP, ADDR_ABSY, 3, 4];
+      opdata[0xC1] = [INS_CMP, ADDR_PREIDXIND, 2, 6];
+      opdata[0xD1] = [INS_CMP, ADDR_POSTIDXIND, 2, 5];
       
       // CPX:
-      opdata[0xE0] = new Int32List.fromList([INS_CPX, ADDR_IMM, 2, 2]);
-      opdata[0xE4] = new Int32List.fromList([INS_CPX, ADDR_ZP, 2, 3]);
-      opdata[0xEC] = new Int32List.fromList([INS_CPX, ADDR_ABS, 3, 4]);
+      opdata[0xE0] = [INS_CPX, ADDR_IMM, 2, 2];
+      opdata[0xE4] = [INS_CPX, ADDR_ZP, 2, 3];
+      opdata[0xEC] = [INS_CPX, ADDR_ABS, 3, 4];
       
       // CPY:
-      opdata[0xC0] = new Int32List.fromList([INS_CPY, ADDR_IMM, 2, 2]);
-      opdata[0xC4] = new Int32List.fromList([INS_CPY, ADDR_ZP, 2, 3]);
-      opdata[0xCC] = new Int32List.fromList([INS_CPY, ADDR_ABS, 3, 4]);
+      opdata[0xC0] = [INS_CPY, ADDR_IMM, 2, 2];
+      opdata[0xC4] = [INS_CPY, ADDR_ZP, 2, 3];
+      opdata[0xCC] = [INS_CPY, ADDR_ABS, 3, 4];
       
       // DEC:
-      opdata[0xC6] = new Int32List.fromList([INS_DEC, ADDR_ZP, 2, 5]);
-      opdata[0xD6] = new Int32List.fromList([INS_DEC, ADDR_ZPX, 2, 6]);
-      opdata[0xCE] = new Int32List.fromList([INS_DEC, ADDR_ABS, 3, 6]);
-      opdata[0xDE] = new Int32List.fromList([INS_DEC, ADDR_ABSX, 3, 7]);
+      opdata[0xC6] = [INS_DEC, ADDR_ZP, 2, 5];
+      opdata[0xD6] = [INS_DEC, ADDR_ZPX, 2, 6];
+      opdata[0xCE] = [INS_DEC, ADDR_ABS, 3, 6];
+      opdata[0xDE] = [INS_DEC, ADDR_ABSX, 3, 7];
       
       // DEX:
-      opdata[0xCA] = new Int32List.fromList([INS_DEX, ADDR_IMP, 1, 2]);
+      opdata[0xCA] = [INS_DEX, ADDR_IMP, 1, 2];
       
       // DEY:
-      opdata[0x88] = new Int32List.fromList([INS_DEY, ADDR_IMP, 1, 2]);
+      opdata[0x88] = [INS_DEY, ADDR_IMP, 1, 2];
       
       // EOR:
-      opdata[0x49] = new Int32List.fromList([INS_EOR, ADDR_IMM, 2, 2]);
-      opdata[0x45] = new Int32List.fromList([INS_EOR, ADDR_ZP, 2, 3]);
-      opdata[0x55] = new Int32List.fromList([INS_EOR, ADDR_ZPX, 2, 4]);
-      opdata[0x4D] = new Int32List.fromList([INS_EOR, ADDR_ABS, 3, 4]);
-      opdata[0x5D] = new Int32List.fromList([INS_EOR, ADDR_ABSX, 3, 4]);
-      opdata[0x59] = new Int32List.fromList([INS_EOR, ADDR_ABSY, 3, 4]);
-      opdata[0x41] = new Int32List.fromList([INS_EOR, ADDR_PREIDXIND, 2, 6]);
-      opdata[0x51] = new Int32List.fromList([INS_EOR, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0x49] = [INS_EOR, ADDR_IMM, 2, 2];
+      opdata[0x45] = [INS_EOR, ADDR_ZP, 2, 3];
+      opdata[0x55] = [INS_EOR, ADDR_ZPX, 2, 4];
+      opdata[0x4D] = [INS_EOR, ADDR_ABS, 3, 4];
+      opdata[0x5D] = [INS_EOR, ADDR_ABSX, 3, 4];
+      opdata[0x59] = [INS_EOR, ADDR_ABSY, 3, 4];
+      opdata[0x41] = [INS_EOR, ADDR_PREIDXIND, 2, 6];
+      opdata[0x51] = [INS_EOR, ADDR_POSTIDXIND, 2, 5];
       
       // INC:
-      opdata[0xE6] = new Int32List.fromList([INS_INC, ADDR_ZP, 2, 5]);
-      opdata[0xF6] = new Int32List.fromList([INS_INC, ADDR_ZPX, 2, 6]);
-      opdata[0xEE] = new Int32List.fromList([INS_INC, ADDR_ABS, 3, 6]);
-      opdata[0xFE] = new Int32List.fromList([INS_INC, ADDR_ABSX, 3, 7]);
+      opdata[0xE6] = [INS_INC, ADDR_ZP, 2, 5];
+      opdata[0xF6] = [INS_INC, ADDR_ZPX, 2, 6];
+      opdata[0xEE] = [INS_INC, ADDR_ABS, 3, 6];
+      opdata[0xFE] = [INS_INC, ADDR_ABSX, 3, 7];
       
       // INX:
-      opdata[0xE8] = new Int32List.fromList([INS_INX, ADDR_IMP, 1, 2]);
+      opdata[0xE8] = [INS_INX, ADDR_IMP, 1, 2];
       
       // INY:
-      opdata[0xC8] = new Int32List.fromList([INS_INY, ADDR_IMP, 1, 2]);
+      opdata[0xC8] = [INS_INY, ADDR_IMP, 1, 2];
       
       // JMP:
-      opdata[0x4C] = new Int32List.fromList([INS_JMP, ADDR_ABS, 3, 3]);
-      opdata[0x6C] = new Int32List.fromList([INS_JMP, ADDR_INDABS, 3, 5]);
+      opdata[0x4C] = [INS_JMP, ADDR_ABS, 3, 3];
+      opdata[0x6C] = [INS_JMP, ADDR_INDABS, 3, 5];
       
       // JSR:
-      opdata[0x20] = new Int32List.fromList([INS_JSR, ADDR_ABS, 3, 6]);
+      opdata[0x20] = [INS_JSR, ADDR_ABS, 3, 6];
       
       // LDA:
-      opdata[0xA9] = new Int32List.fromList([INS_LDA, ADDR_IMM, 2, 2]);
-      opdata[0xA5] = new Int32List.fromList([INS_LDA, ADDR_ZP, 2, 3]);
-      opdata[0xB5] = new Int32List.fromList([INS_LDA, ADDR_ZPX, 2, 4]);
-      opdata[0xAD] = new Int32List.fromList([INS_LDA, ADDR_ABS, 3, 4]);
-      opdata[0xBD] = new Int32List.fromList([INS_LDA, ADDR_ABSX, 3, 4]);
-      opdata[0xB9] = new Int32List.fromList([INS_LDA, ADDR_ABSY, 3, 4]);
-      opdata[0xA1] = new Int32List.fromList([INS_LDA, ADDR_PREIDXIND, 2, 6]);
-      opdata[0xB1] = new Int32List.fromList([INS_LDA, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0xA9] = [INS_LDA, ADDR_IMM, 2, 2];
+      opdata[0xA5] = [INS_LDA, ADDR_ZP, 2, 3];
+      opdata[0xB5] = [INS_LDA, ADDR_ZPX, 2, 4];
+      opdata[0xAD] = [INS_LDA, ADDR_ABS, 3, 4];
+      opdata[0xBD] = [INS_LDA, ADDR_ABSX, 3, 4];
+      opdata[0xB9] = [INS_LDA, ADDR_ABSY, 3, 4];
+      opdata[0xA1] = [INS_LDA, ADDR_PREIDXIND, 2, 6];
+      opdata[0xB1] = [INS_LDA, ADDR_POSTIDXIND, 2, 5];
       
       
       // LDX:
-      opdata[0xA2] = new Int32List.fromList([INS_LDX, ADDR_IMM, 2, 2]);
-      opdata[0xA6] = new Int32List.fromList([INS_LDX, ADDR_ZP, 2, 3]);
-      opdata[0xB6] = new Int32List.fromList([INS_LDX, ADDR_ZPY, 2, 4]);
-      opdata[0xAE] = new Int32List.fromList([INS_LDX, ADDR_ABS, 3, 4]);
-      opdata[0xBE] = new Int32List.fromList([INS_LDX, ADDR_ABSY, 3, 4]);
+      opdata[0xA2] = [INS_LDX, ADDR_IMM, 2, 2];
+      opdata[0xA6] = [INS_LDX, ADDR_ZP, 2, 3];
+      opdata[0xB6] = [INS_LDX, ADDR_ZPY, 2, 4];
+      opdata[0xAE] = [INS_LDX, ADDR_ABS, 3, 4];
+      opdata[0xBE] = [INS_LDX, ADDR_ABSY, 3, 4];
       
       // LDY:
-      opdata[0xA0] = new Int32List.fromList([INS_LDY, ADDR_IMM, 2, 2]);
-      opdata[0xA4] = new Int32List.fromList([INS_LDY, ADDR_ZP, 2, 3]);
-      opdata[0xB4] = new Int32List.fromList([INS_LDY, ADDR_ZPX, 2, 4]);
-      opdata[0xAC] = new Int32List.fromList([INS_LDY, ADDR_ABS, 3, 4]);
-      opdata[0xBC] = new Int32List.fromList([INS_LDY, ADDR_ABSX, 3, 4]);
+      opdata[0xA0] = [INS_LDY, ADDR_IMM, 2, 2];
+      opdata[0xA4] = [INS_LDY, ADDR_ZP, 2, 3];
+      opdata[0xB4] = [INS_LDY, ADDR_ZPX, 2, 4];
+      opdata[0xAC] = [INS_LDY, ADDR_ABS, 3, 4];
+      opdata[0xBC] = [INS_LDY, ADDR_ABSX, 3, 4];
       
       // LSR:
-      opdata[0x4A] = new Int32List.fromList([INS_LSR, ADDR_ACC, 1, 2]);
-      opdata[0x46] = new Int32List.fromList([INS_LSR, ADDR_ZP, 2, 5]);
-      opdata[0x56] = new Int32List.fromList([INS_LSR, ADDR_ZPX, 2, 6]);
-      opdata[0x4E] = new Int32List.fromList([INS_LSR, ADDR_ABS, 3, 6]);
-      opdata[0x5E] = new Int32List.fromList([INS_LSR, ADDR_ABSX, 3, 7]);
+      opdata[0x4A] = [INS_LSR, ADDR_ACC, 1, 2];
+      opdata[0x46] = [INS_LSR, ADDR_ZP, 2, 5];
+      opdata[0x56] = [INS_LSR, ADDR_ZPX, 2, 6];
+      opdata[0x4E] = [INS_LSR, ADDR_ABS, 3, 6];
+      opdata[0x5E] = [INS_LSR, ADDR_ABSX, 3, 7];
       
       // NOP:
-      opdata[0xEA] = new Int32List.fromList([INS_NOP, ADDR_IMP, 1, 2]);
+      opdata[0xEA] = [INS_NOP, ADDR_IMP, 1, 2];
       
       // ORA:
-      opdata[0x09] = new Int32List.fromList([INS_ORA, ADDR_IMM, 2, 2]);
-      opdata[0x05] = new Int32List.fromList([INS_ORA, ADDR_ZP, 2, 3]);
-      opdata[0x15] = new Int32List.fromList([INS_ORA, ADDR_ZPX, 2, 4]);
-      opdata[0x0D] = new Int32List.fromList([INS_ORA, ADDR_ABS, 3, 4]);
-      opdata[0x1D] = new Int32List.fromList([INS_ORA, ADDR_ABSX, 3, 4]);
-      opdata[0x19] = new Int32List.fromList([INS_ORA, ADDR_ABSY, 3, 4]);
-      opdata[0x01] = new Int32List.fromList([INS_ORA, ADDR_PREIDXIND, 2, 6]);
-      opdata[0x11] = new Int32List.fromList([INS_ORA, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0x09] = [INS_ORA, ADDR_IMM, 2, 2];
+      opdata[0x05] = [INS_ORA, ADDR_ZP, 2, 3];
+      opdata[0x15] = [INS_ORA, ADDR_ZPX, 2, 4];
+      opdata[0x0D] = [INS_ORA, ADDR_ABS, 3, 4];
+      opdata[0x1D] = [INS_ORA, ADDR_ABSX, 3, 4];
+      opdata[0x19] = [INS_ORA, ADDR_ABSY, 3, 4];
+      opdata[0x01] = [INS_ORA, ADDR_PREIDXIND, 2, 6];
+      opdata[0x11] = [INS_ORA, ADDR_POSTIDXIND, 2, 5];
       
       // PHA:
-      opdata[0x48] = new Int32List.fromList([INS_PHA, ADDR_IMP, 1, 3]);
+      opdata[0x48] = [INS_PHA, ADDR_IMP, 1, 3];
       
       // PHP:
-      opdata[0x08] = new Int32List.fromList([INS_PHP, ADDR_IMP, 1, 3]);
+      opdata[0x08] = [INS_PHP, ADDR_IMP, 1, 3];
       
       // PLA:
-      opdata[0x68] = new Int32List.fromList([INS_PLA, ADDR_IMP, 1, 4]);
+      opdata[0x68] = [INS_PLA, ADDR_IMP, 1, 4];
       
       // PLP:
-      opdata[0x28] = new Int32List.fromList([INS_PLP, ADDR_IMP, 1, 4]);
+      opdata[0x28] = [INS_PLP, ADDR_IMP, 1, 4];
       
       // ROL:
-      opdata[0x2A] = new Int32List.fromList([INS_ROL, ADDR_ACC, 1, 2]);
-      opdata[0x26] = new Int32List.fromList([INS_ROL, ADDR_ZP, 2, 5]);
-      opdata[0x36] = new Int32List.fromList([INS_ROL, ADDR_ZPX, 2, 6]);
-      opdata[0x2E] = new Int32List.fromList([INS_ROL, ADDR_ABS, 3, 6]);
-      opdata[0x3E] = new Int32List.fromList([INS_ROL, ADDR_ABSX, 3, 7]);
+      opdata[0x2A] = [INS_ROL, ADDR_ACC, 1, 2];
+      opdata[0x26] = [INS_ROL, ADDR_ZP, 2, 5];
+      opdata[0x36] = [INS_ROL, ADDR_ZPX, 2, 6];
+      opdata[0x2E] = [INS_ROL, ADDR_ABS, 3, 6];
+      opdata[0x3E] = [INS_ROL, ADDR_ABSX, 3, 7];
       
       // ROR:
-      opdata[0x6A] = new Int32List.fromList([INS_ROR, ADDR_ACC, 1, 2]);
-      opdata[0x66] = new Int32List.fromList([INS_ROR, ADDR_ZP, 2, 5]);
-      opdata[0x76] = new Int32List.fromList([INS_ROR, ADDR_ZPX, 2, 6]);
-      opdata[0x6E] = new Int32List.fromList([INS_ROR, ADDR_ABS, 3, 6]);
-      opdata[0x7E] = new Int32List.fromList([INS_ROR, ADDR_ABSX, 3, 7]);
+      opdata[0x6A] = [INS_ROR, ADDR_ACC, 1, 2];
+      opdata[0x66] = [INS_ROR, ADDR_ZP, 2, 5];
+      opdata[0x76] = [INS_ROR, ADDR_ZPX, 2, 6];
+      opdata[0x6E] = [INS_ROR, ADDR_ABS, 3, 6];
+      opdata[0x7E] = [INS_ROR, ADDR_ABSX, 3, 7];
       
       // RTI:
-      opdata[0x40] = new Int32List.fromList([INS_RTI, ADDR_IMP, 1, 6]);
+      opdata[0x40] = [INS_RTI, ADDR_IMP, 1, 6];
       
       // RTS:
-      opdata[0x60] = new Int32List.fromList([INS_RTS, ADDR_IMP, 1, 6]);
+      opdata[0x60] = [INS_RTS, ADDR_IMP, 1, 6];
       
       // SBC:
-      opdata[0xE9] = new Int32List.fromList([INS_SBC, ADDR_IMM, 2, 2]);
-      opdata[0xE5] = new Int32List.fromList([INS_SBC, ADDR_ZP, 2, 3]);
-      opdata[0xF5] = new Int32List.fromList([INS_SBC, ADDR_ZPX, 2, 4]);
-      opdata[0xED] = new Int32List.fromList([INS_SBC, ADDR_ABS, 3, 4]);
-      opdata[0xFD] = new Int32List.fromList([INS_SBC, ADDR_ABSX, 3, 4]);
-      opdata[0xF9] = new Int32List.fromList([INS_SBC, ADDR_ABSY, 3, 4]);
-      opdata[0xE1] = new Int32List.fromList([INS_SBC, ADDR_PREIDXIND, 2, 6]);
-      opdata[0xF1] = new Int32List.fromList([INS_SBC, ADDR_POSTIDXIND, 2, 5]);
+      opdata[0xE9] = [INS_SBC, ADDR_IMM, 2, 2];
+      opdata[0xE5] = [INS_SBC, ADDR_ZP, 2, 3];
+      opdata[0xF5] = [INS_SBC, ADDR_ZPX, 2, 4];
+      opdata[0xED] = [INS_SBC, ADDR_ABS, 3, 4];
+      opdata[0xFD] = [INS_SBC, ADDR_ABSX, 3, 4];
+      opdata[0xF9] = [INS_SBC, ADDR_ABSY, 3, 4];
+      opdata[0xE1] = [INS_SBC, ADDR_PREIDXIND, 2, 6];
+      opdata[0xF1] = [INS_SBC, ADDR_POSTIDXIND, 2, 5];
       
       // SEC:
-      opdata[0x38] = new Int32List.fromList([INS_SEC, ADDR_IMP, 1, 2]);
+      opdata[0x38] = [INS_SEC, ADDR_IMP, 1, 2];
       
       // SED:
-      opdata[0xF8] = new Int32List.fromList([INS_SED, ADDR_IMP, 1, 2]);
+      opdata[0xF8] = [INS_SED, ADDR_IMP, 1, 2];
       
       // SEI:
-      opdata[0x78] = new Int32List.fromList([INS_SEI, ADDR_IMP, 1, 2]);
+      opdata[0x78] = [INS_SEI, ADDR_IMP, 1, 2];
       
       // STA:
-      opdata[0x85] = new Int32List.fromList([INS_STA, ADDR_ZP, 2, 3]);
-      opdata[0x95] = new Int32List.fromList([INS_STA, ADDR_ZPX, 2, 4]);
-      opdata[0x8D] = new Int32List.fromList([INS_STA, ADDR_ABS, 3, 4]);
-      opdata[0x9D] = new Int32List.fromList([INS_STA, ADDR_ABSX, 3, 5]);
-      opdata[0x99] = new Int32List.fromList([INS_STA, ADDR_ABSY, 3, 5]);
-      opdata[0x81] = new Int32List.fromList([INS_STA, ADDR_PREIDXIND, 2, 6]);
-      opdata[0x91] = new Int32List.fromList([INS_STA, ADDR_POSTIDXIND, 2, 6]);
+      opdata[0x85] = [INS_STA, ADDR_ZP, 2, 3];
+      opdata[0x95] = [INS_STA, ADDR_ZPX, 2, 4];
+      opdata[0x8D] = [INS_STA, ADDR_ABS, 3, 4];
+      opdata[0x9D] = [INS_STA, ADDR_ABSX, 3, 5];
+      opdata[0x99] = [INS_STA, ADDR_ABSY, 3, 5];
+      opdata[0x81] = [INS_STA, ADDR_PREIDXIND, 2, 6];
+      opdata[0x91] = [INS_STA, ADDR_POSTIDXIND, 2, 6];
       
       // STX:
-      opdata[0x86] = new Int32List.fromList([INS_STX, ADDR_ZP, 2, 3]);
-      opdata[0x96] = new Int32List.fromList([INS_STX, ADDR_ZPY, 2, 4]);
-      opdata[0x8E] = new Int32List.fromList([INS_STX, ADDR_ABS, 3, 4]);
+      opdata[0x86] = [INS_STX, ADDR_ZP, 2, 3];
+      opdata[0x96] = [INS_STX, ADDR_ZPY, 2, 4];
+      opdata[0x8E] = [INS_STX, ADDR_ABS, 3, 4];
       
       // STY:
-      opdata[0x84] = new Int32List.fromList([INS_STY, ADDR_ZP, 2, 3]);
-      opdata[0x94] = new Int32List.fromList([INS_STY, ADDR_ZPX, 2, 4]);
-      opdata[0x8C] = new Int32List.fromList([INS_STY, ADDR_ABS, 3, 4]);
+      opdata[0x84] = [INS_STY, ADDR_ZP, 2, 3];
+      opdata[0x94] = [INS_STY, ADDR_ZPX, 2, 4];
+      opdata[0x8C] = [INS_STY, ADDR_ABS, 3, 4];
       
       // TAX:
-      opdata[0xAA] = new Int32List.fromList([INS_TAX, ADDR_IMP, 1, 2]);
+      opdata[0xAA] = [INS_TAX, ADDR_IMP, 1, 2];
       
       // TAY:
-      opdata[0xA8] = new Int32List.fromList([INS_TAY, ADDR_IMP, 1, 2]);
+      opdata[0xA8] = [INS_TAY, ADDR_IMP, 1, 2];
       
       // TSX:
-      opdata[0xBA] = new Int32List.fromList([INS_TSX, ADDR_IMP, 1, 2]);
+      opdata[0xBA] = [INS_TSX, ADDR_IMP, 1, 2];
       
       // TXA:
-      opdata[0x8A] = new Int32List.fromList([INS_TXA, ADDR_IMP, 1, 2]);
+      opdata[0x8A] = [INS_TXA, ADDR_IMP, 1, 2];
       
       // TXS:
-      opdata[0x9A] = new Int32List.fromList([INS_TXS, ADDR_IMP, 1, 2]);
+      opdata[0x9A] = [INS_TXS, ADDR_IMP, 1, 2];
       
       // TYA:
-      opdata[0x98] = new Int32List.fromList([INS_TYA, ADDR_IMP, 1, 2]);
+      opdata[0x98] = [INS_TYA, ADDR_IMP, 1, 2];
       
       return opdata;
   }
