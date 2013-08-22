@@ -27,7 +27,7 @@ class JSNES_CPU {
     static const int IRQ_NMI = 1;
     static const int IRQ_RESET = 2;
     
-    final List<String> JSON_PROPERTIES = [
+    static final List<String> JSON_PROPERTIES = [
         'mem', 'cyclesToHalt', 'irqRequested', 'irqType',
         // Registers
         'REG_ACC', 'REG_X', 'REG_Y', 'REG_SP', 'REG_PC', 'REG_PC_NEW',

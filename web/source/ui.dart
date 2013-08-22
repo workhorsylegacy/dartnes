@@ -23,6 +23,13 @@ import 'dart:html';
 
 import 'nes.dart';
 
+// Returns true if running in JavaScript
+// It works because JS uses doubles for integers
+// Therefore in JS a 1 is the same as 1.0
+bool is_running_in_js() {
+    return identical(1, 1.0);
+}
+
 class JSNES_UI {
   JSNES_NES nes = null;
   Element status = null;
@@ -36,6 +43,14 @@ class JSNES_UI {
   var dynamicaudio = null;
   
   JSNES_UI() {
+                // Tell the user if we are running in Dart or JS
+                Element vm = query('#vm');
+                if(is_running_in_js()) {
+                  vm.innerHtml = "Using JavaScript VM";
+                } else {
+                  vm.innerHtml = "Using Dart VM";
+                }
+    
                 this.status = query('#status');
                 this.parent = query('#emulator');
     

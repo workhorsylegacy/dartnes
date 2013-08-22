@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import 'ui.dart';
 
 
-
-void main() {
+void main() {  
   JSNES_UI jsnes = new JSNES_UI();
 }

@@ -25,7 +25,7 @@ import 'rom.dart';
 import 'cpu.dart';
 
 class JSNES_PPU {
-  List<String> JSON_PROPERTIES = [
+  static final List<String> JSON_PROPERTIES = [
                     // Memory
                     'vramMem', 'spriteMem',
                     // Counters
