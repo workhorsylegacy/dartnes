@@ -164,14 +164,22 @@ class JSNES_UI {
                     HttpRequest request = new HttpRequest();
                     request.overrideMimeType('text/plain; charset=x-user-defined');
                     request.onReadyStateChange.listen((_) {
-                      if (request.readyState == HttpRequest.DONE &&
-                          (request.status == 200 || request.status == 0)) {
+                      // Just return if not done yet
+                      if(request.readyState != HttpRequest.DONE)
+                        return;
+                      
+                      // Load the rom on success
+                      if (request.status == 200) {
                         if(this.nes.loadRom(request.responseText)){
                             this.nes.start();
                             this.enable();
                         }
+                      // Show a message on failure
+                      } else {
+                        updateStatus("Download of ROM failed. Make sure file exists and is a valid rom: \"" + url + "\".");
                       }
                     });
+                    
                     request.open('GET', url);
                     request.send();
                 }
