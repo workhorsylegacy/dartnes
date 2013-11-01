@@ -906,7 +906,7 @@ class JSNES_PAPU {
         }
     
         this.dacRange = max_sqr+max_tnd;
-        this.dcValue = (this.dacRange/2).toInt();
+        this.dcValue = this.dacRange ~/ 2;
 
     }
 }
