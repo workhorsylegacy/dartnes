@@ -44,15 +44,15 @@ class JSNES_UI {
   
   JSNES_UI() {
                 // Tell the user if we are running in Dart or JS
-                Element vm = query('#vm');
+                Element vm = querySelector('#vm');
                 if(is_running_in_js()) {
                   vm.innerHtml = "Using JavaScript VM";
                 } else {
                   vm.innerHtml = "Using Dart VM";
                 }
     
-                this.status = query('#status');
-                this.parent = query('#emulator');
+                this.status = querySelector('#status');
+                this.parent = querySelector('#emulator');
     
                 void status_cb(String m) => updateStatus(m);
                 void frame_cb(List<int> bytes) => writeFrame(bytes);
@@ -62,7 +62,7 @@ class JSNES_UI {
                 /*
                  * Screen
                  */
-                this.screen = query('#screen');
+                this.screen = querySelector('#screen');
 /*                
                 if(this.screen.context2D == null) {
                     this.parent.innerHtml = "Your browser doesn't support the <code>&lt;canvas&gt;</code> tag. Try Google Chrome, Safari, Opera or Firefox!";
@@ -85,7 +85,7 @@ class JSNES_UI {
                 /*
                  * ROM loading
                  */
-                this.romSelect = query('#romSelect');
+                this.romSelect = querySelector('#romSelect');
                 this.romSelect.onChange.listen((event) {
                     this.loadROM();
                 });
@@ -94,10 +94,10 @@ class JSNES_UI {
                  * Buttons
                  */
                 this.buttons = {
-                    'pause': query('#pause'),
-                    'restart': query('#restart'),
-                    'sound': query('#sound'),
-                    'zoom': query('#zoom')
+                    'pause': querySelector('#pause'),
+                    'restart': querySelector('#restart'),
+                    'sound': querySelector('#sound'),
+                    'zoom': querySelector('#zoom')
                 };
 
                 this.buttons['pause'].onClick.listen((event) {
