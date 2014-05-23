@@ -225,7 +225,7 @@ class JSNES_ROM {
         }
         else {
             this.nes.status_cb("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType.toString()+")");
-            return null;
         }
+        return null;
     }
 }
