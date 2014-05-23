@@ -1,5 +1,5 @@
 name: dartnes
-author: Matthew Brennan Jones <mattjones@workhorsy.org>
+author: Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
 description: A NES emulator written in Dart.
 dependencies:
   browser: any

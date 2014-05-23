@@ -1,5 +1,5 @@
 /*
-DartNES Copyright (c) 2013 Matthew Brennan Jones <mattjones@workhorsy.org>
+DartNES Copyright (c) 2013 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
 JSNes Copyright (C) 2010 Ben Firshman
 vNES Copyright (C) 2006-2011 Jamie Sanders
 
