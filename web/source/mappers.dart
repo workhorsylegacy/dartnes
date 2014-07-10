@@ -585,8 +585,8 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
   // Register 0:
   int mirroring = 0;
   int oneScreenMirroring = 0;
-  int prgSwitchingArea = 0;
-  int prgSwitchingSize = 0;
+  int prgSwitchingArea = 1;
+  int prgSwitchingSize = 1;
   int vromSwitchingSize = 0;
 
   // Register 1:
@@ -600,13 +600,13 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
   
   JSNES_Mapper_1(JSNES_NES nes) : super(nes){
     assert(nes is JSNES_NES);
-  }
-
-  void reset() {
+    
     // 5-bit buffer:
     this.regBuffer = 0;
     this.regBufferCounter = 0;
+  }
 
+  void reset() {
     // Register 0:
     this.mirroring = 0;
     this.oneScreenMirroring = 0;
@@ -673,8 +673,7 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
     
     int tmp = 0;
 
-    switch (reg) {
-        case 0:
+    if (reg == 0) {
             // Mirroring:
             tmp = value & 3;
             if (tmp != this.mirroring) {
@@ -684,15 +683,9 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                     // SingleScreen mirroring overrides the other setting:
                     this.nes.ppu.setMirroring(
                         JSNES_ROM.SINGLESCREEN_MIRRORING);
-                }
                 // Not overridden by SingleScreen mirroring.
-                else if ((this.mirroring & 1) != 0) {
-                    this.nes.ppu.setMirroring(
-                        JSNES_ROM.HORIZONTAL_MIRRORING
-                    );
-                }
-                else {
-                    this.nes.ppu.setMirroring(JSNES_ROM.VERTICAL_MIRRORING);
+                } else {
+                    this.nes.ppu.setMirroring((this.mirroring & 1) != 0 ? JSNES_ROM.HORIZONTAL_MIRRORING : JSNES_ROM.VERTICAL_MIRRORING);
                 }
             }
     
@@ -704,10 +697,8 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
     
             // VROM Switching Size:
             this.vromSwitchingSize = (value >> 4) & 1;
-        
-            break;
     
-        case 1:
+    } else if(reg == 1) {
             // ROM selection:
             this.romSelectionReg0 = (value >> 4) & 1;
     
@@ -723,8 +714,7 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                     }
                     else {
                         this.load8kVromBank(
-                            (this.nes.rom.vromCount / 2).floor() +
-                                (value & 0xF), 
+                            (this.nes.rom.vromCount / 2 + (value & 0xF)).toInt(), 
                             0x0000
                         );
                     }
@@ -735,19 +725,16 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                     if (this.romSelectionReg0 == 0) {
                         this.loadVromBank((value & 0xF), 0x0000);
                     }
-                    else {
+                    else {  
                         this.loadVromBank(
-                            (this.nes.rom.vromCount / 2).floor() +
-                                (value & 0xF),
+                            (this.nes.rom.vromCount / 2 + (value & 0xF)).toInt(),
                             0x0000
                         );
                     }
                 }
             }
-        
-            break;
     
-        case 2:
+    } else if(reg == 2) {
             // ROM selection:
             this.romSelectionReg1 = (value >> 4) & 1;
     
@@ -762,23 +749,22 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                     }
                     else {
                         this.loadVromBank(
-                            (this.nes.rom.vromCount / 2).floor() +
-                                (value & 0xF),
+                            (this.nes.rom.vromCount / 2 + (value & 0xF)).toInt(),
                             0x1000
                         );
                     }
                 }
             }
-            break;
     
-        default:
+    } else {
             // Select ROM bank:
             // -------------------------
             tmp = value & 0xF;
             int bank;
             int baseBank = 0;
+            int bankCount = this.nes.rom.romCount; 
     
-            if (this.nes.rom.romCount >= 32) {
+            if (bankCount >= 32) {
                 // 1024 kB cart
                 if (this.vromSwitchingSize == 0) {
                     if (this.romSelectionReg0 == 1) {
@@ -790,7 +776,7 @@ class JSNES_Mapper_1 extends JSNES_MapperDefault {
                                 | (this.romSelectionReg1 << 1)) << 3;
                 }
             }
-            else if (this.nes.rom.romCount >= 16) {
+            else if (bankCount >= 16) {
                 // 512 kB cart
                 if (this.romSelectionReg0 == 1) {
                     baseBank = 8;
