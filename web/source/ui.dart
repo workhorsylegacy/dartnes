@@ -1,5 +1,5 @@
 /*
-DartNES Copyright (c) 2013 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
+DartNES Copyright (c) 2014 Matthew Brennan Jones <matthew.brennan.jones@gmail.com>
 JSNes Copyright (C) 2010 Ben Firshman
 vNES Copyright (C) 2006-2011 Jamie Sanders
 
@@ -39,7 +39,8 @@ class JSNES_UI {
   ImageData canvasImageData = null;
   SelectElement romSelect = null;
   Map<String, ButtonElement> buttons = null;
-  bool zoomed = false;
+  int zoom = 1;
+  static const int MAX_ZOOM = 6;
   var dynamicaudio = null;
   
   JSNES_UI() {
@@ -63,6 +64,7 @@ class JSNES_UI {
                  * Screen
                  */
                 this.screen = querySelector('#screen');
+                //this.screen.context2D.imageSmoothingEnabled = false;
 /*                
                 if(this.screen.context2D == null) {
                     this.parent.innerHtml = "Your browser doesn't support the <code>&lt;canvas&gt;</code> tag. Try Google Chrome, Safari, Opera or Firefox!";
@@ -96,8 +98,7 @@ class JSNES_UI {
                 this.buttons = {
                     'pause': querySelector('#pause'),
                     'restart': querySelector('#restart'),
-                    'sound': querySelector('#sound'),
-                    'zoom': querySelector('#zoom')
+                    'sound': querySelector('#sound')
                 };
 
                 this.buttons['pause'].onClick.listen((event) {
@@ -127,21 +128,22 @@ class JSNES_UI {
                         this.buttons['sound'].text = "disable sound";
                     }
                 });
-        
-                this.zoomed = false;
-                this.buttons['zoom'].onClick.listen((event) {
-                    if (this.zoomed) {
-                      this.screen.width = 256;
-                      this.screen.height = 240;
-                        this.buttons['zoom'].text = "zoom in";
-                        this.zoomed = false;
+
+                window.onResize.listen((evt) {
+                    // Get the page width and height
+                    int width = window.innerWidth;
+                    int height = window.innerHeight;
+                    
+                    // Get the largest zoom we can fit
+                    for(int i=1; i<=MAX_ZOOM; ++i) {
+                        if(256 * i <= width && 240 * i <= height) {
+                            this.zoom = i;
+                        }
                     }
-                    else {
-                      this.screen.width = 256 * 2;
-                      this.screen.height = 240 * 2;
-                        this.buttons['zoom'].text = "zoom out";
-                        this.zoomed = true;
-                    }
+
+                    // Make the screen zoom
+                    this.screen.style.width = (256 * this.zoom).toString() + "px";
+                    this.screen.style.height = (240 * this.zoom).toString() + "px";
                 });
             
                 /*
@@ -220,14 +222,14 @@ class JSNES_UI {
                 }
                 
                 void writeAudio(List<int> samples) {
-                  return this.dynamicaudio.writeInt(samples);
+                    this.dynamicaudio.writeInt(samples);
                 }
             
                 void writeFrame(List<int> buffer) {
                     List<int> imageData = this.canvasImageData.data;
                     int pixel, i, j;
 
-                    for (i=0; i<256*240; i++) {
+                    for (i=0; i<256*240; ++i) {
                         pixel = buffer[i];
 
                         j = i*4;

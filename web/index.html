@@ -3,34 +3,35 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>DartNES: A Dart NES emulator</title>
+    <link type="text/css" href="dartnes.css" media="screen" rel="Stylesheet" />
 </head>
 
 <body>
+  <div id="emulator">
+      <canvas id="screen" class="nes-screen" width="256" height="240"></canvas>
+      <div class="nes-controls">
+        <input type="button" id="pause" value="pause" class="nes-pause" disabled="disabled">
+        <input type="button" id="restart" value="restart" class="nes-restart" disabled="disabled">
+        <input type="button" id="sound" value="enable sound" class="nes-enablesound" disabled="disabled">
+      </div> 
+      <div class="nes-roms">
+        <select id="romSelect">
+          <option>Select a ROM...</option>
+          <option value="local-roms/Contra.nes">Contra</option>
+          <!--<option value="local-roms/Megaman2.nes">Mega Man 2</option>-->
+          <option value="local-roms/NinjaGaiden.nes">Ninja Gaiden</option>
+          <option value="local-roms/SuperMarioBros.nes">Super Mario Bros.</option>
+        </select>
+      </div>
+      <p id="status" class="nes-status">Booting up...</p>
+      <p id="vm">Waiting for info on VM.</p>
+    </div>
+
     <h1>
     <span style="font-size: 130%">DartNES</span>
     is a <a href="http://dartlang.org">Dart</a> port of <a href="http://workhorsy.org/jsnes">JSNES</a>
     </h1>
 
-  <div id="emulator">
-      <canvas id="screen" class="nes-screen" width="256" height="240"></canvas>
-      <div class="nes-roms">
-        <select id="romSelect">
-          <option>Select a ROM...</option>
-          <option value="local-roms/Super Mario Bros. (JU) (PRG0) [!].nes">Super Mario Bros.</option>
-          <option value="local-roms/Contra (U) [!].nes">Contra</option>
-          <!--<option value="local-roms/mega_man_2.nes">Mega Man 2</option>-->
-        </select>
-      </div>
-      <div class="nes-controls">
-        <input type="button" id="pause" value="pause" class="nes-pause" disabled="disabled">
-        <input type="button" id="restart" value="restart" class="nes-restart" disabled="disabled">
-        <input type="button" id="sound" value="enable sound" class="nes-enablesound" disabled="disabled">
-        <input type="button" id="zoom" value="zoom in" class="nes-zoom" disabled="disabled">
-      </div>
-      <p id="status" class="nes-status">Booting up...</p>
-      <p id="vm">Waiting for info on VM.</p>
-    </div>
-    
     <h2>Controls</h2>
     <table id="controls">
         <tr>

@@ -12,16 +12,17 @@ h1, p {
   color: #333;
 }
 
-#sample_container_id {
-  width: 100%;
-  height: 400px;
-  position: relative;
-  border: 1px solid #ccc;
-  background-color: #fff;
-}
+#screen {
+  width: 256px;
+  height: 240px;
 
-#sample_text_id {
-  font-size: 24pt;
-  text-align: center;
-  margin-top: 140px;
+  background-color: black;
+
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+
+  image-rendering: optimize-contrast;
+  image-rendering: -webkit-optimize-contrast;
+  
+  -ms-interpolation-mode: nearest-neighbor;
 }
