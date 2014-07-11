@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 library dartnes_ui;
 import 'dart:html';
+import 'dart:convert';
 //import 'dart:web_audio';
 
 import 'nes.dart';
@@ -158,11 +159,45 @@ class JSNES_UI {
                 document.onKeyPress.listen((evt) {
                   this.nes.keyboard.keyPress(evt);
                 });
+                
+                loadGameDatabse();
             }
 
+            void loadGameDatabse() {
+              this.updateStatus("Downloading Game Database ...");
+              String url = Uri.encodeComponent("game_database.json");
+              HttpRequest request = new HttpRequest();
+              request.overrideMimeType('text/plain; charset=x-user-defined');
+              request.onReadyStateChange.listen((_) {
+                // Just return if not done yet
+                if(request.readyState != HttpRequest.DONE)
+                  return;
+                
+                // Load the rom on success
+                if (request.status == 200) {
+                  Map<String, Map<String, Object>> db = JSON.decode(request.responseText);
+                  db.forEach((name, values) {
+                      String file_name = values['file_name'];
+                      bool is_broken = values['is_broken'];
+                      if(file_name != null && !is_broken) {
+                          OptionElement opt = new OptionElement(data: name, value: file_name, selected: false);
+                          this.romSelect.children.add(opt);
+                      }
+                  });
+                  this.updateStatus("Ready to load a ROM.");
+                // Show a message on failure
+                } else {
+                  this.updateStatus("Download of Game Database failed. Make sure file exists: \"" + url + "\".");
+                }
+              });
+              
+              request.open('GET', url);
+              request.send();
+            }
+  
                 void loadROM() {
-                    this.updateStatus("Downloading...");
-                    String url = this.romSelect.value;
+                    this.updateStatus("Downloading ...");
+                    String url = "local-roms/" + Uri.encodeComponent(this.romSelect.value);
                     HttpRequest request = new HttpRequest();
                     request.overrideMimeType('text/plain; charset=x-user-defined');
                     request.onReadyStateChange.listen((_) {
@@ -178,7 +213,7 @@ class JSNES_UI {
                         }
                       // Show a message on failure
                       } else {
-                        updateStatus("Download of ROM failed. Make sure file exists and is a valid rom: \"" + url + "\".");
+                        this.updateStatus("Download of ROM failed. Make sure file exists and is a valid rom: \"" + url + "\".");
                       }
                     });
                     

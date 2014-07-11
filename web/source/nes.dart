@@ -79,8 +79,6 @@ class JSNES_NES {
       this.papu = new JSNES_PAPU(this);
       this.mmap = null; // set in loadRom()
       this.keyboard = new JSNES_Keyboard();
-      
-      this.status_cb("Ready to load a ROM.");
     }
 
     // Resets the system
