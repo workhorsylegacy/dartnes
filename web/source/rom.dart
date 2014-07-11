@@ -23,7 +23,7 @@ import 'mappers.dart';
 import 'nes.dart';
 import 'ppu.dart';
 
-class JSNES_ROM {
+class ROM {
   // Mirroring types:
   static const int VERTICAL_MIRRORING = 0;
   static const int HORIZONTAL_MIRRORING = 1;
@@ -34,13 +34,13 @@ class JSNES_ROM {
   static const int SINGLESCREEN_MIRRORING4 = 6;
   static const int CHRROM_MIRRORING = 7;
   
-  JSNES_NES nes = null;
+  NES nes = null;
   List<String> mapperName = null;
   List<int> header = null;
   List<List<int>> rom = null;
   List<List<int>> vrom = null;
   List<int> saveRam = null;
-  List<List<JSNES_PPU_Tile>> vromTile = null;
+  List<List<PPU_Tile>> vromTile = null;
   
   int romCount = 0;
   int vromCount = 0;
@@ -51,7 +51,7 @@ class JSNES_ROM {
   int mapperType = 0;
   bool valid = false;
   
-  JSNES_ROM(JSNES_NES nes) {
+  ROM(NES nes) {
     this.nes = nes;
     
     this.mapperName = new List<String>(92);
@@ -159,11 +159,11 @@ class JSNES_ROM {
         }
         
         // Create VROM tiles:
-        this.vromTile = new List<List<JSNES_PPU_Tile>>(this.vromCount);
+        this.vromTile = new List<List<PPU_Tile>>(this.vromCount);
         for (i=0; i < this.vromCount; i++) {
-            this.vromTile[i] = new List<JSNES_PPU_Tile>(256);
+            this.vromTile[i] = new List<PPU_Tile>(256);
             for (j=0; j < 256; j++) {
-                this.vromTile[i][j] = new JSNES_PPU_Tile();
+                this.vromTile[i][j] = new PPU_Tile();
             }
         }
         
@@ -196,12 +196,12 @@ class JSNES_ROM {
     
     int getMirroringType() {
         if (this.fourScreen) {
-            return JSNES_ROM.FOURSCREEN_MIRRORING;
+            return ROM.FOURSCREEN_MIRRORING;
         }
         if (this.mirroring == 0) {
-            return JSNES_ROM.HORIZONTAL_MIRRORING;
+            return ROM.HORIZONTAL_MIRRORING;
         }
-        return JSNES_ROM.VERTICAL_MIRRORING;
+        return ROM.VERTICAL_MIRRORING;
     }
     
     String getMapperName() {
@@ -215,16 +215,16 @@ class JSNES_ROM {
       return [0, 1, 2].contains(this.mapperType);
     }
 
-    JSNES_MapperDefault createMapper() {
+    MapperDefault createMapper() {
         if (this.mapperSupported()) {
             switch(this.mapperType) {
-              case 0: return new JSNES_MapperDefault(this.nes);
-              case 1: return new JSNES_Mapper_1(this.nes);
-              case 2: return new JSNES_Mapper_2(this.nes);
+              case 0: return new MapperDefault(this.nes);
+              case 1: return new Mapper_1(this.nes);
+              case 2: return new Mapper_2(this.nes);
             }
         }
         else {
-            this.nes.status_cb("This ROM uses a mapper not supported by JSNES: "+this.getMapperName()+"("+this.mapperType.toString()+")");
+            this.nes.status_cb("This ROM uses the mapper \"" + this.getMapperName() + "(" + this.mapperType.toString() + ")\" which is not supported.");
         }
         return null;
     }

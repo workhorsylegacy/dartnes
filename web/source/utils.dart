@@ -21,7 +21,7 @@ library dartnes_utils;
 
 import 'ppu.dart';
 
-class JSNES_Utils {    
+class Utils {    
     static void copyArrayElements(List<int> src, int srcPos, List<int> dest, int destPos, int length) {
         assert(src is List<int>);
         assert(srcPos is int);
@@ -34,10 +34,10 @@ class JSNES_Utils {
         }
     }
     
-    static void copyTileElements(List<JSNES_PPU_Tile> src, int srcPos, List<JSNES_PPU_Tile> dest, int destPos, int length) {
-      assert(src is List<JSNES_PPU_Tile>);
+    static void copyTileElements(List<PPU_Tile> src, int srcPos, List<PPU_Tile> dest, int destPos, int length) {
+      assert(src is List<PPU_Tile>);
       assert(srcPos is int);
-      assert(dest is List<JSNES_PPU_Tile>);
+      assert(dest is List<PPU_Tile>);
       assert(destPos is int);
       assert(length is int);
       

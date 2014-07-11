@@ -29,16 +29,16 @@ import 'keyboard.dart';
 import 'rom.dart';
 
 
-class JSNES_NES {    
+class NES {    
     Map opts = null;
     double frameTime = 0.0;
     String crashMessage = null;
     
-    JSNES_CPU cpu = null;
-    JSNES_PPU ppu = null;
-    JSNES_PAPU papu = null;
-    JSNES_MapperDefault mmap = null;
-    JSNES_Keyboard keyboard = null;
+    CPU cpu = null;
+    PPU ppu = null;
+    PAPU papu = null;
+    MapperDefault mmap = null;
+    Keyboard keyboard = null;
     
     var status_cb = null;
     var frame_cb = null;
@@ -49,11 +49,11 @@ class JSNES_NES {
     int lastFrameTime = 0;
     int lastFpsTime = 0;
     String romData = null;
-    JSNES_ROM rom = null;
+    ROM rom = null;
     Timer frameInterval = null;
     Timer fpsInterval = null;
     
-    JSNES_NES(void status_cb(String m), void frame_cb(List<int> bytes), void audio_cb(List<int> samples)) {
+    NES(void status_cb(String m), void frame_cb(List<int> bytes), void audio_cb(List<int> samples)) {
       this.status_cb = status_cb;
       this.frame_cb = frame_cb;
       this.audio_cb = audio_cb;
@@ -74,11 +74,11 @@ class JSNES_NES {
       
       this.frameTime = 1000 / this.opts['preferredFrameRate'];
       
-      this.cpu = new JSNES_CPU(this);
-      this.ppu = new JSNES_PPU(this);
-      this.papu = new JSNES_PAPU(this);
+      this.cpu = new CPU(this);
+      this.ppu = new PPU(this);
+      this.papu = new PAPU(this);
       this.mmap = null; // set in loadRom()
-      this.keyboard = new JSNES_Keyboard();
+      this.keyboard = new Keyboard();
     }
 
     // Resets the system
@@ -118,9 +118,9 @@ class JSNES_NES {
         this.ppu.startFrame();
         int cycles = 0;
         bool emulateSound = this.opts['emulateSound'];
-        JSNES_CPU cpu = this.cpu;
-        JSNES_PPU ppu = this.ppu;
-        JSNES_PAPU papu = this.papu;
+        CPU cpu = this.cpu;
+        PPU ppu = this.ppu;
+        PAPU papu = this.papu;
         FRAMELOOP: for (;;) {
             if (cpu.cyclesToHalt == 0) {
                 // Execute a CPU instruction
@@ -152,7 +152,7 @@ class JSNES_NES {
                         ppu.f_spVisibility == 1 &&
                         ppu.scanline - 21 == ppu.spr0HitY) {
                     // Set sprite 0 hit flag:
-                    ppu.setStatusFlag(JSNES_PPU.STATUS_SPRITE0HIT, true);
+                    ppu.setStatusFlag(PPU.STATUS_SPRITE0HIT, true);
                 }
 
                 if (ppu.requestEndFrame) {
@@ -212,7 +212,7 @@ class JSNES_NES {
         this.status_cb("Loading ROM...");
         
         // Load ROM file:
-        this.rom = new JSNES_ROM(this);
+        this.rom = new ROM(this);
         this.rom.load(data);
         
         if (this.rom.valid) {

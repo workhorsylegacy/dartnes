@@ -31,8 +31,8 @@ bool isRunningInJavaScript() {
     return identical(1, 1.0);
 }
 
-class JSNES_UI {
-  JSNES_NES nes = null;
+class DartNesUI {
+  NES nes = null;
   Element status = null;
   Element parent = null;
   CanvasElement screen = null;
@@ -46,7 +46,7 @@ class JSNES_UI {
   static const int MAX_ZOOM = 6;
   var dynamicaudio = null;
   
-  JSNES_UI() {
+  DartNesUI() {
                 // Tell the user if we are running in Dart or JS
                 Element vm = querySelector('#vm');
                 if(isRunningInJavaScript()) {
@@ -59,7 +59,7 @@ class JSNES_UI {
                 this.parent = querySelector('#emulator');
     
 
-                this.nes = new JSNES_NES(updateStatus, writeFrame, writeAudio);
+                this.nes = new NES(updateStatus, writeFrame, writeAudio);
                 
                 /*
                  * Screen

@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 library dartnes_keyboard;
 
 // Keyboard events are bound in the UI
-class JSNES_Keyboard {
+class Keyboard {
     Map<String, int> keys = null;
     List<int> state1 = null;
     List<int> state2 = null;
     
-    JSNES_Keyboard() {
+    Keyboard() {
         this.keys = {
         'KEY_A': 0,
         'KEY_B': 1,

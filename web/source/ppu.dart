@@ -24,7 +24,7 @@ import 'nes.dart';
 import 'rom.dart';
 import 'cpu.dart';
 
-class JSNES_PPU {
+class PPU {
   static final List<String> JSON_PROPERTIES = [
                     // Memory
                     'vramMem', 'spriteMem',
@@ -63,7 +63,7 @@ class JSNES_PPU {
   static const int STATUS_SPRITE0HIT = 6;
   static const int STATUS_VBLANK = 7;
   
-  JSNES_NES nes = null;
+  NES nes = null;
   List<int> vramMem = null;
   List<int> spriteMem = null;
   int vramAddress = 0;
@@ -108,7 +108,7 @@ class JSNES_PPU {
   List<int> bgbuffer = null;
   List<int> pixrendered = null;
   
-  List<JSNES_PPU_Tile> scantile = null;
+  List<PPU_Tile> scantile = null;
   int scanline = 0;
   int lastRenderedScanline = 0;
   int curX = 0;
@@ -124,11 +124,11 @@ class JSNES_PPU {
   bool hitSpr0 = false;
   List<int> sprPalette = null;
   List<int> imgPalette = null;
-  List<JSNES_PPU_Tile> ptTile = null;
+  List<PPU_Tile> ptTile = null;
   List<int> ntable1 = null;
-  List<JSNES_PPU_NameTable> nameTable = null;
+  List<PPU_NameTable> nameTable = null;
   List<int> vramMirrorTable = null;
-  JSNES_PPU_PaletteTable palTable = null;
+  PPU_PaletteTable palTable = null;
   
   bool showSpr0Hit = false;
   bool clipToTvSize = false;
@@ -136,8 +136,8 @@ class JSNES_PPU {
   int srcy1 = 0;
   int srcy2 = 0;
   
-  JSNES_PPU(JSNES_NES nes) {
-    assert(nes is JSNES_NES);
+  PPU(NES nes) {
+    assert(nes is NES);
     
     this.nes = nes;
         
@@ -217,7 +217,7 @@ class JSNES_PPU {
 
         this.validTileData = false;
 
-        this.scantile = new List<JSNES_PPU_Tile>(32);
+        this.scantile = new List<PPU_Tile>(32);
         
         // Initialize misc vars:
         this.scanline = 0;
@@ -241,18 +241,18 @@ class JSNES_PPU {
         this.imgPalette = new List<int>.filled(16, 0);
         
         // Create pattern table tile buffers:
-        this.ptTile = new List<JSNES_PPU_Tile>(512);
+        this.ptTile = new List<PPU_Tile>(512);
         for (i=0; i<512; i++) {
-            this.ptTile[i] = new JSNES_PPU_Tile();
+            this.ptTile[i] = new PPU_Tile();
         }
         
         // Create nametable buffers:
         // Name table data:
         this.ntable1 = new List<int>.filled(4, 0);
         this.currentMirroring = -1;
-        this.nameTable = new List<JSNES_PPU_NameTable>(4);
+        this.nameTable = new List<PPU_NameTable>(4);
         for (i=0; i<4; i++) {
-            this.nameTable[i] = new JSNES_PPU_NameTable(32, 32, "Nt"+i.toString());
+            this.nameTable[i] = new PPU_NameTable(32, 32, "Nt"+i.toString());
         }
         
         // Initialize mirroring lookup table:
@@ -261,7 +261,7 @@ class JSNES_PPU {
             this.vramMirrorTable[i] = i;
         }
         
-        this.palTable = new JSNES_PPU_PaletteTable();
+        this.palTable = new PPU_PaletteTable();
         this.palTable.loadNTSCPalette();
         //this.palTable.loadDefaultPalette();
         
@@ -298,7 +298,7 @@ class JSNES_PPU {
         this.defineMirrorRegion(0x3000,0x2000,0xf00);
         this.defineMirrorRegion(0x4000,0x0000,0x4000);
     
-        if (mirroring == JSNES_ROM.HORIZONTAL_MIRRORING) {
+        if (mirroring == ROM.HORIZONTAL_MIRRORING) {
             // Horizontal mirroring.
             
             this.ntable1[0] = 0;
@@ -309,7 +309,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2400,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2800,0x400);
             
-        }else if (mirroring == JSNES_ROM.VERTICAL_MIRRORING) {
+        }else if (mirroring == ROM.VERTICAL_MIRRORING) {
             // Vertical mirroring.
             
             this.ntable1[0] = 0;
@@ -320,7 +320,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2800,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2400,0x400);
             
-        }else if (mirroring == JSNES_ROM.SINGLESCREEN_MIRRORING) {
+        }else if (mirroring == ROM.SINGLESCREEN_MIRRORING) {
             
             // Single Screen mirroring
             
@@ -333,7 +333,7 @@ class JSNES_PPU {
             this.defineMirrorRegion(0x2800,0x2000,0x400);
             this.defineMirrorRegion(0x2c00,0x2000,0x400);
             
-        }else if (mirroring == JSNES_ROM.SINGLESCREEN_MIRRORING2) {
+        }else if (mirroring == ROM.SINGLESCREEN_MIRRORING2) {
             
             
             this.ntable1[0] = 1;
@@ -375,7 +375,7 @@ class JSNES_PPU {
     void startVBlank(){
         
         // Do NMI:
-        this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NMI);
+        this.nes.cpu.requestIrq(CPU.IRQ_NMI);
         
         // Make sure everything is rendered:
         if (this.lastRenderedScanline < 239) {
@@ -408,10 +408,10 @@ class JSNES_PPU {
                 
             case 20:
                 // Clear VBlank flag:
-                this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,false);
+                this.setStatusFlag(PPU.STATUS_VBLANK,false);
 
                 // Clear Sprite #0 hit flag:
-                this.setStatusFlag(JSNES_PPU.STATUS_SPRITE0HIT,false);
+                this.setStatusFlag(PPU.STATUS_SPRITE0HIT,false);
                 this.hitSpr0 = false;
                 this.spr0HitX = -1;
                 this.spr0HitY = -1;
@@ -448,7 +448,7 @@ class JSNES_PPU {
             case 261:
                 // Dead scanline, no rendering.
                 // Set VINT:
-                this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,true);
+                this.setStatusFlag(PPU.STATUS_VBLANK,true);
                 this.requestEndFrame = true;
                 this.nmiCounter = 9;
             
@@ -670,7 +670,7 @@ class JSNES_PPU {
         this.firstWrite = true;
         
         // Clear VBlank flag:
-        this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,false);
+        this.setStatusFlag(PPU.STATUS_VBLANK,false);
         
         // Fetch status data:
         return tmp;
@@ -1055,15 +1055,15 @@ class JSNES_PPU {
         if (scan<240 && (scan-this.cntFV)>=0){
             
             int tscanoffset = this.cntFV<<3;
-            List<JSNES_PPU_Tile> scantile = this.scantile;
+            List<PPU_Tile> scantile = this.scantile;
             List<int> attrib = this.attrib;
-            List<JSNES_PPU_Tile> ptTile = this.ptTile;
-            List<JSNES_PPU_NameTable> nameTable = this.nameTable;
+            List<PPU_Tile> ptTile = this.ptTile;
+            List<PPU_NameTable> nameTable = this.nameTable;
             List<int> imgPalette = this.imgPalette;
             List<int> pixrendered = this.pixrendered;
             List<int> targetBuffer = is_bgbuffer ? this.bgbuffer : this.buffer;
 
-            JSNES_PPU_Tile t;
+            PPU_Tile t;
             List<int> tpix;
             int att, col;
 
@@ -1267,7 +1267,7 @@ class JSNES_PPU {
         int toffset;
         int tIndexAdd = (this.f_spPatternTable == 0?0:256);
         int x, y, i;
-        JSNES_PPU_Tile t;
+        PPU_Tile t;
         int bufferIndex;
         int col;
         bool bgPri;
@@ -1564,14 +1564,14 @@ class JSNES_PPU {
     
     void doNMI() {
         // Set VBlank flag:
-        this.setStatusFlag(JSNES_PPU.STATUS_VBLANK,true);
+        this.setStatusFlag(PPU.STATUS_VBLANK,true);
         //nes.getCpu().doNonMaskableInterrupt();
-        this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NMI);
+        this.nes.cpu.requestIrq(CPU.IRQ_NMI);
     }
 /*
     void toJSON() {
         int i;
-        String state = JSNES.Utils.toJSON(this);
+        String state = Utils.toJSON(this);
         
         state.nameTable = [];
         for (i = 0; i < this.nameTable.length; i++) {
@@ -1589,7 +1589,7 @@ class JSNES_PPU {
     void fromJSON(state) {
         int i;
         
-        JSNES.Utils.fromJSON(this, state);
+        Utils.fromJSON(this, state);
         
         for (i = 0; i < this.nameTable.length; i++) {
             this.nameTable[i].fromJSON(state.nameTable[i]);
@@ -1607,7 +1607,7 @@ class JSNES_PPU {
 */
 }
 
-class JSNES_PPU_NameTable {
+class PPU_NameTable {
   int width = 0;
   int height = 0;
   String name = null;
@@ -1615,7 +1615,7 @@ class JSNES_PPU_NameTable {
   List<int> tile = null;
   List<int> attrib = null;
   
-  JSNES_PPU_NameTable(int width, int height, String name) {
+  PPU_NameTable(int width, int height, String name) {
     assert(width is int);
     assert(height is int);
     assert(name is String);
@@ -1680,12 +1680,12 @@ class JSNES_PPU_NameTable {
 }
 
 
-class JSNES_PPU_PaletteTable {
+class PPU_PaletteTable {
   List<int> curTable = null;
   List<List<int>> emphTable = null;
   int currentEmph = 0;
   
-  JSNES_PPU_PaletteTable() {
+  PPU_PaletteTable() {
     this.curTable = new List<int>.filled(64, 0);
     this.emphTable = new List<List<int>>(8);
     this.currentEmph = -1;
@@ -1859,7 +1859,7 @@ class JSNES_PPU_PaletteTable {
     }
 }
 
-class JSNES_PPU_Tile {
+class PPU_Tile {
   List<int> pix = null;
   
   int fbIndex = 0;
@@ -1876,7 +1876,7 @@ class JSNES_PPU_Tile {
   bool initialized = false;
   List<bool> opaque = null;
   
-  JSNES_PPU_Tile() {
+  PPU_Tile() {
     // Tile data:
     this.pix = new List<int>.filled(64, 0);
     

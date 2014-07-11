@@ -21,5 +21,5 @@ import 'ui.dart';
 
 
 void main() {
-  JSNES_UI jsnes = new JSNES_UI();
+  DartNesUI dartNesUI = new DartNesUI();
 }

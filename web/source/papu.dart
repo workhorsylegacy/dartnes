@@ -22,14 +22,14 @@ library dartnes_papu;
 import 'nes.dart';
 import 'cpu.dart';
 
-class JSNES_PAPU {
-  JSNES_NES nes = null;
+class PAPU {
+  NES nes = null;
   
-  JSNES_PAPU_ChannelSquare square1 = null;
-  JSNES_PAPU_ChannelSquare square2 = null;
-  JSNES_PAPU_ChannelTriangle triangle = null;
-  JSNES_PAPU_ChannelNoise noise = null;
-  JSNES_PAPU_ChannelDM dmc = null;
+  PAPU_ChannelSquare square1 = null;
+  PAPU_ChannelSquare square2 = null;
+  PAPU_ChannelTriangle triangle = null;
+  PAPU_ChannelNoise noise = null;
+  PAPU_ChannelDM dmc = null;
   
   int frameIrqCounter = 0;
   int frameIrqCounterMax = 0;
@@ -101,16 +101,16 @@ class JSNES_PAPU {
   
   List<int> panning = null;
   
-  JSNES_PAPU(JSNES_NES nes) {
-    assert(nes is JSNES_NES);
+  PAPU(NES nes) {
+    assert(nes is NES);
     
     this.nes = nes;
     
-    this.square1 = new JSNES_PAPU_ChannelSquare(this, true);
-    this.square2 = new JSNES_PAPU_ChannelSquare(this, false);
-    this.triangle = new JSNES_PAPU_ChannelTriangle(this);
-    this.noise = new JSNES_PAPU_ChannelNoise(this);
-    this.dmc = new JSNES_PAPU_ChannelDM(this);
+    this.square1 = new PAPU_ChannelSquare(this, true);
+    this.square2 = new PAPU_ChannelSquare(this, false);
+    this.triangle = new PAPU_ChannelTriangle(this);
+    this.noise = new PAPU_ChannelNoise(this);
+    this.dmc = new PAPU_ChannelDM(this);
 
     this.frameIrqCounter = null;
     this.frameIrqCounterMax = 4;
@@ -405,11 +405,11 @@ class JSNES_PAPU {
         
         }
     
-        JSNES_PAPU_ChannelDM dmc = this.dmc;
-        JSNES_PAPU_ChannelTriangle triangle = this.triangle;
-        JSNES_PAPU_ChannelSquare square1 = this.square1;
-        JSNES_PAPU_ChannelSquare square2 = this.square2;
-        JSNES_PAPU_ChannelNoise noise = this.noise;
+        PAPU_ChannelDM dmc = this.dmc;
+        PAPU_ChannelTriangle triangle = this.triangle;
+        PAPU_ChannelSquare square1 = this.square1;
+        PAPU_ChannelSquare square2 = this.square2;
+        PAPU_ChannelNoise noise = this.noise;
     
         // Clock DMC:
         if (dmc.isEnabled) {
@@ -523,7 +523,7 @@ class JSNES_PAPU {
 
         // Frame IRQ handling:
         if (this.frameIrqEnabled && this.frameIrqActive){
-            this.nes.cpu.requestIrq(JSNES_CPU.IRQ_NORMAL);
+            this.nes.cpu.requestIrq(CPU.IRQ_NORMAL);
         }
 
         // Clock frame counter at double CPU speed:
@@ -912,12 +912,12 @@ class JSNES_PAPU {
 }
 
 
-class JSNES_PAPU_ChannelDM {
+class PAPU_ChannelDM {
   static const int MODE_NORMAL = 0;
   static const int MODE_LOOP = 1;
   static const int MODE_IRQ = 2;
   
-  JSNES_PAPU papu = null;
+  PAPU papu = null;
   
   bool isEnabled = false;
   bool hasSample = false;
@@ -938,8 +938,8 @@ class JSNES_PAPU_ChannelDM {
   int dacLsb = 0;
   int data = 0;
   
-  JSNES_PAPU_ChannelDM(JSNES_PAPU papu) {
-    assert(papu is JSNES_PAPU);
+  PAPU_ChannelDM(PAPU papu) {
+    assert(papu is PAPU);
     
     this.papu = papu;
     
@@ -984,13 +984,13 @@ class JSNES_PAPU_ChannelDM {
         }
     
         if (this.irqGenerated) {
-            this.papu.nes.cpu.requestIrq(JSNES_CPU.IRQ_NORMAL);
+            this.papu.nes.cpu.requestIrq(CPU.IRQ_NORMAL);
         }
     
     }
 
     void endOfSample() {
-        if (this.playLengthCounter == 0 && this.playMode == JSNES_PAPU_ChannelDM.MODE_LOOP) {
+        if (this.playLengthCounter == 0 && this.playMode == PAPU_ChannelDM.MODE_LOOP) {
         
             // Start from beginning of sample:
             this.playAddress = this.playStartAddress;
@@ -1006,7 +1006,7 @@ class JSNES_PAPU_ChannelDM {
             if (this.playLengthCounter == 0) {
         
                 // Last byte of sample fetched, generate IRQ:
-                if (this.playMode == JSNES_PAPU_ChannelDM.MODE_IRQ) {
+                if (this.playMode == PAPU_ChannelDM.MODE_IRQ) {
                 
                     // Generate IRQ:
                     this.irqGenerated = true;
@@ -1041,13 +1041,13 @@ class JSNES_PAPU_ChannelDM {
         
             // Play mode, DMA Frequency
             if ((value >> 6) == 0) {
-                this.playMode = JSNES_PAPU_ChannelDM.MODE_NORMAL;
+                this.playMode = PAPU_ChannelDM.MODE_NORMAL;
             }
             else if (((value >> 6) & 1) == 1) {
-                this.playMode = JSNES_PAPU_ChannelDM.MODE_LOOP;
+                this.playMode = PAPU_ChannelDM.MODE_LOOP;
             }
             else if ((value >> 6) == 2) {
-                this.playMode = JSNES_PAPU_ChannelDM.MODE_IRQ;
+                this.playMode = PAPU_ChannelDM.MODE_IRQ;
             }
         
             if ((value & 0x80) == 0) {
@@ -1117,7 +1117,7 @@ class JSNES_PAPU_ChannelDM {
     void reset(){
         this.isEnabled = false;
         this.irqGenerated = false;
-        this.playMode = JSNES_PAPU_ChannelDM.MODE_NORMAL;
+        this.playMode = PAPU_ChannelDM.MODE_NORMAL;
         this.dmaFrequency = 0;
         this.dmaCounter = 0;
         this.deltaCounter = 0;
@@ -1135,8 +1135,8 @@ class JSNES_PAPU_ChannelDM {
 }
 
 
-class JSNES_PAPU_ChannelNoise {
-  JSNES_PAPU papu = null;
+class PAPU_ChannelNoise {
+  PAPU papu = null;
   
   bool isEnabled = false;
   bool envDecayDisable = false;
@@ -1160,8 +1160,8 @@ class JSNES_PAPU_ChannelNoise {
   int accCount;
   int tmp = 0;
   
-  JSNES_PAPU_ChannelNoise(JSNES_PAPU papu) {
-    assert(papu is JSNES_PAPU);
+  PAPU_ChannelNoise(PAPU papu) {
+    assert(papu is PAPU);
     
     this.papu = papu;
     this.shiftReg = 1<<14;
@@ -1269,7 +1269,7 @@ class JSNES_PAPU_ChannelNoise {
 }
 
 
-class JSNES_PAPU_ChannelSquare {
+class PAPU_ChannelSquare {
   List<int> dutyLookup = [
                      0, 1, 0, 0, 0, 0, 0, 0,
                      0, 1, 1, 0, 0, 0, 0, 0,
@@ -1284,7 +1284,7 @@ class JSNES_PAPU_ChannelSquare {
                     -1, 0, 1, 0, 0, 0, 0, 0
   ];
   
-  JSNES_PAPU papu = null;
+  PAPU papu = null;
   
   bool isEnabled = false;
   bool lengthCounterEnable = false;
@@ -1313,8 +1313,8 @@ class JSNES_PAPU_ChannelSquare {
   int vol = 0;
   bool sqr1 = false;
   
-  JSNES_PAPU_ChannelSquare(JSNES_PAPU papu, bool square1) {
-    assert(papu is JSNES_PAPU);
+  PAPU_ChannelSquare(PAPU papu, bool square1) {
+    assert(papu is PAPU);
     assert(square1 is bool);
     
     this.papu = papu;
@@ -1474,8 +1474,8 @@ class JSNES_PAPU_ChannelSquare {
 }
 
 
-class JSNES_PAPU_ChannelTriangle {
-  JSNES_PAPU papu = null;
+class PAPU_ChannelTriangle {
+  PAPU papu = null;
   
   bool isEnabled = false;
   bool sampleCondition = false;
@@ -1492,8 +1492,8 @@ class JSNES_PAPU_ChannelTriangle {
   int sampleValue = 0;
   int tmp = 0;
   
-  JSNES_PAPU_ChannelTriangle(JSNES_PAPU papu) {
-    assert(papu is JSNES_PAPU);
+  PAPU_ChannelTriangle(PAPU papu) {
+    assert(papu is PAPU);
     
     this.papu = papu;    
     this.reset();

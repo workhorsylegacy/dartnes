@@ -21,7 +21,7 @@ library dartnes_cpu;
 
 import 'nes.dart';
 
-class JSNES_CPU {
+class CPU {
     // IRQ Types
     static const int IRQ_NORMAL = 0;
     static const int IRQ_NMI = 1;
@@ -37,7 +37,7 @@ class JSNES_CPU {
         'F_SIGN', 'F_ZERO', 'F_NOTUSED', 'F_NOTUSED_NEW', 'F_BRK', 'F_BRK_NEW'
     ];
   
-    JSNES_NES nes = null;
+    NES nes = null;
     List<int> mem = null;
     int REG_ACC = 0;
     int REG_X = 0;
@@ -63,8 +63,8 @@ class JSNES_CPU {
     bool irqRequested = false;
     int irqType = 0;
     
-    JSNES_CPU(JSNES_NES nes) {
-      assert(nes is JSNES_NES);
+    CPU(NES nes) {
+      assert(nes is NES);
       
       this.nes = nes;
       this.reset();
@@ -116,7 +116,7 @@ class JSNES_CPU {
         this.F_BRK = 1;
         this.F_BRK_NEW = 1;
         
-        this.opdata = JSNES_CPU_OpData.createOpData();
+        this.opdata = CPU_OpData.createOpData();
         this.cyclesToHalt = 0;
         
         // Reset crash flag:
@@ -1132,7 +1132,7 @@ class JSNES_CPU {
         assert(type is int);
         
         if(this.irqRequested){
-            if(type == JSNES_CPU.IRQ_NORMAL){
+            if(type == CPU.IRQ_NORMAL){
                 return;
             }
             ////System.out.println("too fast irqs. type="+type);
@@ -1231,18 +1231,18 @@ class JSNES_CPU {
     }
 /*
     String toJSON() {
-        return JSNES_Utils.toJSON(this);
+        return Utils.toJSON(this);
     }
     
     void fromJSON(s) {
-        JSNES_Utils.fromJSON(this, s);
+        Utils.fromJSON(this, s);
     }
 */
 }
 
 
   // Generates and provides an array of details about instructions
-class JSNES_CPU_OpData {
+class CPU_OpData {
   static const int INS_ADC = 0;
   static const int INS_AND = 1;
   static const int INS_ASL = 2;
