@@ -58,10 +58,8 @@ class JSNES_UI {
                 this.status = querySelector('#status');
                 this.parent = querySelector('#emulator');
     
-                void status_cb(String m) => updateStatus(m);
-                void frame_cb(List<int> bytes) => writeFrame(bytes);
-                void audio_cb(List<int> samples) => writeAudio(samples);
-                this.nes = new JSNES_NES(status_cb, frame_cb, audio_cb);
+
+                this.nes = new JSNES_NES(updateStatus, writeFrame, writeAudio);
                 
                 /*
                  * Screen
