@@ -104,25 +104,26 @@ class JSNES_UI {
                     if (this.nes.isRunning) {
                         this.nes.stop();
                         this.updateStatus("Paused");
-                        this.pauseButton.text = "resume";
+                        this.pauseButton.value = "resume";
                     } else {
                         this.nes.start();
-                        this.pauseButton.text = "pause";
+                        this.pauseButton.value = "pause";
                     }
                 });
         
                 this.restartButton.onClick.listen((event) {
                     this.nes.reloadRom();
                     this.nes.start();
+                    this.enable();
                 });
         
                 this.soundButton.onClick.listen((event) {
                     if (this.nes.opts['emulateSound']) {
                         this.nes.opts['emulateSound'] = false;
-                        this.soundButton.text = "enable sound";
+                        this.soundButton.value = "enable sound";
                     } else {
                         this.nes.opts['emulateSound'] = true;
-                        this.soundButton.text = "disable sound";
+                        this.soundButton.value = "disable sound";
                     }
                 });
 
@@ -243,15 +244,15 @@ class JSNES_UI {
                 void enable() {
                     this.pauseButton.disabled = false;
                     if (this.nes.isRunning) {
-                        this.pauseButton.text = "pause";
+                        this.pauseButton.value = "pause";
                     } else {
-                        this.pauseButton.text = "resume";
+                        this.pauseButton.value = "resume";
                     }
                     this.restartButton.disabled = false;
                     if (this.nes.opts['emulateSound']) {
-                        this.restartButton.text = "disable sound";
+                        this.soundButton.value = "disable sound";
                     } else {
-                        this.restartButton.text = "enable sound";
+                        this.soundButton.value = "enable sound";
                     }
                 }
             
