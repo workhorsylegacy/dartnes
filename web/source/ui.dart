@@ -131,20 +131,7 @@ class JSNES_UI {
                 });
 
                 window.onResize.listen((evt) {
-                    // Get the page width and height
-                    int width = window.innerWidth;
-                    int height = window.innerHeight;
-                    
-                    // Get the largest zoom we can fit
-                    for(int i=1; i<=MAX_ZOOM; ++i) {
-                        if(256 * i <= width && 240 * i <= height) {
-                            this.zoom = i;
-                        }
-                    }
-
-                    // Make the screen zoom
-                    this.screen.style.width = (256 * this.zoom).toString() + "px";
-                    this.screen.style.height = (240 * this.zoom).toString() + "px";
+                  this.onScreenResize();
                 });
             
                 /*
@@ -163,6 +150,28 @@ class JSNES_UI {
                 loadGameDatabse();
             }
 
+            void onScreenResize() {
+                  // Get the page width and height
+                  int width = window.innerWidth;
+                  int height = window.innerHeight;
+                  
+                  // Get the largest zoom we can fit
+                  for(int i=1; i<=MAX_ZOOM; ++i) {
+                      if(256 * i <= width && 240 * i <= height) {
+                          this.zoom = i;
+                      }
+                  }
+
+                  // Make the screen zoom
+                  this.screen.style.width = (256 * this.zoom).toString() + "px";
+                  this.screen.style.height = (240 * this.zoom).toString() + "px";          
+            }
+  
+            void ready() {
+              onScreenResize();
+              this.updateStatus("Ready to load a ROM.");
+            }
+  
             void loadGameDatabse() {
               this.updateStatus("Downloading Game Database ...");
               String url = Uri.encodeComponent("game_database.json");
@@ -184,7 +193,7 @@ class JSNES_UI {
                           this.romSelect.children.add(opt);
                       }
                   });
-                  this.updateStatus("Ready to load a ROM.");
+                  this.ready();
                 // Show a message on failure
                 } else {
                   this.updateStatus("Download of Game Database failed. Make sure file exists: \"" + url + "\".");
