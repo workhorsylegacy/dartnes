@@ -21,7 +21,14 @@ library dartnes_utils;
 
 import 'ppu.dart';
 
-class Utils {    
+class Utils {
+    // Returns true if running in JavaScript
+    // It works because JS uses doubles for integers
+    // Therefore in JS a 1 is the same as 1.0
+    static bool isRunningInJavaScript() {
+        return identical(1, 1.0);
+    }
+
     static void copyArrayElements(List<int> src, int srcPos, List<int> dest, int destPos, int length) {
         assert(src is List<int>);
         assert(srcPos is int);

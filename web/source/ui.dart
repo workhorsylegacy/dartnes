@@ -23,13 +23,8 @@ import 'dart:convert';
 //import 'dart:web_audio';
 
 import 'nes.dart';
+import 'utils.dart';
 
-// Returns true if running in JavaScript
-// It works because JS uses doubles for integers
-// Therefore in JS a 1 is the same as 1.0
-bool isRunningInJavaScript() {
-    return identical(1, 1.0);
-}
 
 class DartNesUI {
   NES nes = null;
@@ -49,7 +44,7 @@ class DartNesUI {
   DartNesUI() {
                 // Tell the user if we are running in Dart or JS
                 Element vm = querySelector('#vm');
-                if(isRunningInJavaScript()) {
+                if(Utils.isRunningInJavaScript()) {
                   vm.innerHtml = "Using JavaScript VM";
                 } else {
                   vm.innerHtml = "Using Dart VM";
