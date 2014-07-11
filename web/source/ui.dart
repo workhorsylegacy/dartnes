@@ -27,7 +27,7 @@ import 'nes.dart';
 // Returns true if running in JavaScript
 // It works because JS uses doubles for integers
 // Therefore in JS a 1 is the same as 1.0
-bool is_running_in_js() {
+bool isRunningInJavaScript() {
     return identical(1, 1.0);
 }
 
@@ -39,7 +39,9 @@ class JSNES_UI {
   CanvasRenderingContext2D canvasContext = null;
   ImageData canvasImageData = null;
   SelectElement romSelect = null;
-  Map<String, ButtonElement> buttons = null;
+  ButtonInputElement pauseButton = null;
+  ButtonInputElement restartButton = null;
+  ButtonInputElement soundButton = null;
   int zoom = 1;
   static const int MAX_ZOOM = 6;
   var dynamicaudio = null;
@@ -47,7 +49,7 @@ class JSNES_UI {
   JSNES_UI() {
                 // Tell the user if we are running in Dart or JS
                 Element vm = querySelector('#vm');
-                if(is_running_in_js()) {
+                if(isRunningInJavaScript()) {
                   vm.innerHtml = "Using JavaScript VM";
                 } else {
                   vm.innerHtml = "Using Dart VM";
@@ -90,43 +92,39 @@ class JSNES_UI {
                  */
                 this.romSelect = querySelector('#romSelect');
                 this.romSelect.onChange.listen((event) {
-                    this.loadROM();
+                    this.onLoadROM();
                 });
                 
                 /*
                  * Buttons
                  */
-                this.buttons = {
-                    'pause': querySelector('#pause'),
-                    'restart': querySelector('#restart'),
-                    'sound': querySelector('#sound')
-                };
+                this.pauseButton = querySelector('#pause');
+                this.restartButton = querySelector('#restart');
+                this.soundButton = querySelector('#sound');
 
-                this.buttons['pause'].onClick.listen((event) {
+                this.pauseButton.onClick.listen((event) {
                     if (this.nes.isRunning) {
                         this.nes.stop();
                         this.updateStatus("Paused");
-                        this.buttons['pause'].text = "resume";
-                    }
-                    else {
+                        this.pauseButton.text = "resume";
+                    } else {
                         this.nes.start();
-                        this.buttons['pause'].text = "pause";
+                        this.pauseButton.text = "pause";
                     }
                 });
         
-                this.buttons['restart'].onClick.listen((event) {
+                this.restartButton.onClick.listen((event) {
                     this.nes.reloadRom();
                     this.nes.start();
                 });
         
-                this.buttons['sound'].onClick.listen((event) {
+                this.soundButton.onClick.listen((event) {
                     if (this.nes.opts['emulateSound']) {
                         this.nes.opts['emulateSound'] = false;
-                        this.buttons['sound'].text = "enable sound";
-                    }
-                    else {
+                        this.soundButton.text = "enable sound";
+                    } else {
                         this.nes.opts['emulateSound'] = true;
-                        this.buttons['sound'].text = "disable sound";
+                        this.soundButton.text = "disable sound";
                     }
                 });
 
@@ -147,7 +145,7 @@ class JSNES_UI {
                   this.nes.keyboard.keyPress(evt);
                 });
                 
-                loadGameDatabse();
+                onLoadGameDatabse();
             }
 
             void onScreenResize() {
@@ -167,12 +165,12 @@ class JSNES_UI {
                   this.screen.style.height = (240 * this.zoom).toString() + "px";          
             }
   
-            void ready() {
+            void onReady() {
               onScreenResize();
               this.updateStatus("Ready to load a ROM.");
             }
   
-            void loadGameDatabse() {
+            void onLoadGameDatabse() {
               this.updateStatus("Downloading Game Database ...");
               String url = Uri.encodeComponent("game_database.json");
               HttpRequest request = new HttpRequest();
@@ -193,7 +191,7 @@ class JSNES_UI {
                           this.romSelect.children.add(opt);
                       }
                   });
-                  this.ready();
+                  this.onReady();
                 // Show a message on failure
                 } else {
                   this.updateStatus("Download of Game Database failed. Make sure file exists: \"" + url + "\".");
@@ -204,7 +202,7 @@ class JSNES_UI {
               request.send();
             }
   
-                void loadROM() {
+                void onLoadROM() {
                     this.updateStatus("Downloading ...");
                     String url = "local-roms/" + Uri.encodeComponent(this.romSelect.value);
                     HttpRequest request = new HttpRequest();
@@ -245,19 +243,17 @@ class JSNES_UI {
                  * Enable and reset UI elements
                  */
                 void enable() {
-                    this.buttons['pause'].disabled = false;
+                    this.pauseButton.disabled = false;
                     if (this.nes.isRunning) {
-                        this.buttons['pause'].text = "pause";
+                        this.pauseButton.text = "pause";
+                    } else {
+                        this.pauseButton.text = "resume";
                     }
-                    else {
-                        this.buttons['pause'].text = "resume";
-                    }
-                    this.buttons['restart'].disabled = false;
+                    this.restartButton.disabled = false;
                     if (this.nes.opts['emulateSound']) {
-                        this.buttons['sound'].text = "disable sound";
-                    }
-                    else {
-                        this.buttons['sound'].text = "enable sound";
+                        this.restartButton.text = "disable sound";
+                    } else {
+                        this.restartButton.text = "enable sound";
                     }
                 }
             
