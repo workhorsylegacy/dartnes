@@ -11,7 +11,7 @@ dart: clean
 	cd web; python -m SimpleHTTPServer 8000
 
 js: clean
-	dart2js --out=web/source/main.dart.js web/source/main.dart
+	/usr/lib/dart/bin/dart2js --out=web/source/main.dart.js web/source/main.dart
 	@echo View the webpage at:
 	@echo http://127.0.0.1:8000/index.html
 	cd web; python -m SimpleHTTPServer 8000
