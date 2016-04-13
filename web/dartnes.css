@@ -23,6 +23,6 @@ h1, p {
 
   image-rendering: optimize-contrast;
   image-rendering: -webkit-optimize-contrast;
-  
+
   -ms-interpolation-mode: nearest-neighbor;
 }
