@@ -2,7 +2,7 @@ DartNES
 =====
 
 A Dart NES emulator.
-[http://workhorsy.org/dartnes/](http://workhorsy.org/dartnes/)
+
 
 Prereq
 -----
